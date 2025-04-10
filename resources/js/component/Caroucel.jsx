@@ -1,6 +1,6 @@
 import React from "react";
 
-function Carousel({carouselItems}) {
+function Carousel({ carouselItems }) {
   const handleImageError = (e) => {
     e.target.onerror = null;
     e.target.src = "https://placehold.co/800x500?text=No+Image+Available";
@@ -40,10 +40,7 @@ function Carousel({carouselItems}) {
         data-bs-target="#carouselExampleFade"
         data-bs-slide="prev"
       >
-        <span
-          className="carousel-control-prev-icon p-4"
-          aria-hidden="true"
-        ></span>
+        <span className="carousel-control-prev-icon p-4"></span>
         <span className="visually-hidden">Previous</span>
       </button>
       <button
@@ -52,10 +49,7 @@ function Carousel({carouselItems}) {
         data-bs-target="#carouselExampleFade"
         data-bs-slide="next"
       >
-        <span
-          className="carousel-control-next-icon p-4"
-          aria-hidden="true"
-        ></span>
+        <span className="carousel-control-next-icon p-4"></span>
         <span className="visually-hidden">Next</span>
       </button>
     </div>

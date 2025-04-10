@@ -61,7 +61,7 @@ function Services() {
       <div className="container mt-5 pb-5" id="calendar-section">
         <div className="row g-4">
           <div className="col-lg-8">
-            <div className="card rounded-4 shadow-lg">
+            <div className="card rounded-4 shadow-lg ">
               <div className="card-header bg-primary text-white text-center rounded-top-4">
                 <h2 className="mb-0 fw-bold">Reservation Calendar</h2>
               </div>
@@ -72,7 +72,7 @@ function Services() {
           </div>
 
           <div className="col-lg-4">
-            <div className="card rounded-4 shadow-lg h-100">
+            <div className="card rounded-4 shadow-lg  h-100">
               <div className="card-header bg-primary text-white text-center rounded-top-4">
                 <h4 className="mb-0 fw-bold">Sunday, March 23, 2025</h4>
               </div>
@@ -104,7 +104,7 @@ function Services() {
         <div className="row g-4 justify-content-center">
           {pcAvailability.map((pc, index) => (
             <div key={index} className="col-12 col-sm-6 col-md-4 col-lg-3">
-              <div className="card text-center shadow-lg border-0 rounded-4 h-100 hover-shadow">
+              <div className="card text-center shadow-lg  border-0 rounded-4 h-100 hover-shadow">
                 <div className="card-body d-flex flex-column align-items-center justify-content-center p-4">
                   <i
                     className={`bi bi-pc-display display-3 mb-3 ${

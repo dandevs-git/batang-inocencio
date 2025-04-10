@@ -59,31 +59,86 @@ function AnnouncementDetail() {
   }
 
   return (
-    <div className="container my-5">
-      <div className="mb-4">
-        <button
-          onClick={() => window.history.back()}
-          className="btn btn-outline-primary"
-        >
-          ← Back to Previous Page
-        </button>
-      </div>
+    <div className="container mt-5">
+      <div className="row px-3">
+        <div className="col-8 px-3">
+          <h1>{announcement.title}</h1>
+          <p className="text-muted ps-2">
+            Date:{" "}
+            {new Date(announcement.date).toLocaleDateString("en-US", {
+              month: "long",
+              day: "numeric",
+              year: "numeric",
+            })}
+          </p>
+          <img
+            src={`/storage/images/${announcement.image}`}
+            className="rounded-4 border shadow-lg object-fit-cover w-100"
+            alt={announcement.title}
+          />
+          <div className="fs-3 mt-3">
+            <Link
+              to={"#"}
+              className="bi bi-facebook"
+              style={{ color: "#1877F2" }}
+              aria-label="Share on Facebook"
+            ></Link>
+            <Link
+              to={"#"}
+              className="bi bi-instagram"
+              style={{ color: "#E4405F" }}
+              aria-label="Share on Instagram"
+            ></Link>
+            <Link
+              to={"#"}
+              className="bi bi-twitter"
+              style={{ color: "#1DA1F2" }}
+              aria-label="Share on Twitter"
+            ></Link>
+          </div>
+          <p
+            className="p-3 lead"
+            style={{ textIndent: "50px", textAlign: "justify" }}
+          >
+            {announcement.description}
+          </p>
+          <Link
+            to={'/'}
+            className="btn btn-outline-dark"
+          >
+            <i className="bi bi-arrow-left"></i> Go to Home Page
+          </Link>
+        </div>
 
-      <div className="card shadow-lg border-0 rounded-4 p-4">
-        <img
-          src={`/storage/images/${announcement.image}`}
-          className="card-img-top rounded-top-4"
-          alt="Announcement"
-        />
-        <h2 className="mb-2">{announcement.title}</h2>
-        <p className="text-muted">
-          {new Date(announcement.date).toLocaleDateString("en-US", {
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-          })}
-        </p>
-        <p className="mt-4">{announcement.description}</p>
+        <div className="col-4 px-3">
+          <h5 className="fw-bold">Latest Announcements</h5>
+
+          {announcementList.map((item, index) => (
+            <div className="card shadow-lg mb-4" key={item.id || index}>
+              <div className="card-body">
+                <p className="text-muted">
+                  {new Date(item.date).toLocaleDateString("en-US", {
+                    month: "long",
+                    day: "numeric",
+                    year: "numeric",
+                  })}
+                </p>
+                <h5 className="fw-semibold text-uppercase">{item.title}</h5>
+                <p>
+                  {item.description?.slice(0, 120) || "No preview available..."}
+                </p>
+                <div className="text-end">
+                  <Link
+                    to={`/announcements/${item.id}`}
+                    className="text-dark link-underline-primary link-offset-2 link-underline link-underline-opacity-50"
+                  >
+                    See More
+                  </Link>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );

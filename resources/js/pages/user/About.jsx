@@ -61,7 +61,7 @@ function About() {
 
         <div className="row m-0 text-center d-flex align-items-stretch">
           <div className="col-lg-6 col-md-12">
-            <div className="border-top shadow rounded-4 d-flex flex-column p-4 bg-gradient h-100">
+            <div className="border-top shadow-lg rounded-4 d-flex flex-column p-4 bg-gradient h-100">
               <div className="fs-2 fw-bold text-primary mb-3">Mission</div>
               <p className="fs-5 my-auto fst-italic text-muted">
                 The Mission of Batang Inocencio Youth Organization is to provide
@@ -75,7 +75,7 @@ function About() {
             </div>
           </div>
           <div className="col-lg-6 col-md-12">
-            <div className="border-top shadow rounded-4 d-flex flex-column p-4 bg-gradient h-100">
+            <div className="border-top shadow-lg rounded-4 d-flex flex-column p-4 bg-gradient h-100">
               <div className="fs-2 fw-bold text-primary mb-3">Vision</div>
               <p className="fs-5 my-auto fst-italic text-muted">
                 The Vision of Batang Inocencio Youth Organization is to create a
@@ -102,7 +102,7 @@ function About() {
                 className="col-lg-4 col-md-6 text-center mb-4"
               >
                 <div
-                  className="card shadow rounded-4 p-3 border h-100 text-light"
+                  className="card shadow-lg rounded-4 p-3 border h-100 text-light"
                   style={{
                     background:
                       "linear-gradient(to top, rgba(var(--bs-info-rgb)), rgba(0,0,0,0))",
@@ -136,7 +136,7 @@ function About() {
                 className="col-lg-4 col-md-6 text-center mb-4"
               >
                 <div
-                  className="card shadow rounded-4 p-3 border h-100 text-light"
+                  className="card shadow-lg rounded-4 p-3 border h-100 text-light"
                   style={{
                     background:
                       "linear-gradient(to top, rgba(var(--bs-success-rgb)), rgba(0,0,0,0))",

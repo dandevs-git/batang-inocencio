@@ -53,7 +53,7 @@ function Header() {
                 </div>
             </nav>
 
-            <nav className="navbar nav-underline navbar-expand-lg bg-body-tertiary shadow-lg">
+            <nav className="navbar nav-underline navbar-expand-lg bg-body-tertiary shadow-lg ">
                 <div className="container">
                     <button
                         className="navbar-toggler"

@@ -32,7 +32,7 @@ function AnnouncementModal() {
         data-bs-keyboard="false"
         tabIndex="-1"
         aria-labelledby="announcementModalLabel"
-        aria-hidden="true"
+        
       >
         <div className="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
           <div className="modal-content">

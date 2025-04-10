@@ -1,19 +1,20 @@
 import React, { useState, useEffect } from "react";
 import Carousel from "../../component/Caroucel";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
+import { useAPI } from "../../component/contexts/ApiContext";
 
 const EventCard = ({ event }) => {
   const { id, title, registration_period, details, date, image, data_date } =
     event;
   return (
     <div
-      className="event-card card border-0 shadow-lg rounded-4 mb-4"
+      className="event-card card border-0 shadow-lg  rounded-4 mb-4"
       data-date={data_date}
     >
       <div className="row g-0 align-items-stretch">
         <div className="col-md-2">
           <img
-            src={`/storage/images/${image}`}
+            src={`/storage/${image}`}
             className="w-100 h-100 object-fit-cover rounded-start"
             alt="Event Image"
           />
@@ -26,17 +27,22 @@ const EventCard = ({ event }) => {
               <span className="date">{registration_period}</span>
             </p>
             <ul className="ps-3 mb-2">
-              {details.map((detail, index) => (
-                <li key={index}>{detail}</li>
-              ))}
+              {Array.isArray(details) ? (
+                details.map((detail, index) => <li key={index}>{detail}</li>)
+              ) : (
+                <li>No details available</li>
+              )}
             </ul>
           </div>
           <div className="d-flex align-items-center mt-auto">
-            <Link to={'#'} className="fw-bold text-primary text-decoration-none">
+            <Link
+              to={`/events/${id}`}
+              className="fw-bold text-primary text-decoration-none"
+            >
               View details
             </Link>
             <Link
-              to={`/events/${id}`}
+              to={`/registration/${id}`}
               className="btn btn-primary rounded-pill register-btn ms-auto px-5"
             >
               Register
@@ -44,7 +50,7 @@ const EventCard = ({ event }) => {
           </div>
         </div>
         <div className="col-md-2 d-flex align-items-center p-3">
-          <div className="h-100 w-100 shadow rounded-4 bg-opacity-50 text-dark d-flex justify-content-center align-items-center flex-column fw-bold py-3">
+          <div className="h-100 w-100 shadow-lg rounded-4 bg-opacity-50 text-dark d-flex justify-content-center align-items-center flex-column fw-bold py-3">
             <div className="fs-3">
               {new Date(date).toLocaleString("default", { month: "long" })}
             </div>
@@ -83,104 +89,58 @@ const carousel = [
   },
 ];
 
-const events = [
-  {
-    id: "1",
-    data_date: "2025-04",
-    image: "Event2.png",
-    title: "Knock-Knock, Who’s Hair?",
-    registration_period: "April 12 - 15, 2025",
-    details: [
-      "Tradition Homes Ph2 Court Subdivision | 2:00PM",
-      "April 15, 2025 (Sunday)",
-    ],
-    date: "2025-04-17",
-    description: `Ito na yun Batang Inocencio! Date ba kamo? For single or for couple? Syempre sagot na namin yan! Join us for the first-ever event of Sangguniang Kabataan...`,
-  },
-  {
-    id: "2",
-    data_date: "2025-04",
-    image: "Event2.png",
-    title: "Another Event Title",
-    registration_period: "April 20 - 23, 2025",
-    details: ["Another Venue | 3:00PM", "April 23, 2025 (Wednesday)"],
-    date: "2025-04-23",
-    description: `Ito na yun Batang Inocencio! Date ba kamo? For single or for couple? Syempre sagot na namin yan! Join us for the first-ever event of Sangguniang Kabataan...`,
-  },
-  {
-    id: "3",
-    data_date: "2025-04",
-    image: "Event2.png",
-    title: "Knock-Knock, Who’s Hair?",
-    registration_period: "April 12 - 15, 2025",
-    details: [
-      "Tradition Homes Ph2 Court Subdivision | 2:00PM",
-      "April 15, 2025 (Sunday)",
-    ],
-    date: "2025-04-17",
-    description: `Ito na yun Batang Inocencio! Date ba kamo? For single or for couple? Syempre sagot na namin yan! Join us for the first-ever event of Sangguniang Kabataan...`,
-  },
-  {
-    id: "4",
-    data_date: "2025-04",
-    image: "Event2.png",
-    title: "Another Event Title",
-    registration_period: "April 20 - 23, 2025",
-    details: ["Another Venue | 3:00PM", "April 23, 2025 (Wednesday)"],
-    date: "2025-04-23",
-    description: `Ito na yun Batang Inocencio! Date ba kamo? For single or for couple? Syempre sagot na namin yan! Join us for the first-ever event of Sangguniang Kabataan...`,
-  },
-];
-
 function Events() {
-  const [selectedMonthYear, setSelectedMonthYear] = useState("");
-  const [eventsList, setEventsList] = useState(events);
+  const { getData, postData, putData, deleteData } = useAPI();
+  const location = useLocation();
+  const [selectedMonth, setSelectedMonth] = useState("");
+  const [filteredEvents, setFilteredEvents] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState();
+
+  useEffect(() => {
+    getData("events", setFilteredEvents, setLoading, setError);
+  }, [getData]);
 
   useEffect(() => {
     const now = new Date();
     const year = now.getFullYear();
     const month = String(now.getMonth() + 1).padStart(2, "0");
-    setSelectedMonthYear(`${year}-${month}`);
+    setSelectedMonth(`${year}-${month}`);
   }, []);
 
-  const getEventSelectedMonthYear = () => {
-    const filteredEvents = eventsList.filter(
-      (event) => event.data_date === selectedMonthYear
+  const handleMonthChange = (e) => {
+    const selectedValue = e.target.value;
+    setSelectedMonth(selectedValue);
+
+    if (!selectedValue) return;
+
+    const filtered = filteredEvents.filter(
+      (event) => event.data_date === selectedValue
     );
-    return filteredEvents;
+    setFilteredEvents(filtered);
   };
-
-  const handleMonthYearChange = (e) => {
-    setSelectedMonthYear(e.target.value);
-  };
-
-  const filteredEvents = getEventSelectedMonthYear();
-  const hasEvents = filteredEvents.length > 0;
 
   const isEventsPage = location.pathname.endsWith("events");
 
   return (
     <>
       {isEventsPage && <Carousel carouselItems={carousel} />}
+
       <div className="container pb-5">
         {isEventsPage && (
           <div className="input-group mb-4" style={{ maxWidth: "300px" }}>
             <input
               type="month"
               className="form-control"
-              value={selectedMonthYear}
-              onChange={handleMonthYearChange}
+              id="eventsMonthYearPicker"
+              value={selectedMonth}
+              onChange={handleMonthChange}
             />
-            <button
-              className="btn btn-primary"
-              onClick={getEventSelectedMonthYear}
-            >
-              Filter
-            </button>
+            <button className="btn btn-primary">Filter</button>
           </div>
         )}
 
-        {!window.location.pathname.includes("events") && (
+        {!isEventsPage && (
           <div className="container text-center my-5">
             <h5 className="section-title text-primary">Upcoming Events</h5>
             <h2 className="main-heading mt-3 text-dark">
@@ -195,14 +155,14 @@ function Events() {
           </div>
         )}
 
-        <div className="container">
-          {hasEvents ? (
+        <div className="row g-4">
+          {filteredEvents.length > 0 ? (
             filteredEvents.map((event, index) => (
-              <EventCard key={index} event={event} />
+              <EventCard key={index} event={event}   />
             ))
           ) : (
             <div id="noEventsMessage" className="text-center text-muted">
-              <p>No events found for the selected month and year.</p>
+              <p>No events found.</p>
             </div>
           )}
         </div>
@@ -210,4 +170,5 @@ function Events() {
     </>
   );
 }
+
 export default Events;

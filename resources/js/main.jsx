@@ -8,12 +8,17 @@ import "./../css/custom.scss";
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
-import App from "./App";
+import App from "./route";
+import { APIProvider } from "./component/contexts/ApiContext";
+
+// localStorage.removeItem("auth_token");
 
 ReactDOM.createRoot(document.getElementById("root")).render(
-    <React.StrictMode>
-        <BrowserRouter>
-            <App />
-        </BrowserRouter>
-    </React.StrictMode>
+  <React.StrictMode>
+    <BrowserRouter>
+      <APIProvider>
+        <App />
+      </APIProvider>
+    </BrowserRouter>
+  </React.StrictMode>
 );

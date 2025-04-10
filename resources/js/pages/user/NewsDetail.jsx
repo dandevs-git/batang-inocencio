@@ -1,4 +1,5 @@
-import { useParams, useNavigate } from "react-router-dom";
+import React from "react";
+import { useParams, Link } from "react-router-dom";
 
 const newsList = [
   {
@@ -41,50 +42,105 @@ const newsList = [
 
 const NewsDetail = () => {
   const { id } = useParams();
-
   const news = newsList.find((item) => item.id === id);
 
   if (!news) {
     return (
-      <div className="container py-5 text-center">
-        <h3 className="text-danger">News not found.</h3>
+      <div className="container text-center my-5">
+        <h3 className="text-danger">News not found</h3>
         <button
           onClick={() => window.history.back()}
-          className="btn btn-secondary mt-3"
+          className="btn btn-outline-primary"
         >
-          Go Back to News
+          Go back to the previous page
         </button>
       </div>
     );
   }
 
   return (
-    <div className="container py-5">
-      <div className="mb-4">
-        <button
-          onClick={() => window.history.back()}
-          className="btn btn-outline-primary"
-        >
-          ← Back to News
-        </button>
-      </div>
-
-      <div className="card border-0 shadow-lg rounded-4">
-        <img
-          src={`/storage/images/${news.image}`}
-          className="card-img-top rounded-top-4"
-          alt={news.title}
-        />
-        <div className="card-body">
-          <h2 className="card-title mb-3">{news.title}</h2>
-          <p className="text-muted small mb-4">
+    <div className="container mt-5">
+      <div className="row px-3">
+        <div className="col-8 px-3">
+          <h1>{news.title}</h1>
+          <p className="text-muted ps-2">
+            Date:{" "}
             {new Date(news.date).toLocaleDateString("en-US", {
               month: "long",
               day: "numeric",
               year: "numeric",
             })}
           </p>
-          <p className="card-text">{news.description}</p>
+          <img
+            src={`/storage/images/${news.image}`}
+            className="rounded-4 border shadow-lg object-fit-cover w-100"
+            alt={news.title}
+          />
+          <div className="fs-3 mt-3">
+            <Link
+              to={"#"}
+              className="bi bi-facebook"
+              style={{ color: "#1877F2" }}
+              aria-label="Share on Facebook"
+            ></Link>
+            <Link
+              to={"#"}
+              className="bi bi-instagram"
+              style={{ color: "#E4405F" }}
+              aria-label="Share on Instagram"
+            ></Link>
+            <Link
+              to={"#"}
+              className="bi bi-twitter"
+              style={{ color: "#1DA1F2" }}
+              aria-label="Share on Twitter"
+            ></Link>
+          </div>
+          <p
+            className="p-3 lead"
+            style={{ textIndent: "50px", textAlign: "justify" }}
+          >
+            {news.description}
+          </p>
+          <Link
+            to={'/news'}
+            className="btn btn-outline-dark"
+          >
+            <i className="bi bi-arrow-left"></i> Go to News Page
+          </Link>
+        </div>
+
+        <div className="col-4 px-3">
+          <h5 className="fw-bold">Latest Post</h5>
+
+          {newsList.map((news, index) => (
+            <div className="card shadow-lg mb-4" key={news.id || index}>
+              <div className="card-body">
+                <p className="text-muted">
+                  {new Date(news.date).toLocaleDateString("en-US", {
+                    month: "long",
+                    day: "numeric",
+                    year: "numeric",
+                  })}
+                </p>
+                <h5 className="fw-semibold text-uppercase">
+                  “TAGLAY ANG PUSO’T TALINO, TUNGO SA KALIDAD NA SERBISYO”
+                </h5>
+                <p>
+                  {news.content?.slice(0, 120) ||
+                    "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean blandit elit eu iaculis sodales..."}
+                </p>
+                <div className="text-end">
+                  <Link
+                    to={`/news/${news.id}`}
+                    className="text-dark link-underline-primary link-offset-2 link-underline link-underline-opacity-50"
+                  >
+                    See More
+                  </Link>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </div>

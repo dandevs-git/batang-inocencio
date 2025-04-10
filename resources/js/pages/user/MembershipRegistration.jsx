@@ -1,35 +1,89 @@
 import React, { useState } from "react";
-// import { AiOutlineCheckCircle } from "react-icons/ai"; // For the check icon in the final button
+import api from "../../api";
 
 const formFields = {
-  lastName: "",
-  firstName: "",
-  middleName: "",
+  last_name: "",
+  first_name: "",
+  middle_name: "",
   suffix: "",
   address: "",
   area: "",
   sex: "",
   age: "",
   email: "",
-  contactNumber: "",
-  civilStatus: "",
-  ageGroup: "",
+  contact_number: "",
+  civil_status: "",
+  age_group: "",
   education: "",
   employment: "",
-  skVoter: "",
-  electionVote: "",
-  nationalVoter: "",
-  kkAssembly: "",
-  kkAttendances: "",
-  kkReason: [],
-  youthConcerns: "",
+  sk_voter: "",
+  election_vote: "",
+  national_voter: "",
+  kk_assembly: "",
+  kk_ttendances: "",
+  kk_reason: [],
+  youth_concerns: "",
   recommendations: "",
-  projectRecommendations: "",
+  project_recommendations: "",
 };
+
+// Define options at the top for easier visualization and updates
+const areaOptions = [
+  "Inocencio Proper",
+  "Tradition Homes Phase 1 and 2",
+  "Sampaguita Village",
+  "Regina Ville 2000",
+  "BRIA Homes",
+  "South Ville Phase 1A and B",
+];
+
+const genderOptions = ["Male", "Female"];
+
+const civilStatusOptions = [
+  "Single",
+  "Married",
+  "Widowed",
+  "Divorced",
+  "Separated",
+];
+
+const ageGroupOptions = [
+  "Child Youth (15-17)",
+  "Core Youth (18-24)",
+  "Young Adult (25-30)",
+];
+
+const educationOptions = [
+  "Elementary Level",
+  "Elementary Graduate",
+  "High School Level",
+  "High School Graduate",
+  "College Level",
+  "College Graduate",
+  "Master's Graduate",
+  "Doctorate Level",
+  "Doctorate Graduate",
+  "Out of School",
+];
+
+const employmentOptions = ["Unemployed", "Employed"];
+
+const yesNoOptions = ["Yes", "No"];
+
+const kkAttendanceOptions = ["1-2 Times", "3-4 Times", "5 and Above"];
+
+const kkReasonOptions = [
+  "No KK Assembly",
+  "Not aware about KK Assembly",
+  "Not Interested",
+];
 
 const YouthProfilingForm = () => {
   const [page, setPage] = useState(1);
   const [formData, setFormData] = useState(formFields);
+  const [loading, setLoading] = useState(false);
+  const [massageErr, setMessageErr] = useState("");
+  const [showModal, setShowModal] = useState(false); // Modal visibility state
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -45,8 +99,17 @@ const YouthProfilingForm = () => {
     );
   };
 
-  const handleSubmit = (e) => {
-    // e.preventDefault();
+  const handleSubmit = async () => {
+    setLoading(true);
+    try {
+      await api.post("members", formData);
+      setMessageErr("");
+      setShowModal(true);
+    } catch (error) {
+      setMessageErr(error?.response?.data?.message);
+    } finally {
+      setLoading(false);
+    }
     console.log(formData);
   };
 
@@ -103,7 +166,6 @@ const YouthProfilingForm = () => {
           style={{ width: `${(page / 5) * 100}%` }}
         ></div>
       </div>
-
       {page === 1 && (
         <div className="page active">
           <div className="card border-top border-0 shadow-lg mb-5 rounded-4 w-75 mx-auto">
@@ -139,7 +201,6 @@ const YouthProfilingForm = () => {
           </div>
         </div>
       )}
-
       {page === 2 && (
         <div className="page">
           <div className="card border-top border-0 shadow-lg mb-5 rounded-4 w-75 mx-auto">
@@ -150,9 +211,9 @@ const YouthProfilingForm = () => {
                 </h2>
                 <h4 className="text-center mb-4 text-muted">A. Profile</h4>
                 {[
-                  "lastName",
-                  "firstName",
-                  "middleName",
+                  "last_name",
+                  "first_name",
+                  "middle_name",
                   "suffix",
                   "address",
                 ].map((field) => (
@@ -173,14 +234,7 @@ const YouthProfilingForm = () => {
 
                 <fieldset className="mb-3">
                   <legend className="form-label">Inocencio Area</legend>
-                  {[
-                    "Inocencio Proper",
-                    "Tradition Homes Phase 1 and 2",
-                    "Sampaguita Village",
-                    "Regina Ville 2000",
-                    "BRIA Homes",
-                    "South Ville Phase 1A and B",
-                  ].map((area) => (
+                  {areaOptions.map((area) => (
                     <div key={area} className="form-check">
                       <input
                         className="form-check-input"
@@ -198,7 +252,7 @@ const YouthProfilingForm = () => {
 
                 <div className="mb-3">
                   <legend className="form-label">Gender</legend>
-                  {renderRadioButtons("sex", ["Male", "Female"])}
+                  {renderRadioButtons("sex", genderOptions)}
                 </div>
 
                 <div className="mb-3">
@@ -227,9 +281,9 @@ const YouthProfilingForm = () => {
                   <label className="form-label">Contact Number</label>
                   <input
                     type="tel"
-                    name="contactNumber"
+                    name="contact_number"
                     className="form-control"
-                    value={formData.contactNumber}
+                    value={formData.contact_number}
                     onChange={handleChange}
                     required
                   />
@@ -250,7 +304,7 @@ const YouthProfilingForm = () => {
       )}
       {page === 3 && (
         <div className="page">
-          <div className="card border-top border-0 shadow-lg mb-5 rounded-4 w-75 mx-auto">
+          <div className="card border-top border-0 shadow-lg  mb-5 rounded-4 w-75 mx-auto">
             <div className="card-body p-5">
               <div className="p-4">
                 <h2 className="text-center fw-bold mb-4 text-primary">
@@ -262,82 +316,52 @@ const YouthProfilingForm = () => {
 
                 <div className="mb-3">
                   <legend className="form-label">Civil Status</legend>
-                  {renderRadioButtons("civilStatus", [
-                    "Single",
-                    "Married",
-                    "Widowed",
-                    "Divorced",
-                    "Annulled",
-                    "Live-in",
-                  ])}
+                  {renderRadioButtons("civil_status", civilStatusOptions)}
                 </div>
 
                 <div className="mb-3">
                   <legend className="form-label">Age Group</legend>
-                  {renderRadioButtons("ageGroup", [
-                    "Child Youth (15-17)",
-                    "Core Youth (18-24)",
-                    "Young Adult (25-30)",
-                  ])}
+                  {renderRadioButtons("age_group", ageGroupOptions)}
                 </div>
 
                 <div className="mb-3">
                   <legend className="form-label">Education</legend>
-                  {renderRadioButtons("education", [
-                    "Elementary Level",
-                    "Elementary Graduate",
-                    "High School Level",
-                    "High School Graduate",
-                    "College Level",
-                    "College Graduate",
-                    "Master's Graduate",
-                    "Doctorate Level",
-                    "Doctorate Graduate",
-                    "Out of School",
-                  ])}
+                  {renderRadioButtons("education", educationOptions)}
                 </div>
 
                 <div className="mb-3">
                   <legend className="form-label">Employment</legend>
-                  {renderRadioButtons("employment", ["Unemployed", "Employed"])}
+                  {renderRadioButtons("employment", employmentOptions)}
                 </div>
 
                 <div className="mb-3">
                   <legend className="form-label">SK Voter</legend>
-                  {renderRadioButtons("skVoter", ["Yes", "No"])}
+                  {renderRadioButtons("sk_voter", ["Yes", "No"])}
                 </div>
 
                 <div className="mb-3">
                   <legend className="form-label">Election Vote</legend>
-                  {renderRadioButtons("electionVote", ["Yes", "No"])}
+                  {renderRadioButtons("election_vote", ["Yes", "No"])}
                 </div>
 
                 <div className="mb-3">
                   <legend className="form-label">National Voter</legend>
-                  {renderRadioButtons("nationalVoter", ["Yes", "No"])}
+                  {renderRadioButtons("national_voter", ["Yes", "No"])}
                 </div>
 
                 <div className="mb-3">
                   <legend className="form-label">KK Assembly</legend>
-                  {renderRadioButtons("kkAssembly", ["Yes", "No"])}
+                  {renderRadioButtons("kk_assembly", ["Yes", "No"])}
                 </div>
 
                 <div className="mb-3 ps-3">
-                  {formData.kkAssembly === "Yes" &&
-                    renderCheckboxes("kkAttendances", [
-                      "1-2 Times",
-                      "3-4 Times",
-                      "5 and Above",
-                    ])}
+                  {formData.kk_assembly === "Yes" &&
+                    renderRadioButtons("kk_ttendances", kkAttendanceOptions)}
                 </div>
 
                 <div className="mb-3 ps-3">
-                  {formData.kkAssembly === "No" &&
-                    renderCheckboxes("kkReason", [
-                      "No KK Assembly",
-                      "Not aware about KK Assembly",
-                      "Not Interested",
-                    ])}
+                  {formData.kk_assembly === "No" &&
+                    renderRadioButtons("kk_reason", kkReasonOptions)}
                 </div>
 
                 <div className="d-flex justify-content-between mt-4">
@@ -355,7 +379,7 @@ const YouthProfilingForm = () => {
       )}
       {page === 4 && (
         <div className="page">
-          <div className="card border-top border-0 shadow-lg mb-5 rounded-4 w-75 mx-auto">
+          <div className="card border-top border-0 shadow-lg  mb-5 rounded-4 w-75 mx-auto">
             <div className="card-body p-5">
               <div className="p-4">
                 <h2 className="text-center fw-bold mb-4 text-primary">
@@ -370,10 +394,10 @@ const YouthProfilingForm = () => {
                   </label>
                   <textarea
                     className="form-control"
-                    name="youthConcerns"
+                    name="youth_concerns"
                     rows="4"
                     placeholder="Enter at least 2 issues or concerns you have as a youth."
-                    value={formData.youthConcerns}
+                    value={formData.youth_concerns}
                     onChange={handleChange}
                     required
                   ></textarea>
@@ -400,10 +424,10 @@ const YouthProfilingForm = () => {
                   </label>
                   <textarea
                     className="form-control"
-                    name="projectRecommendations"
+                    name="project_recommendations"
                     rows="4"
                     placeholder="Provide recommendation projects that could benefit SK Inocencio."
-                    value={formData.projectRecommendations}
+                    value={formData.project_recommendations}
                     onChange={handleChange}
                     required
                   ></textarea>
@@ -422,10 +446,9 @@ const YouthProfilingForm = () => {
           </div>
         </div>
       )}
-
       {page === 5 && (
         <div className="page">
-          <div className="card border-top border-0 shadow-lg mb-5 rounded-4 w-75 mx-auto">
+          <div className="card border-top border-0 shadow-lg  mb-5 rounded-4 w-75 mx-auto">
             <div className="card-body p-5">
               <div className="p-4">
                 <h2 className="text-center fw-bold mb-4 text-primary">
@@ -443,6 +466,11 @@ const YouthProfilingForm = () => {
                   to your provided email.
                 </p>
 
+                {massageErr && (
+                  <div className="alert alert-danger py-2 text-center">
+                    {massageErr}
+                  </div>
+                )}
                 <div className="text-center mt-4">
                   <button
                     className="btn text-light btn-success w-100 fw-bold py-2"
@@ -453,7 +481,6 @@ const YouthProfilingForm = () => {
                     Submit & Finish
                   </button>
                 </div>
-
                 <div className="text-center mt-3">
                   <p className="text-muted">
                     You can always update your registration later if needed.
@@ -464,6 +491,45 @@ const YouthProfilingForm = () => {
           </div>
         </div>
       )}
+        <div
+          className={`modal fade ${showModal ?? 'show'}`}
+          
+          tabIndex="-1"
+          role="dialog"
+        >
+          <div className="modal-dialog" role="document">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">Success!</h5>
+                <button
+                  type="button"
+                  className="close"
+                  data-dismiss="modal"
+                  aria-label="Close"
+                  onClick={() => setShowModal(false)}
+                >
+                  <span >&times;</span>
+                </button>
+              </div>
+              <div className="modal-body">
+                <p>
+                  Your Youth Profiling Registration has been successfully
+                  submitted. A confirmation email will be sent to you.
+                </p>
+              </div>
+              <div className="modal-footer">
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  data-dismiss="modal"
+                  onClick={() => setShowModal(false)}
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
     </div>
   );
 };

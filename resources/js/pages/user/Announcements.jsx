@@ -1,48 +1,17 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-
-const announcementList = [
-  {
-    id: "1",
-    date: "2025-04-01",
-    data_date: "2025-04",
-    title: "Community Meeting: April 2025",
-    image: "Announcement1.png",
-    description:
-      "Join us for an important community meeting to discuss upcoming projects...",
-  },
-  {
-    id: "2",
-    date: "2025-03-25",
-    data_date: "2025-03",
-    title: "Scholarship Application Deadline",
-    image: "Announcement1.png",
-    description:
-      "The deadline for the SK scholarship program applications is fast approaching...",
-  },
-  {
-    id: "3",
-    date: "2025-04-01",
-    data_date: "2025-04",
-    title: "Community Meeting: April 2025",
-    image: "Announcement1.png",
-    description:
-      "Join us for an important community meeting to discuss upcoming projects...",
-  },
-  {
-    id: "4",
-    date: "2025-03-25",
-    data_date: "2025-03",
-    title: "Scholarship Application Deadline",
-    image: "Announcement1.png",
-    description:
-      "The deadline for the SK scholarship program applications is fast approaching...",
-  },
-];
+import { useAPI } from "../../component/contexts/ApiContext";
 
 function Announcements({ isFullPage = false }) {
+  const { getData, postData, putData, deleteData } = useAPI();
   const [filterDate, setFilterDate] = useState("");
   const [filteredAnnouncements, setFilteredAnnouncements] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState();
+
+  useEffect(() => {
+    getData("announcements", setFilteredAnnouncements, setLoading, setError);
+  }, [getData]);
 
   useEffect(() => {
     if (isFullPage) {
@@ -53,12 +22,12 @@ function Announcements({ isFullPage = false }) {
       setFilterDate(defaultFilter);
       filterAnnouncements(defaultFilter);
     } else {
-      setFilteredAnnouncements(announcementList);
+      setFilteredAnnouncements(filteredAnnouncements);
     }
   }, [isFullPage]);
 
   const filterAnnouncements = (selected) => {
-    const filtered = announcementList.filter((a) => a.data_date === selected);
+    const filtered = filteredAnnouncements.filter((a) => a.data_date === selected);
     setFilteredAnnouncements(filtered);
   };
 
@@ -102,7 +71,7 @@ function Announcements({ isFullPage = false }) {
         {filteredAnnouncements.length > 0 ? (
           filteredAnnouncements.map((announcement, index) => (
             <div className="col-3 announcement-card" key={index}>
-              <div className="card rounded-3 shadow-lg border-0 h-100 d-flex flex-column">
+              <div className="card rounded-3 shadow-lg  border-0 h-100 d-flex flex-column">
                 <img
                   src={`/storage/images/${announcement.image}`}
                   className="card-img-top rounded-top-3 object-fit-cover"
@@ -135,7 +104,7 @@ function Announcements({ isFullPage = false }) {
           ))
         ) : (
           <div className="text-center text-muted">
-            <p>No announcements found for the selected month and year.</p>
+            <p>No announcements found.</p>
           </div>
         )}
       </div>
