@@ -22,8 +22,6 @@ Route::apiResource('teams', TeamController::class);
 Route::apiResource('team-members', TeamMemberController::class);
 Route::apiResource('events', EventController::class);
 
-
-
 Route::post('transparency/{categoryId}/upload', [TransparencyController::class, 'uploadFile'])->name('transparency.uploadFile');
 
 Route::middleware(['auth:sanctum'])->group(function () {
