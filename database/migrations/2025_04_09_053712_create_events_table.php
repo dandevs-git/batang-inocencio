@@ -12,21 +12,21 @@ return new class extends Migration {
     {
         Schema::create('events', function (Blueprint $table) {
             $table->id();
-            $table->string('title', 100)->index(); // Added index for faster searches
-            $table->date('date'); // Event date (mm/dd/yyyy)
+            $table->string('title', 100)->index();
+            $table->date('date');
             $table->string('location');
             $table->string('event_organizer');
             $table->date('registration_start_date');
             $table->date('registration_end_date');
-            $table->string('event_type'); // Event type (seminar, etc.)
-            $table->text('requirements')->nullable(); // Nullable as it's optional
-            $table->text('description')->nullable(); // Nullable as it's optional
+            $table->string('event_type');
+            $table->text('requirements')->nullable();
+            $table->text('description')->nullable();
             $table->time('time');
             $table->string('contact_number');
-            $table->integer('number_of_participants')->default(0); // Default 0
-            $table->string('image')->nullable(); // for storing the image file path, nullable because it is optional
-            $table->enum('status', ['draft', 'published'])->default('draft'); // status field with a default value of 'draft'
-            $table->timestamps(); // Automatically created_at and updated_at
+            $table->integer('number_of_participants')->default(0);
+            $table->string('image')->nullable();
+            $table->enum('status', ['draft', 'published'])->default('draft');
+            $table->timestamps();
         });
     }
 

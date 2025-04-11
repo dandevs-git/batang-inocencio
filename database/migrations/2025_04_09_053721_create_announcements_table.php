@@ -11,13 +11,13 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::create('announcements', function (Blueprint $table) {
-            $table->id(); // auto-incrementing primary key
-            $table->string('title'); // for the news title
-            $table->string('image')->nullable(); // for storing the image file path, nullable because it is optional
-            $table->text('description'); // for the details or body of the news
-            $table->enum('status', ['draft', 'published'])->default('draft'); // status field with a default value of 'draft'
+            $table->id();
+            $table->string('title');
+            $table->string('image')->nullable();
+            $table->text('description');
+            $table->enum('status', ['draft', 'published'])->default('draft');
             $table->timestamp('date_published')->nullable();
-            $table->timestamps(); // automatically adds created_at and updated_at columns
+            $table->timestamps();
         });
     }
 

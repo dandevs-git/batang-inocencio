@@ -3,8 +3,8 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import api from "../api";
 
 const AdminSidebar = () => {
-  const location = useLocation(); // Use React Router's useLocation hook
-  const navigate = useNavigate(); // Use React Router's useLocation hook
+  const location = useLocation();
+  const navigate = useNavigate();
   const [activeEventMenu, setActiveEventMenu] = useState(false);
   const [activeServicesMenu, setActiveServicesMenu] = useState(false);
 
@@ -67,10 +67,9 @@ const AdminSidebar = () => {
     setActiveServicesMenu((prevState) => !prevState);
 
   useEffect(() => {
-    // Set active menus when URL changes
     setActiveEventMenu(isEventPageActive("/admin/events"));
     setActiveServicesMenu(isServicesPageActive("/admin/services"));
-  }, [location.pathname]); // Depend on location.pathname
+  }, [location.pathname]);
 
   const handleLogout = async () => {
     try {

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import "./../../css/dashboard_widget.css"; // External CSS file for additional styling
+import "./../../css/dashboard_widget.css";
 import { useAPI } from "./contexts/ApiContext";
 
 function AdminDashboardWidget() {
@@ -19,16 +19,13 @@ function AdminDashboardWidget() {
     getData("events", setEventsData, setLoading, setError);
   }, [getData]);
 
-
   useEffect(() => {
     getData("events", setEventsData, setLoading, setError);
   }, [getData]);
 
-
   useEffect(() => {
     getData("events", setEventsData, setLoading, setError);
   }, [getData]);
-
 
   return (
     <div className="row g-4 mt-3 mb-5">

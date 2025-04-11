@@ -16,6 +16,12 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
+        $this->call([
+            NewsSeeder::class,
+            EventSeeder::class,
+            AnnouncementSeeder::class,
+        ]);
+
         User::create([
             'username' => '123',
             'password' => Hash::make('123'),

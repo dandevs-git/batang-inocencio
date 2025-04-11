@@ -78,7 +78,7 @@ function EventDetail() {
             src={`/storage/images/${event.image}`}
             className="rounded-4 border shadow-lg object-fit-cover w-100"
             alt={event.title}
-            width="100%" // Adjust width to fit layout
+            width="100%"
           />
           <div className="fs-3 mt-3">
             <Link

@@ -10,10 +10,8 @@ class Member extends Model
     /** @use HasFactory<\Database\Factories\MemberFactory> */
     use HasFactory;
 
-    // The table associated with the model.
     protected $table = 'members';
 
-    // The attributes that are mass assignable.
     protected $fillable = [
         'last_name',
         'first_name',
@@ -53,7 +51,7 @@ class Member extends Model
 
         [$name, $domain] = explode('@', $email);
 
-        $visibleChar = substr($name, 0, 1); // Show first character
+        $visibleChar = substr($name, 0, 1);
         $maskedName = str_pad($visibleChar, strlen($name), '*');
 
         return $maskedName . '@' . $domain;

@@ -12,13 +12,13 @@ return new class extends Migration {
     {
         Schema::create('teams', function (Blueprint $table) {
             $table->id();
-            $table->string('team_name')->unique()->index(); // Added index and uniqueness
+            $table->string('team_name')->unique()->index();
             $table->string('team_captain');
-            $table->unsignedTinyInteger('team_captain_age'); // Age as unsignedTinyInteger
+            $table->unsignedTinyInteger('team_captain_age');
             $table->string('team_captain_address');
-            $table->string('team_captain_contact_number')->nullable(); // Nullable
-            $table->string('team_captain_email')->unique()->index(); // Added index for faster lookup
-            $table->timestamps(); // Automatically created_at and updated_at
+            $table->string('team_captain_contact_number')->nullable();
+            $table->string('team_captain_email')->unique()->index();
+            $table->timestamps();
         });
     }
 

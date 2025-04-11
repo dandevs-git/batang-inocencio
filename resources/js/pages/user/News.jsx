@@ -1,46 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Carousel from "../../component/Caroucel";
-import { Link, useLocation } from "react-router-dom"; // Import React Router to handle routing
+import { Link, useLocation } from "react-router-dom";
 import { useAPI } from "../../component/contexts/ApiContext";
-
-// const newsList = [
-//   {
-//     id: "1",
-//     date: "2025-03-17",
-//     data_date: "2025-03",
-//     title: "KNOCK KNOCK, WHO’S HAIR?",
-//     image: "News1.png",
-//     description:
-//       "Sa huling pagkatok ng Batang Inocencio ay pinagbuksan ito para sa proyektong “Knock-knock, Who’s hair?” na ....",
-//   },
-//   {
-//     id: "2",
-//     date: "2025-03-12",
-//     data_date: "2025-03",
-//     title: "Youth Empowerment Summit 2025",
-//     image: "News1.png",
-//     description:
-//       "The Batang Inocencio Youth Summit secondaryfully gathered young leaders across the region to discuss...",
-//   },
-//   {
-//     id: "3",
-//     date: "2025-04-10",
-//     data_date: "2025-04",
-//     title: "Tree Planting Activity",
-//     image: "News1.png",
-//     description:
-//       "Batang Inocencio leads a tree-planting activity to promote environmental sustainability...",
-//   },
-//   {
-//     id: "4",
-//     date: "2025-04-22",
-//     data_date: "2025-04",
-//     title: "Barangay Cleanup Drive",
-//     image: "News1.png",
-//     description:
-//       "Residents and youth volunteers joined hands to clean up the streets of Barangay Inocencio...",
-//   },
-// ];
 
 const carousel = [
   {

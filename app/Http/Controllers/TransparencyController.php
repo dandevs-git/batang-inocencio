@@ -9,10 +9,9 @@ use Illuminate\Support\Facades\Storage;
 
 class TransparencyController extends Controller
 {
-    // Get all categories (for React)
     public function index()
     {
-        $categories = Transparency::with('files')->get(); // Assuming you want to load files with categories
+        $categories = Transparency::with('files')->get();
         return response()->json($categories);
     }
 
@@ -26,11 +25,9 @@ class TransparencyController extends Controller
             'name' => $request->name,
         ]);
 
-        // Return the newly created category as JSON response
-        return response()->json($category, 201); // 201 Created status code
+        return response()->json($category, 201);
     }
 
-    // Method to upload a file for a category
     public function uploadFile(Request $request, $categoryId)
     {
         $request->validate([
@@ -39,20 +36,17 @@ class TransparencyController extends Controller
 
         $category = Transparency::findOrFail($categoryId);
 
-        // Handle file upload
         $file = $request->file('file');
         $fileName = $file->getClientOriginalName();
         $fileUrl = $file->storeAs('transparency_files', $fileName, 'public');
 
-        // Create file entry in the database
         $fileEntry = TransparencyFile::create([
             'transparency_id' => $category->id,
             'file_name' => $fileName,
             'file_url' => $fileUrl,
         ]);
 
-        // Return the file details as a JSON response
-        return response()->json($fileEntry, 201); // 201 Created status code
+        return response()->json($fileEntry, 201);
     }
 
     /**
@@ -71,16 +65,13 @@ class TransparencyController extends Controller
     {
         $file = TransparencyFile::findOrFail($id);
 
-        // Validate category and description
         $validated = $request->validate([
             'category' => 'nullable|in:resolution,project_report,accomplishment_report',
             'description' => 'nullable|string|max:500',
         ]);
 
-        // Update the file's data if validation passes
         $file->update(array_filter($validated));
 
-        // Return the updated file details as a JSON response
         return response()->json(['message' => 'File updated successfully.', 'file' => $file]);
     }
 
@@ -91,15 +82,12 @@ class TransparencyController extends Controller
     {
         $file = TransparencyFile::findOrFail($id);
 
-        // Check if the file exists in storage and delete it
         if ($file->file_url && Storage::disk('public')->exists($file->file_url)) {
             Storage::disk('public')->delete($file->file_url);
         }
 
-        // Delete the file record from the database
         $file->delete();
 
-        // Return a success message
         return response()->json(['message' => 'File deleted successfully.']);
     }
 }

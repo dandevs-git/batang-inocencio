@@ -7,7 +7,6 @@ use Illuminate\Http\Request;
 
 class EventController extends Controller
 {
-    // Get all events
     public function index(Request $request)
     {
         $date = $request->query('date');
@@ -22,7 +21,6 @@ class EventController extends Controller
     }
 
 
-    // Get a specific event by ID
     public function show($id)
     {
         $event = Event::find($id);
@@ -32,7 +30,6 @@ class EventController extends Controller
         return response()->json(['message' => 'Event not found'], 404);
     }
 
-    // Create a new event
     public function store(Request $request)
     {
         $request->validate([
@@ -65,7 +62,6 @@ class EventController extends Controller
     }
 
 
-    // Update an event
     public function update(Request $request, $id)
     {
         $event = Event::find($id);
@@ -93,7 +89,6 @@ class EventController extends Controller
         return response()->json($event);
     }
 
-    // Delete an event
     public function destroy($id)
     {
         $event = Event::find($id);

@@ -50,7 +50,6 @@ const EventRegistration = () => {
   });
 
   useEffect(() => {
-    // Bootstrap validation
     (() => {
       "use strict";
       const forms = document.querySelectorAll(".needs-validation");
@@ -163,105 +162,103 @@ const EventRegistration = () => {
               >
                 {event.eventType === "individual" ? (
                   <>
-                  <div className="col-md-6">
-                    <label
-                      htmlFor="lastName"
-                      className="form-label"
-                      title="Last Name"
-                    >
-                      Last Name
-                    </label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      id="lastName"
-                      required
-                      value={formData.lastName}
-                      onChange={handleChange}
-                    />
-                    <div className="invalid-feedback">
-                      Please enter your last name.
+                    <div className="col-md-6">
+                      <label
+                        htmlFor="lastName"
+                        className="form-label"
+                        title="Last Name"
+                      >
+                        Last Name
+                      </label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        id="lastName"
+                        required
+                        value={formData.lastName}
+                        onChange={handleChange}
+                      />
+                      <div className="invalid-feedback">
+                        Please enter your last name.
+                      </div>
                     </div>
-                  </div>
 
-                  <div className="col-md-6">
-                    <label
-                      htmlFor="firstName"
-                      className="form-label"
-                      title="First Name"
-                    >
-                      First Name
-                    </label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      id="firstName"
-                      required
-                      value={formData.firstName}
-                      onChange={handleChange}
-                    />
-                    <div className="invalid-feedback">
-                      Please enter your first name.
+                    <div className="col-md-6">
+                      <label
+                        htmlFor="firstName"
+                        className="form-label"
+                        title="First Name"
+                      >
+                        First Name
+                      </label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        id="firstName"
+                        required
+                        value={formData.firstName}
+                        onChange={handleChange}
+                      />
+                      <div className="invalid-feedback">
+                        Please enter your first name.
+                      </div>
                     </div>
-                  </div>
 
-                  <div className="col-md-4">
-                    <label htmlFor="contactNumber" className="form-label">
-                      Contact Number
-                    </label>
-                    <input
-                      type="tel"
-                      className="form-control"
-                      id="contactNumber"
-                      required
-                      value={formData.contactNumber}
-                      onChange={handleChange}
-                    />
-                    <div className="invalid-feedback">
-                      Please enter a valid contact number.
+                    <div className="col-md-4">
+                      <label htmlFor="contactNumber" className="form-label">
+                        Contact Number
+                      </label>
+                      <input
+                        type="tel"
+                        className="form-control"
+                        id="contactNumber"
+                        required
+                        value={formData.contactNumber}
+                        onChange={handleChange}
+                      />
+                      <div className="invalid-feedback">
+                        Please enter a valid contact number.
+                      </div>
                     </div>
-                  </div>
 
-                  <div className="col-md-8">
-                    <label
-                      htmlFor="address"
-                      className="form-label"
-                      title="Address"
-                    >
-                      Address (House Block/Lot/Street/Barangay/Municipality)
-                    </label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      id="address"
-                      required
-                      value={formData.address}
-                      onChange={handleChange}
-                    />
-                    <div className="invalid-feedback">
-                      Please provide your complete address.
+                    <div className="col-md-8">
+                      <label
+                        htmlFor="address"
+                        className="form-label"
+                        title="Address"
+                      >
+                        Address (House Block/Lot/Street/Barangay/Municipality)
+                      </label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        id="address"
+                        required
+                        value={formData.address}
+                        onChange={handleChange}
+                      />
+                      <div className="invalid-feedback">
+                        Please provide your complete address.
+                      </div>
                     </div>
-                  </div>
 
-                  <div className="col-md-12">
-                    <label htmlFor="email" className="form-label">
-                      Email
-                    </label>
-                    <input
-                      type="email"
-                      className="form-control"
-                      id="email"
-                      required
-                      value={formData.email}
-                      onChange={handleChange}
-                    />
-                    <div className="invalid-feedback">
-                      Please enter a valid email address.
+                    <div className="col-md-12">
+                      <label htmlFor="email" className="form-label">
+                        Email
+                      </label>
+                      <input
+                        type="email"
+                        className="form-control"
+                        id="email"
+                        required
+                        value={formData.email}
+                        onChange={handleChange}
+                      />
+                      <div className="invalid-feedback">
+                        Please enter a valid email address.
+                      </div>
                     </div>
-                  </div>
-                </>
-
-
+                  </>
                 ) : (
                   <>
                     {/* Team Registration Form */}
@@ -445,7 +442,7 @@ const EventRegistration = () => {
                   </>
                 )}
 
-<div className="col-12">
+                <div className="col-12">
                   <div className="form-check">
                     <input
                       className="form-check-input"
@@ -476,11 +473,9 @@ const EventRegistration = () => {
             </div>
           </div>
 
-
           <button className="btn btn-outline-dark" onClick={() => navigate(-1)}>
             <i className="bi bi-arrow-left me-1"></i> Go Back
           </button>
-
         </div>
 
         {/* Right-side Event Details Section */}

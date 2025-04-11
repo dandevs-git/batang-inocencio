@@ -14,9 +14,9 @@ return new class extends Migration {
             $table->id();
             $table->foreignId('team_id')->constrained('teams')->onDelete('cascade');
             $table->string('name');
-            $table->unsignedTinyInteger('age'); // Age as unsignedTinyInteger for more efficient storage
-            $table->string('contact')->nullable(); // Nullable
-            $table->timestamps(); // Automatically created_at and updated_at
+            $table->unsignedTinyInteger('age');
+            $table->string('contact')->nullable();
+            $table->timestamps();
         });
     }
 

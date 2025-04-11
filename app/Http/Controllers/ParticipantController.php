@@ -7,13 +7,11 @@ use Illuminate\Http\Request;
 
 class ParticipantController extends Controller
 {
-    // Get all participants
     public function index()
     {
         return response()->json(Participant::all());
     }
 
-    // Get a specific participant by ID
     public function show($id)
     {
         $participant = Participant::find($id);
@@ -23,7 +21,6 @@ class ParticipantController extends Controller
         return response()->json(['message' => 'Participant not found'], 404);
     }
 
-    // Create a new participant
     public function store(Request $request)
     {
         $request->validate([
@@ -39,7 +36,6 @@ class ParticipantController extends Controller
         return response()->json($participant, 201);
     }
 
-    // Update a participant
     public function update(Request $request, $id)
     {
         $participant = Participant::find($id);
@@ -60,7 +56,6 @@ class ParticipantController extends Controller
         return response()->json($participant);
     }
 
-    // Delete a participant
     public function destroy($id)
     {
         $participant = Participant::find($id);

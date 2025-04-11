@@ -11,7 +11,7 @@ class TransparencyFile extends Model
 
     protected $fillable = ['transparency_id', 'file_name', 'file_url'];
 
-    // Define the inverse relationship to Transparency
+
     public function transparency()
     {
         return $this->belongsTo(Transparency::class);

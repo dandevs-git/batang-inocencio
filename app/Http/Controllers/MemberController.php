@@ -14,20 +14,15 @@ class MemberController extends Controller
      */
     public function index()
     {
-        // Retrieve all members from the database
         $members = Member::all();
-
-        // Return response with the list of members
         return response()->json($members, 200);
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    // Store method
     public function store(Request $request)
     {
-        // Validate the incoming request
         $validator = Validator::make($request->all(), [
             'last_name' => 'required|string|max:255',
             'first_name' => 'required|string|max:255',
@@ -84,7 +79,6 @@ class MemberController extends Controller
             'project_recommendations' => 'nullable|string',
         ]);
 
-        // If validation fails, return detailed error messages
         if ($validator->fails()) {
             return response()->json([
                 'status' => 'error',
@@ -93,13 +87,10 @@ class MemberController extends Controller
             ], 422);
         }
 
-        // Handle the kk_reason array and convert it to a JSON string
         $kk_reason = json_encode($request->input('kk_reason'));
 
-        // Create a new member
         $member = Member::create(array_merge($request->all(), ['kk_reason' => $kk_reason]));
 
-        // Return response with the created member
         return response()->json([
             'status' => 'success',
             'message' => 'Member created successfully',
@@ -107,10 +98,8 @@ class MemberController extends Controller
         ], 201);
     }
 
-    // Update method
     public function update(Request $request, Member $member)
     {
-        // Validate the incoming request
         $validator = Validator::make($request->all(), [
             'last_name' => 'required|string|max:255',
             'first_name' => 'required|string|max:255',
@@ -137,7 +126,6 @@ class MemberController extends Controller
             'project_recommendations' => 'nullable|string',
         ]);
 
-        // If validation fails, return detailed error messages
         if ($validator->fails()) {
             return response()->json([
                 'status' => 'error',
@@ -146,10 +134,8 @@ class MemberController extends Controller
             ], 422);
         }
 
-        // Update the member
         $member->update($request->all());
 
-        // Return response with the updated member
         return response()->json([
             'status' => 'success',
             'message' => 'Member updated successfully',
@@ -165,7 +151,6 @@ class MemberController extends Controller
      */
     public function show(Member $member)
     {
-        // Return the member's details
         return response()->json($member, 200);
     }
 
@@ -174,10 +159,8 @@ class MemberController extends Controller
      */
     public function destroy(Member $member)
     {
-        // Delete the member
         $member->delete();
 
-        // Return a success response
         return response()->json(['message' => 'Member deleted successfully'], 200);
     }
 }

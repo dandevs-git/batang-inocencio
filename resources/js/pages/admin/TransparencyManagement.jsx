@@ -80,7 +80,7 @@ const TransparencyManagement = () => {
         setCategories(allCategories);
 
         setShowModal(false);
-        setNewCategoryName(""); // Clear the input field after adding
+        setNewCategoryName("");
       }
     } catch (error) {
       console.error("Error adding category", error);

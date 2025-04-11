@@ -1,7 +1,7 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import AuthLayout from "./layout/AuthLayout";
 import MainLayout from "./layout/MainLayout";
-import AdminLayout from "./layout/AdminLayout"; // Admin Layout
+import AdminLayout from "./layout/AdminLayout";
 import Login from "./pages/Login";
 
 import Home from "./pages/user/Home";
@@ -34,14 +34,13 @@ import NewsCreate from "./pages/admin/NewsCreate";
 import NewsDrafts from "./pages/admin/NewsDrafts";
 import AnnouncementsCreate from "./pages/admin/AnnouncementsCreate";
 import AnnouncementsDrafts from "./pages/admin/AnnouncementsDrafts";
-import PrivateRoute from "./pages/PrivateRoute"; // Assuming PrivateRoute is a component
+import PrivateRoute from "./pages/PrivateRoute";
 import EventsCreate from "./pages/admin/EventsCreate";
 import EventsDrafts from "./pages/admin/EventsDrafts";
 
 function route() {
   return (
     <Routes>
-      {/* Main User Routes */}
       <Route element={<MainLayout />}>
         <Route path="/" element={<Home />} />
         <Route path="/announcements/:id" element={<AnnouncementDetail />} />
@@ -61,23 +60,19 @@ function route() {
         <Route path="/transparency" element={<Transparency />} />
       </Route>
 
-      {/* Authentication Routes */}
       <Route element={<AuthLayout />}>
         <Route path="/login" element={<Login />} />
       </Route>
 
-      {/* Admin Routes - Use PrivateRoute as element of Route */}
       <Route element={<PrivateRoute element={<AdminLayout />} />}>
         <Route path="/admin/dashboard" element={<Dashboard />} />
         <Route path="/admin/dashboard" element={<Dashboard />} />
         <Route path="/admin/membership" element={<MembershipManagement />} />
 
-        {/* News Management Routes */}
         <Route path="/admin/news" element={<NewsManagement />} />
         <Route path="/admin/news/create" element={<NewsCreate />} />
         <Route path="/admin/news/drafts" element={<NewsDrafts />} />
 
-        {/* Announcements Management Routes */}
         <Route
           path="/admin/announcements"
           element={<AnnouncementsManagement />}
@@ -91,14 +86,12 @@ function route() {
           element={<AnnouncementsDrafts />}
         />
 
-        {/* Transparency & Settings Routes */}
         <Route
           path="/admin/transparency"
           element={<TransparencyManagement />}
         />
         <Route path="/admin/settings" element={<Settings />} />
 
-        {/* Events Management Routes */}
         <Route path="/admin/events" element={<Navigate to={"manage"} />} />
         <Route path="/admin/events/manage" element={<EventsManagement />} />
         <Route path="/admin/events/create" element={<EventsCreate />} />
@@ -108,7 +101,6 @@ function route() {
           element={<EventsParticipantsManagement />}
         />
 
-        {/* Services Management Routes */}
         <Route path="/admin/services" element={<Navigate to={"manage"} />} />
         <Route path="/admin/services/manage" element={<ServicesManagement />} />
         <Route
@@ -121,7 +113,6 @@ function route() {
         />
       </Route>
 
-      {/* Error Handling */}
       <Route path="*" element={<ErrorPage statusCode={404} />} />
     </Routes>
   );

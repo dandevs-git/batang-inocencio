@@ -25,7 +25,7 @@ function EventCreate() {
     time: "",
     contact_number: "",
     number_of_participants: "",
-    image: '',
+    image: "",
   });
 
   const [formValid, setFormValid] = useState(false);
@@ -114,7 +114,7 @@ function EventCreate() {
       time: "",
       contact_number: "",
       number_of_participants: "",
-      image: '',
+      image: "",
     });
     setImage(null);
     setImagePreview(null);
@@ -194,7 +194,6 @@ function EventCreate() {
         </div>
       )}
 
-      {/* Form Section */}
       <form
         className={`row g-4 needs-validation ${
           formValid ? "was-validated" : ""

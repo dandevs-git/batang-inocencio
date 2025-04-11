@@ -16,7 +16,6 @@ class NewsController extends Controller
 
     public function store(Request $request)
     {
-        // Validate incoming request data
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5048',
@@ -26,12 +25,11 @@ class NewsController extends Controller
 
         // return response()->json(['message' => 'Yeheyyy'], 200);
 
-        // Store the image
         if ($request->hasFile('image')) {
             $image = $request->file('image');
             $imagePath = $image->store('news_images', 'public');
         } else {
-            $imagePath = null; // No image, set it to null
+            $imagePath = null;
         }
 
         $status = $validated['status'] ?? 'draft';
@@ -64,7 +62,6 @@ class NewsController extends Controller
      */
     public function update(Request $request, News $news)
     {
-        // Validate incoming request data
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
@@ -72,24 +69,18 @@ class NewsController extends Controller
             'status' => 'nullable|in:draft,published',
         ]);
 
-        // Check if image is being updated
         if ($request->hasFile('image')) {
-            // If there is a new image, delete the old image if it exists
             if ($news->image) {
                 Storage::disk('public')->delete($news->image);
             }
-            // Store the new image and get its file path
             $imagePath = $request->file('image')->store('news_images', 'public');
         } else {
-            // Keep the old image if no new image is uploaded
             $imagePath = $news->image;
         }
 
-        // Update the status if provided, otherwise keep the old one
         $status = $validated['status'] ?? $news->status;
 
         try {
-            // Update the news article
             $news->update([
                 'title' => $validated['title'],
                 'image' => $imagePath,
@@ -108,13 +99,11 @@ class NewsController extends Controller
      */
     public function destroy(News $news)
     {
-        // If the news article has an image, delete it from storage
         if ($news->image) {
             Storage::disk('public')->delete($news->image);
         }
 
         try {
-            // Delete the news article (soft delete if needed)
             $news->delete();
 
             return response()->json(['message' => 'News article deleted successfully']);

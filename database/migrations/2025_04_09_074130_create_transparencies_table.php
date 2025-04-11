@@ -12,11 +12,11 @@ return new class extends Migration {
     {
         Schema::create('transparencies', function (Blueprint $table) {
             $table->id();
-            $table->string('name');  // For storing category name
+            $table->string('name');
             $table->timestamps();
         });
 
-        // Create a table for storing files associated with categories
+
         Schema::create('transparency_files', function (Blueprint $table) {
             $table->id();
             $table->foreignId('transparency_id')->constrained('transparencies')->onDelete('cascade');

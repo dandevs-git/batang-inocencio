@@ -11,8 +11,6 @@ function PrintingScheduleCalendar() {
     const fetchTodayRentals = async () => {
       const today = new Date();
       const formattedDate = today.toISOString().split("T")[0];
-
-      // await getData(`/rentals/today?date=${formattedDate}`, setTodayRentals);
     };
 
     fetchTodayRentals();
@@ -21,7 +19,6 @@ function PrintingScheduleCalendar() {
   return (
     <div className="mb-5" id="calendar-section">
       <div className="row g-4">
-        {/* Calendar View */}
         <div className="col-lg-8">
           <div className="card rounded-4 shadow-lg">
             <div className="card-header bg-primary text-white text-center rounded-top-4">
@@ -33,7 +30,6 @@ function PrintingScheduleCalendar() {
           </div>
         </div>
 
-        {/* Today’s Rentals */}
         <div className="col-lg-4">
           <div className="card rounded-4 shadow-lg h-100">
             <div className="card-header bg-primary text-white text-center rounded-top-4">

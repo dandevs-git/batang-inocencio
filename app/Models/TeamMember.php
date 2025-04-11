@@ -9,9 +9,9 @@ class TeamMember extends Model
 {
     use HasFactory;
 
-    protected $table = 'team_members'; // Explicitly defining the table name (optional)
+    protected $table = 'team_members';
 
-    // Fillable properties for mass assignment
+
     protected $fillable = [
         'team_id',
         'name',
@@ -19,7 +19,7 @@ class TeamMember extends Model
         'contact'
     ];
 
-    // Relationship with the Team model
+
     public function team()
     {
         return $this->belongsTo(Team::class);

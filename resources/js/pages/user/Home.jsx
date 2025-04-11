@@ -4,7 +4,6 @@ import News from "./News";
 import Announcements from "./Announcements";
 import Events from "./Events";
 
-
 const carousel = [
   {
     image: "/storage/images/Carousel2.png",

@@ -12,12 +12,12 @@ return new class extends Migration {
     {
         Schema::create('participants', function (Blueprint $table) {
             $table->id();
-            $table->string('last_name')->index(); // Added indexing for faster searches
-            $table->string('first_name')->index(); // Added indexing for faster searches
+            $table->string('last_name')->index();
+            $table->string('first_name')->index();
             $table->string('address');
-            $table->string('email')->unique()->index(); // Added index for fast lookup
-            $table->string('contact_number')->index(); // Added index for faster searches
-            $table->timestamps(); // Automatically created_at and updated_at
+            $table->string('email')->unique()->index();
+            $table->string('contact_number')->index();
+            $table->timestamps();
         });
     }
 

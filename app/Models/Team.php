@@ -19,7 +19,7 @@ class Team extends Model
         'team_captain_email'
     ];
 
-    // One-to-many relationship with TeamMember
+
     public function members()
     {
         return $this->hasMany(TeamMember::class);

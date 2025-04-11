@@ -134,7 +134,6 @@ function NewsCreate() {
         </p>
       </div>
 
-      {/* Success Alert */}
       {showAlert && (
         <div
           className={`alert alert-${
@@ -264,7 +263,6 @@ function NewsCreate() {
         </button> */}
       </div>
 
-      {/* Preview Modal */}
       <ModalPreview
         id="previewModal"
         title={title}
@@ -275,16 +273,13 @@ function NewsCreate() {
         onPublish={confirmPublish}
       />
 
-      {/* Discard Modal */}
       <ModalDiscard id="discardModal" onConfirm={discard} />
 
-      {/* Confirm Publish Modal */}
       <ModalConfirmPublish id="confirmPublishModal" onConfirm={publishNews} />
     </>
   );
 }
 
-// Modal components remain unchanged
 function ModalPreview({
   id,
   title,
@@ -300,7 +295,6 @@ function ModalPreview({
       id={id}
       tabIndex="-1"
       aria-labelledby={`${id}Label`}
-      
     >
       <div className="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
         <div className="modal-content">
@@ -359,7 +353,6 @@ function ModalDiscard({ id, onConfirm }) {
       id={id}
       tabIndex="-1"
       aria-labelledby={`${id}Label`}
-      
     >
       <div className="modal-dialog modal-dialog-centered">
         <div className="modal-content">
@@ -405,7 +398,6 @@ function ModalConfirmPublish({ id, onConfirm }) {
       id={id}
       tabIndex="-1"
       aria-labelledby={`${id}Label`}
-      
     >
       <div className="modal-dialog modal-dialog-centered">
         <div className="modal-content">

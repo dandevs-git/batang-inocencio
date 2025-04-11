@@ -10,30 +10,30 @@ class News extends Model
     use HasFactory;
 
 
-    // Define which attributes are mass assignable
+
     protected $fillable = [
         'title',
         'description',
         'image',
-        'status',  // draft, published
+        'status',
     ];
 
 
     protected $casts = [
-        'status' => 'string', 
+        'status' => 'string',
     ];
 
     protected $attributes = [
-        'status' => 'draft', 
+        'status' => 'draft',
     ];
-    
+
     public function getFormattedCreatedAtAttribute()
     {
-        return $this->created_at->format('M d, Y');  // Example format
+        return $this->created_at->format('M d, Y');
     }
 
     public function getFormattedUpdatedAtAttribute()
     {
-        return $this->created_at->format('M d, Y');  // Example format
+        return $this->created_at->format('M d, Y');
     }
 }

@@ -12,7 +12,7 @@ class Transparency extends Model
 
     protected $fillable = ['name'];
 
-    // Define the relationship between transparency and files
+
     public function files()
     {
         return $this->hasMany(TransparencyFile::class);

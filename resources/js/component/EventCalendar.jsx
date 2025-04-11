@@ -25,7 +25,6 @@ function EventCalendar() {
   return (
     <div className="mb-5" id="calendar-section">
       <div className="row g-4">
-        {/* Calendar */}
         <div className="col-lg-8">
           <div className="card rounded-4 shadow-lg border-0 h-100">
             <div className="card-header bg-gradient bg-primary text-white text-center rounded-top-4 py-3">
@@ -37,7 +36,6 @@ function EventCalendar() {
           </div>
         </div>
 
-        {/* Event List */}
         <div className="col-lg-4">
           <div className="card rounded-4 shadow-lg border-0 h-100">
             <div className="card-header bg-gradient bg-primary text-white text-center rounded-top-4 py-3">

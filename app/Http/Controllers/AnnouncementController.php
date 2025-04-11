@@ -16,7 +16,6 @@ class AnnouncementController extends Controller
 
     public function store(Request $request)
     {
-        // Validate incoming request data
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
@@ -26,16 +25,14 @@ class AnnouncementController extends Controller
 
         // return response()->json(['message' => 'Yeheyyy'], 200);
 
-        // Store the image
         if ($request->hasFile('image')) {
             $image = $request->file('image');
             $imagePath = $image->store('announcement_images', 'public');
         } else {
-            $imagePath = null; // No image, set it to null
+            $imagePath = null;
             // return response()->json(['message' => 'Walang image']);
         }
 
-        // Default the status to 'draft' if it's not provided
         $status = $validated['status'] ?? 'draft';
 
         try {
@@ -66,7 +63,6 @@ class AnnouncementController extends Controller
      */
     public function update(Request $request, Announcement $announcement)
     {
-        // Validate incoming request data
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
@@ -74,24 +70,18 @@ class AnnouncementController extends Controller
             'status' => 'nullable|in:draft,published',
         ]);
 
-        // Check if image is being updated
         if ($request->hasFile('image')) {
-            // If there is a new image, delete the old image if it exists
             if ($announcement->image) {
                 Storage::disk('public')->delete($announcement->image);
             }
-            // Store the new image and get its file path
             $imagePath = $request->file('image')->store('announcement_images', 'public');
         } else {
-            // Keep the old image if no new image is uploaded
             $imagePath = $announcement->image;
         }
 
-        // Update the status if provided, otherwise keep the old one
         $status = $validated['status'] ?? $announcement->status;
 
         try {
-            // Update the Announcement article
             $announcement->update([
                 'title' => $validated['title'],
                 'image' => $imagePath,
@@ -110,13 +100,11 @@ class AnnouncementController extends Controller
      */
     public function destroy(Announcement $announcement)
     {
-        // If the Announcement article has an image, delete it from storage
         if ($announcement->image) {
             Storage::disk('public')->delete($announcement->image);
         }
 
         try {
-            // Delete the Announcement article (soft delete if needed)
             $announcement->delete();
 
             return response()->json(['message' => 'Announcement article deleted successfully']);

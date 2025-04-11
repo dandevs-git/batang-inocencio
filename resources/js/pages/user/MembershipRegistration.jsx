@@ -27,7 +27,6 @@ const formFields = {
   project_recommendations: "",
 };
 
-// Define options at the top for easier visualization and updates
 const areaOptions = [
   "Inocencio Proper",
   "Tradition Homes Phase 1 and 2",
@@ -83,7 +82,7 @@ const YouthProfilingForm = () => {
   const [formData, setFormData] = useState(formFields);
   const [loading, setLoading] = useState(false);
   const [massageErr, setMessageErr] = useState("");
-  const [showModal, setShowModal] = useState(false); // Modal visibility state
+  const [showModal, setShowModal] = useState(false);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -491,45 +490,44 @@ const YouthProfilingForm = () => {
           </div>
         </div>
       )}
-        <div
-          className={`modal fade ${showModal ?? 'show'}`}
-          
-          tabIndex="-1"
-          role="dialog"
-        >
-          <div className="modal-dialog" role="document">
-            <div className="modal-content">
-              <div className="modal-header">
-                <h5 className="modal-title">Success!</h5>
-                <button
-                  type="button"
-                  className="close"
-                  data-dismiss="modal"
-                  aria-label="Close"
-                  onClick={() => setShowModal(false)}
-                >
-                  <span >&times;</span>
-                </button>
-              </div>
-              <div className="modal-body">
-                <p>
-                  Your Youth Profiling Registration has been successfully
-                  submitted. A confirmation email will be sent to you.
-                </p>
-              </div>
-              <div className="modal-footer">
-                <button
-                  type="button"
-                  className="btn btn-secondary"
-                  data-dismiss="modal"
-                  onClick={() => setShowModal(false)}
-                >
-                  Close
-                </button>
-              </div>
+      <div
+        className={`modal fade ${showModal ?? "show"}`}
+        tabIndex="-1"
+        role="dialog"
+      >
+        <div className="modal-dialog" role="document">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h5 className="modal-title">Success!</h5>
+              <button
+                type="button"
+                className="close"
+                data-dismiss="modal"
+                aria-label="Close"
+                onClick={() => setShowModal(false)}
+              >
+                <span>&times;</span>
+              </button>
+            </div>
+            <div className="modal-body">
+              <p>
+                Your Youth Profiling Registration has been successfully
+                submitted. A confirmation email will be sent to you.
+              </p>
+            </div>
+            <div className="modal-footer">
+              <button
+                type="button"
+                className="btn btn-secondary"
+                data-dismiss="modal"
+                onClick={() => setShowModal(false)}
+              >
+                Close
+              </button>
             </div>
           </div>
         </div>
+      </div>
     </div>
   );
 };

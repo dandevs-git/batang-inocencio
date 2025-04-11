@@ -7,13 +7,11 @@ use Illuminate\Http\Request;
 
 class TeamMemberController extends Controller
 {
-    // Get all team members
     public function index()
     {
         return response()->json(TeamMember::all());
     }
 
-    // Get a specific team member by ID
     public function show($id)
     {
         $teamMember = TeamMember::find($id);
@@ -22,8 +20,6 @@ class TeamMemberController extends Controller
         }
         return response()->json(['message' => 'Team Member not found'], 404);
     }
-
-    // Create a new team member
     public function store(Request $request)
     {
         $request->validate([
@@ -38,7 +34,6 @@ class TeamMemberController extends Controller
         return response()->json($teamMember, 201);
     }
 
-    // Update a team member
     public function update(Request $request, $id)
     {
         $teamMember = TeamMember::find($id);
@@ -58,7 +53,6 @@ class TeamMemberController extends Controller
         return response()->json($teamMember);
     }
 
-    // Delete a team member
     public function destroy($id)
     {
         $teamMember = TeamMember::find($id);

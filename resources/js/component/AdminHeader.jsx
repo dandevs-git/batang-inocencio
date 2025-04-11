@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 
 const AdminHeader = () => {
   return (
@@ -6,7 +6,10 @@ const AdminHeader = () => {
       <div className="container-fluid d-flex align-items-center justify-content-between align-items-center px-4">
         <div className="input-group w-50">
           <input type="text" className="form-control rounded-start-pill" />
-          <button className="btn btn-primary input-group-text rounded-end-pill" id="basic-addon1">
+          <button
+            className="btn btn-primary input-group-text rounded-end-pill"
+            id="basic-addon1"
+          >
             <div className="px-3">Search</div>
           </button>
         </div>
@@ -78,9 +81,15 @@ const AdminHeader = () => {
               </li>
             </ul>
           </div> */}
-          
+
           {/* Logo Image */}
-          <img src="/storage/images/Logo.png" alt="Logo" className="rounded-circle" width="35" height="35" />
+          <img
+            src="/storage/images/Logo.png"
+            alt="Logo"
+            className="rounded-circle"
+            width="35"
+            height="35"
+          />
         </div>
       </div>
     </nav>
