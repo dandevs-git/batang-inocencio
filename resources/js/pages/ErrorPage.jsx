@@ -6,7 +6,7 @@ function ErrorPage({ statusCode }) {
     <>
       <div className="d-flex flex-column align-items-center justify-content-center vh-100 bg-primary text-white text-center p-4">
         <img
-          src="/storage/images/Logo.png"
+          src="/storage/logos/Logo.png"
           alt="Logo"
           width="110"
           height="100"

@@ -6,7 +6,7 @@ function Footer() {
       <div className="text-bg-primary">
         <div className="container d-flex py-4">
           <div className="col-2 d-flex justify-content-center align-items-center">
-            <img src="/storage/images/Logo.png" alt="Logo" className="img-fluid" />
+            <img src="/storage/logos/Logo.png" alt="Logo" className="img-fluid" />
           </div>
           <div className="col-7 d-flex justify-content-center align-items-center">
             <div className="flex-column p-3">

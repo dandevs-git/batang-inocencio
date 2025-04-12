@@ -67,6 +67,7 @@ const AdminSidebar = () => {
     setActiveServicesMenu((prevState) => !prevState);
 
   useEffect(() => {
+    // const response = getData('/settings')
     setActiveEventMenu(isEventPageActive("/admin/events"));
     setActiveServicesMenu(isServicesPageActive("/admin/services"));
   }, [location.pathname]);
@@ -88,7 +89,7 @@ const AdminSidebar = () => {
       id="Adminsidebar"
     >
       <div className="d-flex justify-content-start p-3">
-        <img src="/storage/images/Logo.png" alt="Logo" width="40" height="40" />
+        <img src="/storage/logos/Logo.png" alt="Logo" width="40" height="40" />
         <div className="ms-2 d-flex flex-column justify-content-center">
           <div className="m-0 fw-bold" style={{ fontSize: "0.8rem" }}>
             BATANG INOCENCIO

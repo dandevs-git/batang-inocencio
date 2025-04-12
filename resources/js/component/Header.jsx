@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
+import { useAPI } from "./contexts/ApiContext";
 
 const navItems = {
     Home: "/",
@@ -13,8 +14,26 @@ const navItems = {
 };
 
 function Header() {
+  const { getData, postData, putData, deleteData } = useAPI();
     const location = useLocation();
     const currentPath = location.pathname;
+    const [websiteInformation, setwebsiteInformation] = useState('Batang Inocencio');
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const existingSettings = await getData("/settings");
+                setwebsiteInformation(existingSettings.website_name)
+            } catch (error) {
+              console.error(
+                "Error fetching website info:",
+                error?.response?.data || error
+              );
+            }
+          };
+      
+          fetchData();
+    },[])
 
     return (
         <>
@@ -25,14 +44,14 @@ function Header() {
                         to="/"
                     >
                         <img
-                            src="/storage/images/Logo.png"
+                            src="/storage/logos/Logo.png"
                             alt="Logo"
                             width="110"
                             height="100"
                         />
 
                         <div className="text-light ms-3">
-                            <h1 className="m-0 fw-bold">BATANG INOCENCIO</h1>
+                            <h1 className="m-0 fw-bold">{websiteInformation}</h1>
                             <h5 className="m-0">
                                 Brgy. Inocencio, Trece Martires
                             </h5>

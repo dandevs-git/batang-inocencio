@@ -1,7 +1,42 @@
-import React from "react";
+import React, { useState } from "react";
 import Breadcrumb from "../../component/ui/Breadcrumb";
+import { useAPI } from "../../component/contexts/ApiContext";
 
 function Settings() {
+  const { getData, postData, putData, deleteData } = useAPI();
+  const [logo, setLogo] = useState(null);
+  const [websiteName, setWebsiteName] = useState("");
+
+  const handleWebsiteInfoSubmit = async (e) => {
+    e.preventDefault();
+    const formData = new FormData();
+  
+    formData.append("website_name", websiteName);
+    if (logo) formData.append("logo", logo);
+  
+    try {
+      const existingSettings = await getData("/settings"); // Get existing settings
+      const hasData = Array.isArray(existingSettings.data) && existingSettings.data.length > 0;
+  
+      let response;
+  
+      if (hasData) {
+        const id = existingSettings.data[0].id; // Use the first setting's ID
+        response = await putData(`/settings/${id}`, formData); // Update
+        console.log("Updated:", response.data);
+      } else {
+        response = await postData("/settings", formData); // Create
+        console.log("Created:", response.data);
+      }
+    } catch (error) {
+      console.error(
+        "Error saving website info:",
+        error.response?.data || error
+      );
+    }
+  };
+  
+
   return (
     <>
       <Breadcrumb />
@@ -9,33 +44,42 @@ function Settings() {
       <div className="container py-4">
         <h2 className="fw-bold mb-4 text-primary">Website Settings</h2>
 
-        <div className="mb-4 p-4 bg-white rounded-3 shadow-lg rounded-4 border">
-          <div className="d-flex justify-content-between align-items-center mb-3">
-            <h5 className="mb-0 text-secondary">Website Information</h5>
+        <form onSubmit={handleWebsiteInfoSubmit}>
+          <div className="mb-4 p-4 bg-white rounded-3 shadow-lg rounded-4 border">
+            <div className="d-flex justify-content-between align-items-center mb-3">
+              <h5 className="mb-0 text-secondary">Website Information</h5>
+            </div>
+            <div className="row g-3">
+              <div className="col-md-6">
+                <label className="form-label">Logo</label>
+                <input
+                  type="file"
+                  className="form-control"
+                  onChange={(e) => setLogo(e.target.files[0])}
+                />
+              </div>
+              <div className="col-md-6">
+                <label className="form-label">Website Name</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  placeholder="Enter website name"
+                  value={websiteName}
+                  onChange={(e) => setWebsiteName(e.target.value)}
+                />
+              </div>
+              <div className="col-12">
+                <button className="btn btn-sm btn-primary me-2" type="submit">
+                  Save Website Info
+                </button>
+                <button type="reset" className="btn btn-sm btn-outline-danger">
+                  Cancel
+                </button>
+              </div>
+            </div>
           </div>
-          <div className="row g-3">
-            <div className="col-md-6">
-              <label className="form-label">Logo</label>
-              <input type="file" className="form-control" />
-            </div>
-            <div className="col-md-6">
-              <label className="form-label">Website Name</label>
-              <input
-                type="text"
-                className="form-control"
-                placeholder="Enter website name"
-              />
-            </div>
-            <div className="col-12">
-              <button className="btn btn-sm btn-primary me-2">
-                Save Website Info
-              </button>
-              <button className="btn btn-sm btn-outline-danger">Cancel</button>
-            </div>
-          </div>
-        </div>
+        </form>
 
-        {/* Contact Information */}
         <div className="mb-4 p-4 bg-white rounded-3 shadow-lg rounded-4 border">
           <div className="d-flex justify-content-between align-items-center mb-3">
             <h5 className="mb-0 text-secondary">Contact Information</h5>
@@ -46,7 +90,6 @@ function Settings() {
               <input
                 type="text"
                 className="form-control"
-                defaultValue="Inocencio (B. Pook), Trece Martires, Cavite"
               />
             </div>
             <div className="col-md-4">
@@ -54,7 +97,6 @@ function Settings() {
               <input
                 type="text"
                 className="form-control"
-                defaultValue="09346890357"
               />
             </div>
             <div className="col-md-4">
@@ -62,7 +104,6 @@ function Settings() {
               <input
                 type="email"
                 className="form-control"
-                defaultValue="batang.inocencio@gmail.com"
               />
             </div>
             <div className="col-12">
@@ -74,7 +115,6 @@ function Settings() {
           </div>
         </div>
 
-        {/* Mission & Vision */}
         <div className="mb-4 p-4 bg-white rounded-3 shadow-lg rounded-4 border">
           <div className="d-flex justify-content-between align-items-center mb-3">
             <h5 className="mb-0 text-secondary">Mission & Vision</h5>

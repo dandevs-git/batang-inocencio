@@ -6,6 +6,7 @@ use App\Http\Controllers\EventController;
 use App\Http\Controllers\MemberController;
 use App\Http\Controllers\NewsController;
 use App\Http\Controllers\ParticipantController;
+use App\Http\Controllers\SettingController;
 use App\Http\Controllers\TeamController;
 use App\Http\Controllers\TeamMemberController;
 use App\Http\Controllers\TransparencyController;
@@ -21,6 +22,7 @@ Route::apiResource('participants', ParticipantController::class);
 Route::apiResource('teams', TeamController::class);
 Route::apiResource('team-members', TeamMemberController::class);
 Route::apiResource('events', EventController::class);
+Route::apiResource('settings', SettingController::class);
 
 Route::post('transparency/{categoryId}/upload', [TransparencyController::class, 'uploadFile'])->name('transparency.uploadFile');
 

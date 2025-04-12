@@ -84,7 +84,7 @@ const AdminHeader = () => {
 
           {/* Logo Image */}
           <img
-            src="/storage/images/Logo.png"
+            src="/storage/logos/Logo.png"
             alt="Logo"
             className="rounded-circle"
             width="35"
