@@ -50,7 +50,7 @@ function MembershipPage() {
           </div>
           <div className="col-5">
             <img
-              src="/storage/images/illustration2.png"
+              src="/images/illustration2.png"
               className="img-fluid w-100 h-100 object-fit-fill"
               alt="Illustration Image"
             />
@@ -62,7 +62,7 @@ function MembershipPage() {
         <div className="row">
           <div className="col-5">
             <img
-              src="/storage/images/illustration1.png"
+              src="/images/illustration1.png"
               className="img-fluid w-100 h-100 object-fit-fill"
               alt="Illustration Image"
             />

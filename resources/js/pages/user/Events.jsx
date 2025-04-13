@@ -3,49 +3,41 @@ import Carousel from "../../component/Caroucel";
 import { Link, useLocation } from "react-router-dom";
 import { useAPI } from "../../component/contexts/ApiContext";
 
-const EventCard = ({ event }) => {
-  const { id, title, registration_period, details, date, image, data_date } =
-    event;
+const EventsCard = ({ events }) => {
+  const { id, title, description, date, image } = events;  
+
   return (
     <div
-      className="event-card card border-0 shadow-lg  rounded-4 mb-4"
-      data-date={data_date}
+      className="events-card card border-0 shadow-lg rounded-4 mb-4"
+      data-date={date.substring(0, 7)}
     >
       <div className="row g-0 align-items-stretch">
         <div className="col-md-2">
           <img
-            src={`/storage/${image}`}
+            src={
+              image ? `/storage/${image}` : "/storage/images/placeholder.png"
+            }
             className="w-100 h-100 object-fit-cover rounded-start"
-            alt="Event Image"
+            alt="Events"
           />
         </div>
         <div className="col-md-8 d-flex flex-column p-4">
           <div>
             <h5 className="card-title fw-bold">{title}</h5>
             <p className="small text-muted fw-bold">
-              Registration Period:{" "}
-              <span className="date">{registration_period}</span>
+              Date:{" "}
+              <span className="date">
+                {new Date(date).toLocaleDateString()}
+              </span>
             </p>
-            <ul className="ps-3 mb-2">
-              {Array.isArray(details) ? (
-                details.map((detail, index) => <li key={index}>{detail}</li>)
-              ) : (
-                <li>No details available</li>
-              )}
-            </ul>
+            <p>{description.slice(0, 100)}...</p>
           </div>
           <div className="d-flex align-items-center mt-auto">
             <Link
               to={`/events/${id}`}
               className="fw-bold text-primary text-decoration-none"
             >
-              View details
-            </Link>
-            <Link
-              to={`/registration/${id}`}
-              className="btn btn-primary rounded-pill register-btn ms-auto px-5"
-            >
-              Register
+              View full events
             </Link>
           </div>
         </div>
@@ -63,102 +55,109 @@ const EventCard = ({ event }) => {
   );
 };
 
-const carousel = [
-  {
-    image: "/storage/images/Carousel2.png",
-    title: "Youth Events & Activities",
-    description:
-      "Join our various programs to develop your skills and talents.",
-  },
-  {
-    image: "/storage/images/Carousel1.png",
-    title: "Welcome to Batang Inocencio",
-    description:
-      "Empowering the youth through leadership and community service.",
-  },
-  {
-    image: "/storage/images/Carousel3.png",
-    title: "Be a Part of the Change",
-    description: "Engage with the community and make a difference.",
-  },
-  {
-    image: "no-image",
-    title: "Sample Placeholder",
-    description:
-      "Displays a placeholder image when no actual image is available",
-  },
-];
-
-function Events() {
-  const { getData, postData, putData, deleteData } = useAPI();
+function Events({ isFullPage = true }) {
+  const { getData } = useAPI();
   const location = useLocation();
-  const [selectedMonth, setSelectedMonth] = useState("");
+
+  const [eventsList, setEventsList] = useState([]);
+    const [carouselItems, setCarouselItems] = useState([]);
   const [filteredEvents, setFilteredEvents] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [selectedMonth, setSelectedMonth] = useState("");
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState();
 
-  useEffect(() => {
-    getData("events", setFilteredEvents, setLoading, setError);
-  }, [getData]);
+   useEffect(() => {
+      getData("carousel?page=events", setCarouselItems, setLoading, setError);
+    }, [getData]);
 
   useEffect(() => {
     const now = new Date();
     const year = now.getFullYear();
     const month = String(now.getMonth() + 1).padStart(2, "0");
-    setSelectedMonth(`${year}-${month}`);
-  }, []);
+    const defaultMonth = `${year}-${month}`;
+    setSelectedMonth(defaultMonth);
+
+    const fetchData = async () => {
+      try {
+        const data = await getData("events");
+        setEventsList(data);
+
+        if (isFullPage) {
+          const filtered = data.filter(
+            (events) => events.date.substring(0, 7) === defaultMonth
+          );
+          setFilteredEvents(filtered);
+        } else {
+          setFilteredEvents(data.slice(0, 4));
+        }
+      } catch (err) {
+        console.error(err);
+        setError("Failed to load events.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [getData, isFullPage]);
+  
 
   const handleMonthChange = (e) => {
     const selectedValue = e.target.value;
     setSelectedMonth(selectedValue);
 
-    if (!selectedValue) return;
-
-    const filtered = filteredEvents.filter(
-      (event) => event.data_date === selectedValue
+    const filtered = eventsList.filter(
+      (events) => events.date.substring(0, 7) === selectedValue
     );
+    console.log(eventsList);
+    console.log(filteredEvents);
+    
     setFilteredEvents(filtered);
   };
 
-  const isEventsPage = location.pathname.endsWith("events");
+  if (loading) return null;
+  if (error) return <p className="text-center text-danger">{error}</p>;
 
   return (
     <>
-      {isEventsPage && <Carousel carouselItems={carousel} />}
+      {isFullPage && <Carousel carouselItems={carouselItems} />}
 
       <div className="container pb-5">
-        {isEventsPage && (
+        {isFullPage ? (
           <div className="input-group mb-4" style={{ maxWidth: "300px" }}>
             <input
               type="month"
               className="form-control"
-              id="eventsMonthYearPicker"
               value={selectedMonth}
               onChange={handleMonthChange}
             />
-            <button className="btn btn-primary">Filter</button>
+            <button
+              className="btn btn-primary"
+              onClick={() =>
+                handleMonthChange({ target: { value: selectedMonth } })
+              }
+            >
+              Filter
+            </button>
           </div>
-        )}
-
-        {!isEventsPage && (
+        ) : (
           <div className="container text-center my-5">
-            <h5 className="section-title text-primary">Upcoming Events</h5>
+            <h5 className="section-title text-primary">Latest Events</h5>
             <h2 className="main-heading mt-3 text-dark">
-              Stay Updated with the Latest <br /> Events & Activities
+              Get the Latest <br /> Events & Announcements
             </h2>
             <p className="sub-text mt-3">
-              Be part of the latest events, community projects, and exciting
-              activities. Check back for important announcements and
-              registration details. Stay connected with the events organized by
-              the Sangguniang Kabataan (SK) of Barangay Inocencio.
+              Stay informed about community projects, public service
+              information, and updates from the Sangguniang Kabataan of Barangay
+              Inocencio.
             </p>
           </div>
         )}
 
         <div className="row g-4">
           {filteredEvents.length > 0 ? (
-            filteredEvents.map((event, index) => (
-              <EventCard key={index} event={event}   />
+            filteredEvents.map((events, index) => (
+              <EventsCard key={index} events={events} />
             ))
           ) : (
             <div id="noEventsMessage" className="text-center text-muted">

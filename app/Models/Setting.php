@@ -18,9 +18,11 @@ class Setting extends Model
         'phone_number',
         'email',
         'mission',
-        'vision',
-        'committee_member_name',
-        'committee_member_position',
-        'committee_member_image',
+        'vision'
     ];
+
+    public function committeeMembers()
+    {
+        return $this->hasMany(CommitteeMember::class);
+    }
 }

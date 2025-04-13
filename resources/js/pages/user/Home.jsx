@@ -1,42 +1,28 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Carousel from "../../component/Caroucel";
 import News from "./News";
 import Announcements from "./Announcements";
 import Events from "./Events";
-
-const carousel = [
-  {
-    image: "/storage/images/Carousel2.png",
-    title: "Youth Events & Activities",
-    description:
-      "Join our various programs to develop your skills and talents.",
-  },
-  {
-    image: "/storage/images/Carousel1.png",
-    title: "Welcome to Batang Inocencio",
-    description:
-      "Empowering the youth through leadership and community service.",
-  },
-  {
-    image: "/storage/images/Carousel3.png",
-    title: "Be a Part of the Change",
-    description: "Engage with the community and make a difference.",
-  },
-  {
-    image: "no-image",
-    title: "Sample Placeholder",
-    description:
-      "Displays a placeholder image when no actual image is available",
-  },
-];
+import { useAPI } from "../../component/contexts/ApiContext";
 
 function Home() {
+  const { getData } = useAPI();
+  const [carouselItems, setCarouselItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState();
+
+  useEffect(() => {
+    getData("carousel?page=home", setCarouselItems, setLoading, setError);
+  }, [getData]);
+
+  if (loading) return null
+
   return (
     <>
-      <Carousel carouselItems={carousel} />
-      <News />
-      <Announcements />
-      <Events />
+      <Carousel carouselItems={carouselItems} />
+      <News isFullPage={false} />
+      <Announcements isFullPage={false} />
+      <Events isFullPage={false} />
     </>
   );
 }

@@ -10,7 +10,6 @@ function AnnouncementsCreate() {
   const [imagePreview, setImagePreview] = useState(null);
   const [formValid, setFormValid] = useState(false);
 
-  // Alert state
   const [alertMessage, setAlertMessage] = useState("");
   const [showAlert, setShowAlert] = useState(false);
 

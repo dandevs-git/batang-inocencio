@@ -1,12 +1,41 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { useAPI } from "./contexts/ApiContext";
 
 function Footer() {
+  const { getData } = useAPI();
+  const [websiteInformation, setWebsiteInformation] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(true);
+
+  useEffect(() => {
+    const fetchWebsiteInformation = async () => {
+      try {
+        const response = await getData(
+          "settings",
+          setWebsiteInformation,
+          setLoading,
+          setError
+        );
+      } catch (error) {
+        console.error("Error fetching websiteInformation:", error);
+      }
+    };
+
+    fetchWebsiteInformation();
+  }, [getData]);
+
+  if (loading) return null;
+
   return (
     <div className="mt-5">
       <div className="text-bg-primary">
         <div className="container d-flex py-4">
           <div className="col-2 d-flex justify-content-center align-items-center">
-            <img src="/storage/logos/Logo.png" alt="Logo" className="img-fluid" />
+          <img
+              src={websiteInformation.logo ?`/storage/${websiteInformation.logo}` : "images/Logo.png"} 
+              alt="Logo"
+              className="img-fluid"
+            />
           </div>
           <div className="col-7 d-flex justify-content-center align-items-center">
             <div className="flex-column p-3">
@@ -14,19 +43,16 @@ function Footer() {
                 Contact Information
               </div>
               <div className="d-flex mb-3">
-                <i className="bi bi-geo-alt-fill"></i>
-                <div>
-                  2nd Floor, City Hall Bldg., Governor's Drive, Brgy. Inocencio,
-                  Trece Martires City, Cavite
-                </div>
+                <i className="bi bi-geo-alt-fill me-2"></i>
+                <div>{websiteInformation.address ? websiteInformation.address : "Default Address"}</div>
               </div>
               <div className="d-flex mb-3">
-                <i className="bi bi-telephone-fill"></i>
-                <div>(046) 419-0353 • (046) 419-0887</div>
+                <i className="bi bi-telephone-fill me-2"></i>
+                <div>{websiteInformation.phone_number ? websiteInformation.phone_number : "Default Phone Number"}</div>
               </div>
               <div className="d-flex mb-3">
-                <i className="bi bi-envelope-at-fill"></i>
-                <div>trecemartires.CMO@gmail.com</div>
+                <i className="bi bi-envelope-at-fill me-2"></i>
+                <div>{websiteInformation.email ? websiteInformation.email : "Default Email"}</div>
               </div>
             </div>
           </div>
@@ -61,7 +87,7 @@ function Footer() {
         </div>
       </div>
       <div className="bg-success text-light text-center fs-4">
-        &copy; 2023. Batang Inocencio. All Rights Reserved.
+        &copy; 2025. Batang Inocencio. All Rights Reserved.
       </div>
     </div>
   );

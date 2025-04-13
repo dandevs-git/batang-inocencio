@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
             NewsSeeder::class,
             EventSeeder::class,
             AnnouncementSeeder::class,
+            CarouselSeeder::class,
         ]);
 
         User::create([

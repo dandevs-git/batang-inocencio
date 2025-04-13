@@ -3,42 +3,58 @@ import { Link } from "react-router-dom";
 import { useAPI } from "../../component/contexts/ApiContext";
 
 function Announcements({ isFullPage = false }) {
-  const { getData, postData, putData, deleteData } = useAPI();
-  const [filterDate, setFilterDate] = useState("");
+  const { getData } = useAPI();
+  const [announcementList, setAnnouncementList] = useState([]);
   const [filteredAnnouncements, setFilteredAnnouncements] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [filterDate, setFilterDate] = useState("");
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState();
 
   useEffect(() => {
-    getData("announcements", setFilteredAnnouncements, setLoading, setError);
-  }, [getData]);
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, "0");
+    const defaultFilter = `${year}-${month}`;
+    setFilterDate(defaultFilter);
 
-  useEffect(() => {
-    if (isFullPage) {
-      const now = new Date();
-      const year = now.getFullYear();
-      const month = String(now.getMonth() + 1).padStart(2, "0");
-      const defaultFilter = `${year}-${month}`;
-      setFilterDate(defaultFilter);
-      filterAnnouncements(defaultFilter);
-    } else {
-      setFilteredAnnouncements(filteredAnnouncements);
-    }
-  }, [isFullPage]);
+    const fetchData = async () => {
+      await getData("announcements", (data) => {
+        // Sort by date descending
+        const sorted = [...data].sort((a, b) => new Date(b.date) - new Date(a.date));
+        setAnnouncementList(sorted);
 
-  const filterAnnouncements = (selected) => {
-    const filtered = filteredAnnouncements.filter((a) => a.data_date === selected);
-    setFilteredAnnouncements(filtered);
-  };
+        if (isFullPage) {
+          // Filter by selected month (YYYY-MM)
+          const filtered = sorted.filter((a) => a.data_date === defaultFilter);
+          setFilteredAnnouncements(filtered);
+        } else {
+          // Show latest 4 only
+          setFilteredAnnouncements(sorted.slice(0, 4));
+        }
+      }, setLoading, setError);
+    };
+
+    fetchData();
+  }, [getData, isFullPage]);
 
   const handleFilterChange = (e) => {
     const selected = e.target.value;
     setFilterDate(selected);
-    filterAnnouncements(selected);
+
+    const filtered = announcementList.filter((a) => a.data_date === selected);
+    setFilteredAnnouncements(filtered);
   };
 
+  const handleManualFilter = () => {
+    const filtered = announcementList.filter((a) => a.data_date === filterDate);
+    setFilteredAnnouncements(filtered);
+  };
+
+  if (loading) return null;
+  if (error) return <div className="text-danger text-center">Failed to load announcements.</div>;
+
   return (
-    <div className="container pb-5">
+    <div className="container p-5">
       {isFullPage ? (
         <div className="input-group mb-4" style={{ maxWidth: "300px" }}>
           <input
@@ -47,10 +63,7 @@ function Announcements({ isFullPage = false }) {
             value={filterDate}
             onChange={handleFilterChange}
           />
-          <button
-            className="btn btn-primary"
-            onClick={() => filterAnnouncements(filterDate)}
-          >
+          <button className="btn btn-primary" onClick={handleManualFilter}>
             Filter
           </button>
         </div>
@@ -70,10 +83,14 @@ function Announcements({ isFullPage = false }) {
       <div className="row g-4">
         {filteredAnnouncements.length > 0 ? (
           filteredAnnouncements.map((announcement, index) => (
-            <div className="col-3 announcement-card" key={index}>
-              <div className="card rounded-3 shadow-lg  border-0 h-100 d-flex flex-column">
+            <div className="col-12 col-sm-6 col-lg-3" key={index}>
+              <div className="card rounded-3 shadow-lg border-0 h-100 d-flex flex-column">
                 <img
-                  src={`/storage/images/${announcement.image}`}
+                  src={
+                    announcement.image
+                      ? `/storage/images/${announcement.image}`
+                      : "/storage/images/placeholder.png"
+                  }
                   className="card-img-top rounded-top-3 object-fit-cover"
                   alt="Announcement"
                   style={{ height: "160px" }}
@@ -92,7 +109,7 @@ function Announcements({ isFullPage = false }) {
                   </p>
                   <div className="mt-auto mb-3">
                     <Link
-                      to={`/announcements/${index + 1}`}
+                      to={`/announcements/${announcement.id}`}
                       className="btn btn-primary rounded-pill px-4 py-1 read-more-btn"
                     >
                       Read more
@@ -104,7 +121,7 @@ function Announcements({ isFullPage = false }) {
           ))
         ) : (
           <div className="text-center text-muted">
-            <p>No announcements found.</p>
+            <p>No announcements found{isFullPage && " for this period"}.</p>
           </div>
         )}
       </div>

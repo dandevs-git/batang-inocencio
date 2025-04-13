@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\CommitteeMember;
 use App\Models\Setting;
 use Illuminate\Http\Request;
 
@@ -9,37 +10,52 @@ class SettingController extends Controller
 {
     public function index()
     {
-        $latestSetting = Setting::latest()->first();
-        return response()->json($latestSetting);
+        $latestSetting = Setting::with('committeeMembers')->latest()->first();
+        return response()->json($latestSetting, 200);
     }
-
 
     public function store(Request $request)
     {
         $data = $this->extractData($request);
+        $setting = Setting::create($data['setting']);
 
-        $setting = Setting::create($data);
+        foreach ($data['committee_members'] as $member) {
+            $member['website_information_id'] = $setting->id;
+            CommitteeMember::create($member);
+        }
 
         return response()->json([
             'message' => 'Website information created successfully.',
-            'data' => $setting
+            'data' => $setting->load('committeeMembers')
         ], 201);
     }
 
     public function show(Setting $setting)
     {
-        return response()->json($setting);
+        return response()->json($setting->load('committeeMembers'));
     }
 
-    public function update(Request $request, Setting $setting)
+    public function update(Request $request)
     {
-        $data = $this->extractData($request);
+        $setting = Setting::first();
 
-        $setting->update($data);
+        if (!$setting) {
+            return response()->json(['message' => 'Website information not found.'], 404);
+        }
+
+        $data = $this->extractData($request);
+        $setting->update($data['setting']);
+
+        $setting->committeeMembers()->delete();
+
+        foreach ($data['committee_members'] as $member) {
+            $member['website_information_id'] = $setting->id;
+            CommitteeMember::create($member);
+        }
 
         return response()->json([
             'message' => 'Website information updated successfully.',
-            'data' => $setting
+            'data' => $setting->load('committeeMembers')
         ]);
     }
 
@@ -52,33 +68,38 @@ class SettingController extends Controller
         ]);
     }
 
-    /**
-     * Extract and format incoming request data for both store and update
-     */
     private function extractData(Request $request): array
     {
-        $data = [];
+        $settingData = [];
 
-        // Logo upload with static name
         if ($request->hasFile('logo')) {
-            $data['logo'] = $request->file('logo')->storeAs('logos', 'Logo.png', 'public');
+            $settingData['logo'] = $request->file('logo')->storeAs('logos', 'Logo.png', 'public');
         }
 
-        // Other basic fields
-        $data['website_name'] = $request->input('website_name');
-        $data['address'] = $request->input('address');
-        $data['phone_number'] = $request->input('phone_number');
-        $data['email'] = $request->input('email');
-        $data['mission'] = $request->input('mission');
-        $data['vision'] = $request->input('vision');
-        $data['committee_member_name'] = $request->input('committee_member_name');
-        $data['committee_member_position'] = $request->input('committee_member_position');
+        $settingData['website_name'] = $request->input('website_name');
+        $settingData['address'] = $request->input('address');
+        $settingData['phone_number'] = $request->input('phone_number');
+        $settingData['email'] = $request->input('email');
+        $settingData['mission'] = $request->input('mission');
+        $settingData['vision'] = $request->input('vision');
 
-        // Committee image
-        if ($request->hasFile('committee_member_image')) {
-            $data['committee_member_image'] = $request->file('committee_member_image')->store('members', 'public');
+        $committeeMembers = [];
+        foreach ($request->input('committeeMembers', []) as $index => $member) {
+            $data = [
+                'name' => $member['name'],
+                'position' => $member['position'],
+            ];
+
+            if ($request->hasFile("committeeMembers.$index.image")) {
+                $data['image'] = $request->file("committeeMembers.$index.image")->store('committee_images', 'public');
+            }
+
+            $committeeMembers[] = $data;
         }
 
-        return $data;
+        return [
+            'setting' => $settingData,
+            'committee_members' => $committeeMembers
+        ];
     }
 }

@@ -1,86 +1,90 @@
-import React, { useState, useEffect } from "react";
-import Carousel from "../../component/Caroucel";
-import { Link, useLocation } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { useAPI } from "../../component/contexts/ApiContext";
+import Carousel from "../../component/Caroucel";
 
-const carousel = [
-  {
-    image: "/storage/images/Carousel2.png",
-    title: "Youth Events & Activities",
-    description:
-      "Join our various programs to develop your skills and talents.",
-  },
-  {
-    image: "/storage/images/Carousel1.png",
-    title: "Welcome to Batang Inocencio",
-    description:
-      "Empowering the youth through leadership and community service.",
-  },
-  {
-    image: "/storage/images/Carousel3.png",
-    title: "Be a Part of the Change",
-    description: "Engage with the community and make a difference.",
-  },
-  {
-    image: "no-image",
-    title: "Sample Placeholder",
-    description:
-      "Displays a placeholder image when no actual image is available",
-  },
-];
-
-function News() {
-  const { getData, postData, putData, deleteData } = useAPI();
-  const location = useLocation();
-  const [selectedMonth, setSelectedMonth] = useState("");
+function News({ isFullPage = true }) {
+  const { getData } = useAPI();
+  const [newsList, setNewsList] = useState([]);
+  const [carouselItems, setCarouselItems] = useState([]);
   const [filteredNews, setFilteredNews] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [filterDate, setFilterDate] = useState("");
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState();
 
   useEffect(() => {
-    getData("news", setFilteredNews, setLoading, setError);
+    getData("carousel?page=news", setCarouselItems, setLoading, setError);
   }, [getData]);
 
   useEffect(() => {
     const now = new Date();
     const year = now.getFullYear();
     const month = String(now.getMonth() + 1).padStart(2, "0");
-    setSelectedMonth(`${year}-${month}`);
-  }, []);
+    const defaultFilter = `${year}-${month}`;
+    setFilterDate(defaultFilter);
 
-  const handleMonthChange = (e) => {
-    const selectedValue = e.target.value;
-    setSelectedMonth(selectedValue);
+    const fetchData = async () => {
+      await getData(
+        "news",
+        (data) => {
+          const sorted = [...data].sort(
+            (a, b) => new Date(b.date) - new Date(a.date)
+          );
+          setNewsList(sorted);
 
-    if (!selectedValue) return;
+          if (isFullPage) {
+            const filtered = sorted.filter(
+              (n) => n.data_date === defaultFilter
+            );
+            setFilteredNews(filtered);
+          } else {
+            setFilteredNews(sorted.slice(0, 4));
+          }
+        },
+        setLoading,
+        setError
+      );
+    };
 
-    const filtered = newsList.filter(
-      (news) => news.data_date === selectedValue
-    );
+    fetchData();
+  }, [getData, isFullPage]);
+
+  const handleFilterChange = (e) => {
+    const selected = e.target.value;
+    setFilterDate(selected);
+    const filtered = newsList.filter((n) => n.data_date === selected);
     setFilteredNews(filtered);
   };
 
-  const isNewsPage = location.pathname.endsWith("news");
+  const handleManualFilter = () => {
+    const filtered = newsList.filter((n) => n.data_date === filterDate);
+    setFilteredNews(filtered);
+  };
+
+  if (loading) return null;
+  if (error)
+    return (
+      <div className="text-danger text-center">Failed to load news data.</div>
+    );
 
   return (
     <>
-      {isNewsPage && <Carousel carouselItems={carousel} />}
+      {isFullPage && <Carousel carouselItems={carouselItems} />}
 
       <div className="container pb-5">
-        {isNewsPage && (
+        {isFullPage ? (
           <div className="input-group mb-4" style={{ maxWidth: "300px" }}>
             <input
               type="month"
               className="form-control"
-              id="newsMonthYearPicker"
-              value={selectedMonth}
-              onChange={handleMonthChange}
+              value={filterDate}
+              onChange={handleFilterChange}
             />
-            <button className="btn btn-primary">Filter</button>
+            <button className="btn btn-primary" onClick={handleManualFilter}>
+              Filter
+            </button>
           </div>
-        )}
-
-        {!isNewsPage && (
+        ) : (
           <div className="container text-center my-5">
             <h5 className="section-title text-primary">News & Updates</h5>
             <h2 className="main-heading mt-3 text-dark">
@@ -97,21 +101,25 @@ function News() {
         <div className="row g-4">
           {filteredNews.length > 0 ? (
             filteredNews.map((news, index) => (
-              <div
-                key={index}
-                className="col-3 news-card"
-                data-date={news.data_date}
-              >
-                <div className="card rounded-3 shadow-lg  border-0 h-100 d-flex flex-column">
+              <div className="col-12 col-sm-6 col-lg-3" key={index}>
+                <div className="card rounded-3 shadow-lg border-0 h-100 d-flex flex-column">
                   <img
-                    src={`/storage/${news.image}`}
+                    src={
+                      news.image
+                        ? `/storage/images/${news.image}`
+                        : "/storage/images/placeholder.png"
+                    }
                     className="card-img-top rounded-top-3 object-fit-cover"
-                    alt="News Image"
+                    alt="News"
                     style={{ height: "160px" }}
                   />
                   <div className="card-body d-flex flex-column h-100 p-3">
                     <p className="news-date small text-uppercase">
-                      {news.date}
+                      {new Date(news.date).toLocaleDateString(undefined, {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                      })}
                     </p>
                     <h5 className="card-title">{news.title}</h5>
                     <p className="card-text flex-grow-1">
@@ -130,8 +138,8 @@ function News() {
               </div>
             ))
           ) : (
-            <div id="noNewsMessage" className="text-center text-muted">
-              <p>No news found.</p>
+            <div className="text-center text-muted">
+              <p>No news found{isFullPage && " for this period"}.</p>
             </div>
           )}
         </div>
