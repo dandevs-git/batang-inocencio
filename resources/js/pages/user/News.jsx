@@ -34,7 +34,7 @@ function News({ isFullPage = true }) {
 
           if (isFullPage) {
             const filtered = sorted.filter(
-              (n) => n.data_date === defaultFilter
+              (n) => n.date_published === defaultFilter
             );
             setFilteredNews(filtered);
           } else {
@@ -52,12 +52,14 @@ function News({ isFullPage = true }) {
   const handleFilterChange = (e) => {
     const selected = e.target.value;
     setFilterDate(selected);
-    const filtered = newsList.filter((n) => n.data_date === selected);
+    console.log(newsList);
+    
+    const filtered = newsList.filter((n) => n.date_published === selected);
     setFilteredNews(filtered);
   };
 
   const handleManualFilter = () => {
-    const filtered = newsList.filter((n) => n.data_date === filterDate);
+    const filtered = newsList.filter((n) => n.date_published === filterDate);
     setFilteredNews(filtered);
   };
 
@@ -106,8 +108,8 @@ function News({ isFullPage = true }) {
                   <img
                     src={
                       news.image
-                        ? `/storage/images/${news.image}`
-                        : "/storage/images/placeholder.png"
+                        ? `/storage/${news.image}`
+                        : "/storage/placeholder.png"
                     }
                     className="card-img-top rounded-top-3 object-fit-cover"
                     alt="News"
@@ -115,7 +117,7 @@ function News({ isFullPage = true }) {
                   />
                   <div className="card-body d-flex flex-column h-100 p-3">
                     <p className="news-date small text-uppercase">
-                      {new Date(news.date).toLocaleDateString(undefined, {
+                      {new Date(news.date_published).toLocaleDateString(undefined, {
                         year: "numeric",
                         month: "long",
                         day: "numeric",

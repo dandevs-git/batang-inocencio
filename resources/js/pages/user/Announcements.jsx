@@ -18,20 +18,29 @@ function Announcements({ isFullPage = false }) {
     setFilterDate(defaultFilter);
 
     const fetchData = async () => {
-      await getData("announcements", (data) => {
-        // Sort by date descending
-        const sorted = [...data].sort((a, b) => new Date(b.date) - new Date(a.date));
-        setAnnouncementList(sorted);
+      await getData(
+        "announcements",
+        (data) => {
+          // Sort by date descending
+          const sorted = [...data].sort(
+            (a, b) => new Date(b.date) - new Date(a.date)
+          );
+          setAnnouncementList(sorted);
 
-        if (isFullPage) {
-          // Filter by selected month (YYYY-MM)
-          const filtered = sorted.filter((a) => a.data_date === defaultFilter);
-          setFilteredAnnouncements(filtered);
-        } else {
-          // Show latest 4 only
-          setFilteredAnnouncements(sorted.slice(0, 4));
-        }
-      }, setLoading, setError);
+          if (isFullPage) {
+            // Filter by selected month (YYYY-MM)
+            const filtered = sorted.filter(
+              (a) => a.data_date === defaultFilter
+            );
+            setFilteredAnnouncements(filtered);
+          } else {
+            // Show latest 4 only
+            setFilteredAnnouncements(sorted.slice(0, 4));
+          }
+        },
+        setLoading,
+        setError
+      );
     };
 
     fetchData();
@@ -51,7 +60,12 @@ function Announcements({ isFullPage = false }) {
   };
 
   if (loading) return null;
-  if (error) return <div className="text-danger text-center">Failed to load announcements.</div>;
+  if (error)
+    return (
+      <div className="text-danger text-center">
+        Failed to load announcements.
+      </div>
+    );
 
   return (
     <div className="container p-5">
@@ -88,8 +102,8 @@ function Announcements({ isFullPage = false }) {
                 <img
                   src={
                     announcement.image
-                      ? `/storage/images/${announcement.image}`
-                      : "/storage/images/placeholder.png"
+                      ? `/storage/${announcement.image}`
+                      : "/storage/placeholder.png"
                   }
                   className="card-img-top rounded-top-3 object-fit-cover"
                   alt="Announcement"
@@ -97,11 +111,12 @@ function Announcements({ isFullPage = false }) {
                 />
                 <div className="card-body d-flex flex-column h-100 p-3">
                   <p className="announcement-date small text-uppercase">
-                    {new Date(announcement.date).toLocaleDateString(undefined, {
+                    {console.log(announcement)}
+                    {/* {new Date(announcement.date).toLocaleDateString(undefined, {
                       year: "numeric",
                       month: "long",
                       day: "numeric",
-                    })}
+                    })} */}
                   </p>
                   <h5 className="card-title">{announcement.title}</h5>
                   <p className="card-text flex-grow-1">

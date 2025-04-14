@@ -12,13 +12,16 @@ class EventController extends Controller
         $date = $request->query('date');
 
         if ($date) {
-            $events = Event::whereDate('date', $date)->get();
+            $events = Event::whereDate('date', $date)
+                ->orderBy('date', 'asc')
+                ->get();
         } else {
-            $events = Event::all();
+            $events = Event::orderBy('date', 'asc')->get();
         }
 
         return response()->json($events);
     }
+
 
 
     public function show($id)

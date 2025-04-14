@@ -1,48 +1,76 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
+import { useAPI } from "../../component/contexts/ApiContext";
 
-const newsList = [
-  {
-    id: "1",
-    date: "2025-03-17",
-    data_date: "2025-03",
-    title: "KNOCK KNOCK, WHO’S HAIR?",
-    image: "News1.png",
-    description:
-      "Sa huling pagkatok ng Batang Inocencio ay pinagbuksan ito para sa proyektong “Knock-knock, Who’s hair?” na ....",
-  },
-  {
-    id: "2",
-    date: "2025-03-12",
-    data_date: "2025-03",
-    title: "Youth Empowerment Summit 2025",
-    image: "News1.png",
-    description:
-      "The Batang Inocencio Youth Summit secondaryfully gathered young leaders across the region to discuss...",
-  },
-  {
-    id: "3",
-    date: "2025-04-10",
-    data_date: "2025-04",
-    title: "Tree Planting Activity",
-    image: "News1.png",
-    description:
-      "Batang Inocencio leads a tree-planting activity to promote environmental sustainability...",
-  },
-  {
-    id: "4",
-    date: "2025-04-22",
-    data_date: "2025-04",
-    title: "Barangay Cleanup Drive",
-    image: "News1.png",
-    description:
-      "Residents and youth volunteers joined hands to clean up the streets of Barangay Inocencio...",
-  },
-];
+// const newsList = [
+//   {
+//     id: "1",
+//     date: "2025-03-17",
+//     data_date: "2025-03",
+//     title: "KNOCK KNOCK, WHO’S HAIR?",
+//     image: "News1.png",
+//     description:
+//       "Sa huling pagkatok ng Batang Inocencio ay pinagbuksan ito para sa proyektong “Knock-knock, Who’s hair?” na ....",
+//   },
+//   {
+//     id: "2",
+//     date: "2025-03-12",
+//     data_date: "2025-03",
+//     title: "Youth Empowerment Summit 2025",
+//     image: "News1.png",
+//     description:
+//       "The Batang Inocencio Youth Summit secondaryfully gathered young leaders across the region to discuss...",
+//   },
+//   {
+//     id: "3",
+//     date: "2025-04-10",
+//     data_date: "2025-04",
+//     title: "Tree Planting Activity",
+//     image: "News1.png",
+//     description:
+//       "Batang Inocencio leads a tree-planting activity to promote environmental sustainability...",
+//   },
+//   {
+//     id: "4",
+//     date: "2025-04-22",
+//     data_date: "2025-04",
+//     title: "Barangay Cleanup Drive",
+//     image: "News1.png",
+//     description:
+//       "Residents and youth volunteers joined hands to clean up the streets of Barangay Inocencio...",
+//   },
+// ];
 
 const NewsDetail = () => {
+  const { getData } = useAPI();
   const { id } = useParams();
-  const news = newsList.find((item) => item.id === id);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState();
+      const [newsList, setNewsList] = useState([]);
+
+  const fetchData = async () => {
+    await getData(
+      "news",
+      setLoading,
+      setError
+    );
+  };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const data = await getData(
+        "news",
+        setLoading,
+        setError
+      );
+
+      setNewsList(data)
+    };
+    fetchData()
+  }, [])
+  
+  
+  const news = newsList.find((item) => item.id == id);
 
   if (!news) {
     return (
@@ -72,7 +100,7 @@ const NewsDetail = () => {
             })}
           </p>
           <img
-            src={`/storage/images/${news.image}`}
+            src={`/storage/${news.image}`}
             className="rounded-4 border shadow-lg object-fit-cover w-100"
             alt={news.title}
           />
@@ -97,7 +125,7 @@ const NewsDetail = () => {
             ></Link>
           </div>
           <p
-            className="p-3 lead"
+            className="p-3 text-wrap"
             style={{ textIndent: "50px", textAlign: "justify" }}
           >
             {news.description}
