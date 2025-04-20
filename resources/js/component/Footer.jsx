@@ -32,7 +32,7 @@ function Footer() {
         <div className="container d-flex py-4">
           <div className="col-2 d-flex justify-content-center align-items-center">
           <img
-              src={websiteInformation.logo ?`/storage/${websiteInformation.logo}` : "images/Logo.png"} 
+              src={websiteInformation?.logo ?`/storage/${websiteInformation?.logo}` : "images/Logo.png"} 
               alt="Logo"
               className="img-fluid"
             />

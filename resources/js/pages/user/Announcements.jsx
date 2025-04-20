@@ -19,22 +19,19 @@ function Announcements({ isFullPage = false }) {
 
     const fetchData = async () => {
       await getData(
-        "announcements",
+        "announcements?sort=published",
         (data) => {
-          // Sort by date descending
           const sorted = [...data].sort(
             (a, b) => new Date(b.date) - new Date(a.date)
           );
           setAnnouncementList(sorted);
 
           if (isFullPage) {
-            // Filter by selected month (YYYY-MM)
             const filtered = sorted.filter(
               (a) => a.data_date === defaultFilter
             );
             setFilteredAnnouncements(filtered);
           } else {
-            // Show latest 4 only
             setFilteredAnnouncements(sorted.slice(0, 4));
           }
         },
@@ -46,17 +43,25 @@ function Announcements({ isFullPage = false }) {
     fetchData();
   }, [getData, isFullPage]);
 
+  useEffect(() => {
+    const handleManualFilter = () => {
+      const filtered = announcementList.filter((n) => {
+        const formattedDate = new Date(n.date_published)
+          .toISOString()
+          .slice(0, 7);
+        return formattedDate === filterDate;
+      });
+      setFilteredAnnouncements(filtered);
+    };
+
+    if (isFullPage && announcementList.length > 0 && filterDate) {
+      handleManualFilter();
+    }
+  }, [announcementList, filterDate, isFullPage]);
+
   const handleFilterChange = (e) => {
     const selected = e.target.value;
     setFilterDate(selected);
-
-    const filtered = announcementList.filter((a) => a.data_date === selected);
-    setFilteredAnnouncements(filtered);
-  };
-
-  const handleManualFilter = () => {
-    const filtered = announcementList.filter((a) => a.data_date === filterDate);
-    setFilteredAnnouncements(filtered);
   };
 
   if (loading) return null;
@@ -70,16 +75,13 @@ function Announcements({ isFullPage = false }) {
   return (
     <div className="container p-5">
       {isFullPage ? (
-        <div className="input-group mb-4" style={{ maxWidth: "300px" }}>
+        <div className="input-group mb-4 mt-5" style={{ maxWidth: "300px" }}>
           <input
             type="month"
             className="form-control"
             value={filterDate}
             onChange={handleFilterChange}
           />
-          <button className="btn btn-primary" onClick={handleManualFilter}>
-            Filter
-          </button>
         </div>
       ) : (
         <div className="container text-center my-5">
@@ -101,9 +103,9 @@ function Announcements({ isFullPage = false }) {
               <div className="card rounded-3 shadow-lg border-0 h-100 d-flex flex-column">
                 <img
                   src={
-                    announcement.image
-                      ? `/storage/${announcement.image}`
-                      : "/storage/placeholder.png"
+                    announcement.image && announcement.image.startsWith("http")
+                      ? announcement.image
+                      : `/storage/${announcement.image || "placeholder.png"}`
                   }
                   className="card-img-top rounded-top-3 object-fit-cover"
                   alt="Announcement"
@@ -111,12 +113,11 @@ function Announcements({ isFullPage = false }) {
                 />
                 <div className="card-body d-flex flex-column h-100 p-3">
                   <p className="announcement-date small text-uppercase">
-                    {console.log(announcement)}
-                    {/* {new Date(announcement.date).toLocaleDateString(undefined, {
+                    {new Date(announcement.date_published).toLocaleDateString(undefined, {
                       year: "numeric",
                       month: "long",
                       day: "numeric",
-                    })} */}
+                    })}
                   </p>
                   <h5 className="card-title">{announcement.title}</h5>
                   <p className="card-text flex-grow-1">

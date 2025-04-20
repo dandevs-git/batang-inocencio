@@ -11,11 +11,9 @@ const Breadcrumb = () => {
     const pathSegments = path.split("/").filter((segment) => segment !== "");
 
     const breadcrumbData = [];
-    let breadcrumbPath = "/admin"; // Ensure it starts with '/admin'
+    let breadcrumbPath = "/admin"; 
 
-    // Process the segments after 'admin'
     pathSegments.forEach((segment, index) => {
-      // Skip the initial 'admin' segment
       if (segment === "admin") {
         return;
       }

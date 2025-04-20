@@ -10,24 +10,34 @@ class SettingController extends Controller
 {
     public function index()
     {
-        $latestSetting = Setting::with('committeeMembers')->latest()->first();
-        return response()->json($latestSetting, 200);
+        $latestSetting = Setting::with('committeeMembers', 'carousels')->latest()->first();
+        return response()->json($latestSetting);
     }
 
-    public function store(Request $request)
+    public function save(Request $request)
     {
         $data = $this->extractData($request);
-        $setting = Setting::create($data['setting']);
 
+        // Either get the first existing setting or create it
+        $setting = Setting::first();
+
+        if (!$setting) {
+            $setting = Setting::create($data['setting']);
+        } else {
+            $setting->update($data['setting']);
+        }
+
+        // Refresh committee members
+        $setting->committeeMembers()->delete();
         foreach ($data['committee_members'] as $member) {
-            $member['website_information_id'] = $setting->id;
+            $member['setting_id'] = $setting->id;
             CommitteeMember::create($member);
         }
 
         return response()->json([
-            'message' => 'Website information created successfully.',
-            'data' => $setting->load('committeeMembers')
-        ], 201);
+            'message' => $setting->wasRecentlyCreated ? 'Website information created successfully.' : 'Website information updated successfully.',
+            'data' => $setting->load('committeeMembers', 'carousels')
+        ], $setting->wasRecentlyCreated ? 201 : 200);
     }
 
     public function show(Setting $setting)
@@ -35,37 +45,10 @@ class SettingController extends Controller
         return response()->json($setting->load('committeeMembers'));
     }
 
-    public function update(Request $request)
-    {
-        $setting = Setting::first();
-
-        if (!$setting) {
-            return response()->json(['message' => 'Website information not found.'], 404);
-        }
-
-        $data = $this->extractData($request);
-        $setting->update($data['setting']);
-
-        $setting->committeeMembers()->delete();
-
-        foreach ($data['committee_members'] as $member) {
-            $member['website_information_id'] = $setting->id;
-            CommitteeMember::create($member);
-        }
-
-        return response()->json([
-            'message' => 'Website information updated successfully.',
-            'data' => $setting->load('committeeMembers')
-        ]);
-    }
-
     public function destroy(Setting $setting)
     {
         $setting->delete();
-
-        return response()->json([
-            'message' => 'Website information deleted successfully.'
-        ]);
+        return response()->json(['message' => 'Website information deleted successfully.']);
     }
 
     private function extractData(Request $request): array

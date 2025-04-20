@@ -9,8 +9,6 @@ class Event extends Model
 {
     use HasFactory;
 
-    protected $table = 'events';
-
     protected $fillable = [
         'title',
         'date',
@@ -18,6 +16,7 @@ class Event extends Model
         'event_organizer',
         'registration_start_date',
         'registration_end_date',
+        'registration_type',
         'event_type',
         'requirements',
         'description',
@@ -28,9 +27,19 @@ class Event extends Model
         'status',
     ];
 
-    protected $dates = [
-        'date',
-        'registration_start_date',
-        'registration_end_date'
+    protected $casts = [
+        'date' => 'date',
+        'registration_start_date' => 'date',
+        'registration_end_date' => 'date',
     ];
+
+    public function participants()
+    {
+        return $this->hasMany(Participant::class);
+    }
+
+    public function teams()
+    {
+        return $this->hasMany(Team::class);
+    }
 }

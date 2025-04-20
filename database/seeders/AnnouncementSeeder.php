@@ -13,13 +13,6 @@ class AnnouncementSeeder extends Seeder
      */
     public function run(): void
     {
-        for ($i = 1; $i <= 4; $i++) {
-            Announcement::create([
-                'title' => 'Announcement Title ' . $i,
-                'description' => 'This is a sample announcement description for item ' . $i . '. It may contain news, alerts, or other important information.',
-                'image' => 'https://picsum.photos/seed/announcement' . $i . '/600/400',
-                'status' => $i % 2 === 0 ? 'published' : 'draft',
-            ]);
-        }
+        Announcement::factory()->count(100)->create();
     }
 }

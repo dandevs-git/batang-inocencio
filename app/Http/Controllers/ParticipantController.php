@@ -24,6 +24,7 @@ class ParticipantController extends Controller
     public function store(Request $request)
     {
         $request->validate([
+            'event_id' => 'required|exists:events,id',
             'last_name' => 'required|string',
             'first_name' => 'required|string',
             'address' => 'required|string',

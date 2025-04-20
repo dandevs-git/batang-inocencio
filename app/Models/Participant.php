@@ -7,14 +7,19 @@ use Illuminate\Database\Eloquent\Model;
 
 class Participant extends Model
 {
-    /** @use HasFactory<\Database\Factories\ParticipantFactory> */
     use HasFactory;
 
     protected $fillable = [
+        'event_id',
         'last_name',
         'first_name',
         'address',
         'email',
-        'contact_number'
+        'contact_number',
     ];
+
+    public function event()
+    {
+        return $this->belongsTo(Event::class, 'event_id');
+    }
 }

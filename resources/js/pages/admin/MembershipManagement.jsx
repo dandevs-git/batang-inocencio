@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import Breadcrumb from "../../component/ui/Breadcrumb";
 import { useAPI } from "../../component/contexts/ApiContext";
 import TableComponent from "../../component/tables/TableComponent";
+import MembersTable from "../../component/tables/MembersTable";
 
 function MembershipManagement() {
   const { getData, postData, putData, deleteData } = useAPI();
@@ -17,58 +18,6 @@ function MembershipManagement() {
   useEffect(() => {
     setTotalMembers(membersData.length);
   }, [membersData]);
-
-  const membersColumns = [
-    {
-      header: "#",
-      cell: ({ row }) => row.index + 1,
-    },
-    {
-      header: "First Name",
-      accessorKey: "first_name",
-    },
-    {
-      header: "Last Name",
-      accessorKey: "last_name",
-    },
-    {
-      header: "Age",
-      accessorKey: "age",
-    },
-    {
-      header: "Area",
-      accessorKey: "area",
-    },
-    {
-      header: "Email",
-      accessorKey: "masked_email",
-    },
-    {
-      header: "Contact Number",
-      accessorKey: "contact_number",
-    },
-  ];
-
-  const actions = [
-    {
-      label: "View",
-      href: "/member/show",
-      className: "btn btn-sm text-light btn-info text-nowrap",
-      icon: "bi bi-eye",
-    },
-    {
-      label: "Edit",
-      href: "/member/edit",
-      className: "btn btn-sm text-light btn-warning text-nowrap",
-      icon: "bi bi-pencil-square",
-    },
-    {
-      label: "Delete",
-      href: "/member/delete",
-      className: "btn btn-sm text-light btn-danger text-nowrap",
-      icon: "bi bi-trash",
-    },
-  ];
 
   const handleDownload = () => {
     const csvRows = [];
@@ -134,35 +83,7 @@ function MembershipManagement() {
         </div>
       </div>
 
-      <TableComponent
-        topComponent={
-          <>
-            <div className="input-group mb-3 d-flex" style={{ width: "300px" }}>
-              <label className="input-group-text bg-primary text-light" htmlFor="inputGroupSelect02">
-                Area
-              </label>
-              <select className="form-select" id="inputGroupSelect02">
-                <option selected>Choose an area...</option>
-                <option value="Inocencio Proper">Inocencio Proper</option>
-                <option value="Tradition Homes Phase 1 and 2">
-                  Tradition Homes Phase 1 and 2
-                </option>
-                <option value="Sampaguita Village">Sampaguita Village</option>
-                <option value="Regina Ville 2000">Regina Ville 2000</option>
-                <option value="BRIA Homes">BRIA Homes</option>
-                <option value="South Ville Phase 1A and B">
-                  South Ville Phase 1A and B
-                </option>
-              </select>
-            </div>
-          </>
-        }
-        title={"KK Members"}
-        columns={membersColumns}
-        data={membersData}
-        loading={loading}
-        actions={actions}
-      />
+      <MembersTable hasActions={true}/>
     </>
   );
 }

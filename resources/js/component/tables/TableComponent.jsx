@@ -14,7 +14,7 @@ function TableComponent({
   title = "Items",
   actions = [],
   loading = false,
-  topComponent = <></>
+  topComponent = <></>,
 }) {
   const [globalFilter, setGlobalFilter] = useState("");
   const [columnFilters, setColumnFilters] = useState([]);
@@ -24,18 +24,19 @@ function TableComponent({
     data,
     columns: [
       ...columns,
-      ...(actions.length > 0
+      ...(actions?.length > 0
         ? [
             {
               header: "Actions",
               id: "actions",
-              cell: ({ row }) => (
+            cell: ({ row }) => (
                 <div className="d-flex gap-2 justify-content-center">
-                  {actions.map((action, idx) => (
+                  {actions(row.original.id).map((action, index) => (
                     <a
-                      key={idx}
-                      href={`${action.href}/${row.original.id}`}
-                      className={`btn ${action.className} btn-sm`}
+                      key={index}
+                      href={action.href}
+                      onClick={action.onClick}
+                      className={action.className}
                     >
                       <i className={action.icon}></i> {action.label}
                     </a>
@@ -133,7 +134,7 @@ function TableComponent({
               ) : (
                 <tr>
                   <td
-                    colSpan={columns.length + (actions.length > 0 ? 1 : 0)}
+                    colSpan={columns?.length + (actions?.length > 0 ? 1 : 0)}
                     className="text-center text-muted"
                   >
                     No data available.

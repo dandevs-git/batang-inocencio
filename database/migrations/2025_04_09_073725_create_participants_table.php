@@ -12,11 +12,12 @@ return new class extends Migration {
     {
         Schema::create('participants', function (Blueprint $table) {
             $table->id();
-            $table->string('last_name')->index();
-            $table->string('first_name')->index();
+            $table->foreignId('event_id')->constrained('events')->onDelete('cascade');
+            $table->string('last_name');
+            $table->string('first_name');
             $table->string('address');
-            $table->string('email')->unique()->index();
-            $table->string('contact_number')->index();
+            $table->string('email');
+            $table->string('contact_number');
             $table->timestamps();
         });
     }

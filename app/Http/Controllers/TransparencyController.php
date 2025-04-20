@@ -2,27 +2,28 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\Request;
 use App\Models\Transparency;
 use App\Models\TransparencyFile;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
 class TransparencyController extends Controller
 {
     public function index()
     {
-        $categories = Transparency::with('files')->get();
-        return response()->json($categories);
+        return response()->json(
+            Transparency::with('files')->get()
+        );
     }
 
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
+            'category' => 'required|string|max:255',
         ]);
 
         $category = Transparency::create([
-            'name' => $request->name,
+            'category' => $request->category,
         ]);
 
         return response()->json($category, 201);
@@ -49,40 +50,44 @@ class TransparencyController extends Controller
         return response()->json($fileEntry, 201);
     }
 
-    /**
-     * Show a specific file.
-     */
     public function show($id)
     {
-        $file = TransparencyFile::findOrFail($id);
-        return response()->json($file);
+        $transparency = TransparencyFile::with('transparency')->findOrFail($id);
+        return response()->json($transparency);
     }
 
-    /**
-     * Update a file's category or description.
-     */
+
     public function update(Request $request, $id)
     {
-        $file = TransparencyFile::findOrFail($id);
+        $file = TransparencyFile::with('transparency')->findOrFail($id);
 
-        $validated = $request->validate([
-            'category' => 'nullable|in:resolution,project_report,accomplishment_report',
-            'description' => 'nullable|string|max:500',
+        $request->validate([
+            'file' => 'nullable|file|mimes:pdf|max:10240',
         ]);
 
-        $file->update(array_filter($validated));
+        if ($request->hasFile('file')) {
+            if (Storage::disk('public')->exists($file->file_url)) {
+                Storage::disk('public')->delete($file->file_url);
+            }
+
+            $newFile = $request->file('file');
+            $newFileName = $newFile->getClientOriginalName();
+            $newFileUrl = $newFile->storeAs('transparency_files', $newFileName, 'public');
+
+            $file->update([
+                'file_name' => $newFileName,
+                'file_url' => $newFileUrl,
+            ]);
+        }
 
         return response()->json(['message' => 'File updated successfully.', 'file' => $file]);
     }
 
-    /**
-     * Remove a file from storage.
-     */
     public function destroy($id)
     {
         $file = TransparencyFile::findOrFail($id);
 
-        if ($file->file_url && Storage::disk('public')->exists($file->file_url)) {
+        if (Storage::disk('public')->exists($file->file_url)) {
             Storage::disk('public')->delete($file->file_url);
         }
 

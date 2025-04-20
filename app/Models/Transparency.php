@@ -7,11 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class Transparency extends Model
 {
-    /** @use HasFactory<\Database\Factories\TransparencyFactory> */
     use HasFactory;
 
-    protected $fillable = ['name'];
-
+    protected $fillable = ['category'];
 
     public function files()
     {

@@ -1,117 +1,151 @@
-import React, { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-
-const eventsList = [
-  {
-    id: "1",
-    data_date: "2025-04",
-    image: "Event2.png",
-    title: "Knock-Knock, Who’s Hair?",
-    registration_period: "April 12 - 15, 2025",
-    details: [
-      "Tradition Homes Ph2 Court Subdivision | 2:00PM",
-      "April 15, 2025 (Sunday)",
-    ],
-    date: "2025-04-17",
-    description: `Ito na yun Batang Inocencio! Date ba kamo? For single or for couple? Syempre sagot na namin yan! Join us for the first-ever event of Sangguniang Kabataan...`,
-    eventType: "group",
-  },
-  {
-    id: "2",
-    data_date: "2025-04",
-    image: "Event2.png",
-    title: "Another Event Title",
-    registration_period: "April 20 - 23, 2025",
-    details: ["Another Venue | 3:00PM", "April 23, 2025 (Wednesday)"],
-    date: "2025-04-23",
-    description: `Ito na yun Batang Inocencio! Date ba kamo? For single or for couple? Syempre sagot na namin yan! Join us for the first-ever event of Sangguniang Kabataan...`,
-    eventType: "group",
-  },
-];
+import React, { useEffect, useRef, useState } from "react";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
+import { useAPI } from "../../component/contexts/ApiContext";
+import ModalSuccessfulRegistration from "../../component/modals/ModalSuccessfulRegistration";
 
 const EventRegistration = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { getData, postData } = useAPI();
   const { id } = useParams();
-  const event = eventsList.find((item) => item.id === id);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState();
+  const [showModal, setShowModal] = useState(false);
+  const [event, setEvent] = useState([]);
+  const [agreeToTerms, setAgreeToTerms] = useState(false);
 
-  const [formData, setFormData] = useState({
-    lastName: "",
-    firstName: "",
-    contactNumber: "",
-    address: "",
-    email: "",
-    agree: false,
-    teamName: "",
-    teamCaptain: "",
-    teamCaptainAge: "",
-    teamCaptainContact: "",
-    teamCaptainEmail: "",
-    teamMembers: [{ name: "", age: "", contact: "" }],
+  const formRef = useRef(null);
+
+  const [teamFormData, setTeamFormData] = useState({
+    event_id: id,
+    team_name: "",
+    leader_name: "",
+    leader_age: "",
+    leader_contact: "",
+    leader_email: "",
+    members: [{ name: "", age: "", contact: "", email: "" }],
   });
 
+  const [participantFormData, setParticipantFormData] = useState({
+    event_id: id,
+    last_name: "",
+    first_name: "",
+    address: "",
+    email: "",
+    contact_number: "",
+  });
+
+  const isEventRegistrationPageActive = () => location.pathname.startsWith('/registration');
+
   useEffect(() => {
-    (() => {
-      "use strict";
-      const forms = document.querySelectorAll(".needs-validation");
-      Array.from(forms).forEach((form) => {
-        form.addEventListener(
-          "submit",
-          (event) => {
-            if (!form.checkValidity()) {
-              event.preventDefault();
-              event.stopPropagation();
-            }
-            form.classList.add("was-validated");
-          },
-          false
-        );
-      });
-    })();
+    const fetchData = async () => {
+      const data = await getData(`events/${id}`, setLoading, setError);
+      setEvent(data);
+    };
+    fetchData();
   }, []);
 
-  const handleChange = (e) => {
-    const { id, value, type, checked } = e.target;
-    if (id.startsWith("teamMembers")) {
-      const index = parseInt(id.split("-")[1]);
-      const updatedTeamMembers = [...formData.teamMembers];
-      updatedTeamMembers[index] = {
-        ...updatedTeamMembers[index],
-        [e.target.name]: value,
-      };
-      setFormData((prev) => ({
-        ...prev,
-        teamMembers: updatedTeamMembers,
-      }));
-    } else {
-      setFormData((prev) => ({
-        ...prev,
-        [id]: type === "checkbox" ? checked : value,
-      }));
-    }
+  const handleTeamChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setTeamFormData({
+      ...teamFormData,
+      [name]: type === "checkbox" ? checked : value,
+    });
+  };
+
+  const handleParticipantChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setParticipantFormData({
+      ...participantFormData,
+      [name]: type === "checkbox" ? checked : value,
+    });
+  };
+
+  const handleMemberChange = (index, field, value) => {
+    const updatedMembers = [...teamFormData.members];
+    updatedMembers[index][field] = value;
+    setTeamFormData({ ...teamFormData, members: updatedMembers });
+  };
+
+  const addMember = () => {
+    setTeamFormData({
+      ...teamFormData,
+      members: [
+        ...teamFormData.members,
+        { name: "", age: "", contact: "", email: "" },
+      ],
+    });
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log("Form submitted:", formData);
+    const form = e.target;
+    if (!form.checkValidity()) {
+      form.classList.add("was-validated");
+      return;
+    }
+    try {
+      if (event.registration_type == "group") {
+        postData("teams", teamFormData, setTeamFormData, setLoading, setError);
+        setTeamFormData({
+          team_name: "",
+          leader_name: "",
+          leader_age: "",
+          leader_contact: "",
+          leader_email: "",
+          members: [],
+        });
+      } else {
+        postData(
+          "participants",
+          participantFormData,
+          setParticipantFormData,
+          setLoading,
+          setError
+        );
+        setParticipantFormData({
+          name: "",
+          age: "",
+          contact: "",
+          email: "",
+        });
+      }
+      form.classList.remove("was-validated");
+      setShowModal(true);
+    } catch {
+      setShowModal(false);
+    }
   };
 
-  const addMember = () => {
-    setFormData((prev) => ({
-      ...prev,
-      teamMembers: [...prev.teamMembers, { name: "", age: "", contact: "" }],
-    }));
-  };
-
-  // Helper function to format the date in long format
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     return date.toLocaleDateString("en-US", {
-      weekday: "long", // "Monday"
-      year: "numeric", // "2025"
-      month: "long", // "April"
-      day: "numeric", // "23"
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
     });
   };
+
+  useEffect(() => {
+    if (!formRef.current) return;
+
+    const form = formRef.current;
+
+    const handleValidation = (event) => {
+      if (!form.checkValidity()) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+      form.classList.add("was-validated");
+    };
+
+    form.addEventListener("submit", handleValidation);
+
+    return () => {
+      form.removeEventListener("submit", handleValidation);
+    };
+  }, []);
 
   if (!event) {
     return (
@@ -155,16 +189,17 @@ const EventRegistration = () => {
             <div className="card-body p-5">
               <h2 className="text-center fw-bold mb-4">Registration Form</h2>
 
-              <form
-                className="row g-3 needs-validation"
-                noValidate
-                onSubmit={handleSubmit}
-              >
-                {event.eventType === "individual" ? (
-                  <>
+              {event.registration_type === "individual" ? (
+                <>
+                  <form
+                    ref={formRef}
+                    className="row g-3 needs-validation"
+                    noValidate
+                    onSubmit={handleSubmit}
+                  >
                     <div className="col-md-6">
                       <label
-                        htmlFor="lastName"
+                        htmlFor="last_name"
                         className="form-label"
                         title="Last Name"
                       >
@@ -173,10 +208,11 @@ const EventRegistration = () => {
                       <input
                         type="text"
                         className="form-control"
-                        id="lastName"
+                        id="last_name"
+                        name="last_name"
                         required
-                        value={formData.lastName}
-                        onChange={handleChange}
+                        value={participantFormData.last_name || ""}
+                        onChange={handleParticipantChange}
                       />
                       <div className="invalid-feedback">
                         Please enter your last name.
@@ -185,7 +221,7 @@ const EventRegistration = () => {
 
                     <div className="col-md-6">
                       <label
-                        htmlFor="firstName"
+                        htmlFor="first_name"
                         className="form-label"
                         title="First Name"
                       >
@@ -194,10 +230,11 @@ const EventRegistration = () => {
                       <input
                         type="text"
                         className="form-control"
-                        id="firstName"
+                        id="first_name"
+                        name="first_name"
                         required
-                        value={formData.firstName}
-                        onChange={handleChange}
+                        value={participantFormData.first_name || ""}
+                        onChange={handleParticipantChange}
                       />
                       <div className="invalid-feedback">
                         Please enter your first name.
@@ -205,16 +242,17 @@ const EventRegistration = () => {
                     </div>
 
                     <div className="col-md-4">
-                      <label htmlFor="contactNumber" className="form-label">
+                      <label htmlFor="contact_number" className="form-label">
                         Contact Number
                       </label>
                       <input
                         type="tel"
                         className="form-control"
-                        id="contactNumber"
+                        id="contact_number"
+                        name="contact_number"
                         required
-                        value={formData.contactNumber}
-                        onChange={handleChange}
+                        value={participantFormData.contact_number || ""}
+                        onChange={handleParticipantChange}
                       />
                       <div className="invalid-feedback">
                         Please enter a valid contact number.
@@ -227,15 +265,22 @@ const EventRegistration = () => {
                         className="form-label"
                         title="Address"
                       >
-                        Address (House Block/Lot/Street/Barangay/Municipality)
+                        Address
+                        <span
+                          className="text-muted ms-2"
+                          style={{ fontSize: "12px" }}
+                        >
+                          (House Block/Lot/Street/Barangay/Municipality)
+                        </span>
                       </label>
                       <input
                         type="text"
                         className="form-control"
                         id="address"
+                        name="address"
                         required
-                        value={formData.address}
-                        onChange={handleChange}
+                        value={participantFormData.address || ""}
+                        onChange={handleParticipantChange}
                       />
                       <div className="invalid-feedback">
                         Please provide your complete address.
@@ -250,226 +295,223 @@ const EventRegistration = () => {
                         type="email"
                         className="form-control"
                         id="email"
+                        name="email"
                         required
-                        value={formData.email}
-                        onChange={handleChange}
+                        value={participantFormData.email || ""}
+                        onChange={handleParticipantChange}
                       />
                       <div className="invalid-feedback">
                         Please enter a valid email address.
                       </div>
                     </div>
-                  </>
-                ) : (
-                  <>
-                    {/* Team Registration Form */}
-                    <div className="col-md-6">
-                      <label
-                        htmlFor="teamName"
-                        className="form-label"
-                        title="Team Name"
+                    <div className="col-12">
+                      <div className="form-check">
+                        <input
+                          className="form-check-input"
+                          type="checkbox"
+                          required
+                          checked={agreeToTerms}
+                          onChange={(e) => setAgreeToTerms(e.target.checked)}
+                        />
+                        <label className="form-check-label">
+                          Agree to terms and conditions
+                        </label>
+                        <div className="invalid-feedback">
+                          You must agree before submitting.
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="col-12">
+                      <button
+                        type="submit"
+                        className="btn btn-primary w-100 fw-bold py-2"
                       >
-                        Team Name
-                      </label>
+                        Submit
+                      </button>
+                    </div>
+                  </form>
+                </>
+              ) : (
+                <>
+                  <form
+                    ref={formRef}
+                    className="row g-3 needs-validation"
+                    noValidate
+                    onSubmit={handleSubmit}
+                  >
+                    <div className="col-md-12">
+                      <label className="form-label">Team Name</label>
                       <input
                         type="text"
+                        name="team_name"
                         className="form-control"
-                        id="teamName"
+                        value={teamFormData.team_name || ""}
+                        onChange={handleTeamChange}
                         required
-                        value={formData.teamName}
-                        onChange={handleChange}
                       />
                       <div className="invalid-feedback">
                         Please enter your team name.
                       </div>
                     </div>
 
-                    <div className="col-md-6">
-                      <label
-                        htmlFor="teamCaptain"
-                        className="form-label"
-                        title="Team Captain"
-                      >
-                        Team Captain
-                      </label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        id="teamCaptain"
-                        required
-                        value={formData.teamCaptain}
-                        onChange={handleChange}
-                      />
-                      <div className="invalid-feedback">
-                        Please enter the team captain's name.
+                    <div className="col-12">
+                      <div className="row">
+                        <h5 className="mt-4">Team Captain (Leader)</h5>
+                        <div className="col-md-3">
+                          <label className="form-label">Name</label>
+                          <input
+                            type="text"
+                            className="form-control"
+                            name="leader_name"
+                            value={teamFormData.leader_name || ""}
+                            onChange={handleTeamChange}
+                            required
+                          />
+                        </div>
+                        <div className="col-md-2">
+                          <label className="form-label">Age</label>
+                          <input
+                            type="number"
+                            className="form-control"
+                            name="leader_age"
+                            value={teamFormData.leader_age || ""}
+                            onChange={handleTeamChange}
+                            required
+                          />
+                        </div>
+                        <div className="col-md-3">
+                          <label className="form-label">Contact</label>
+                          <input
+                            type="tel"
+                            className="form-control"
+                            name="leader_contact"
+                            value={teamFormData.leader_contact || ""}
+                            onChange={handleTeamChange}
+                            required
+                          />
+                        </div>
+                        <div className="col-md-4">
+                          <label className="form-label">Email</label>
+                          <input
+                            type="email"
+                            className="form-control"
+                            name="leader_email"
+                            value={teamFormData.leader_email || ""}
+                            onChange={handleTeamChange}
+                            required
+                          />
+                        </div>
                       </div>
                     </div>
 
-                    <div className="col-md-4">
-                      <label
-                        htmlFor="teamCaptainAge"
-                        className="form-label"
-                        title="Team Captain Age"
-                      >
-                        Team Captain Age
-                      </label>
-                      <input
-                        type="number"
-                        className="form-control"
-                        id="teamCaptainAge"
-                        required
-                        value={formData.teamCaptainAge}
-                        onChange={handleChange}
-                      />
-                      <div className="invalid-feedback">
-                        Please enter the team captain's age.
-                      </div>
-                    </div>
-
-                    <div className="col-md-4">
-                      <label
-                        htmlFor="teamCaptainContact"
-                        className="form-label"
-                        title="Team Captain Contact Number"
-                      >
-                        Team Captain Contact
-                      </label>
-                      <input
-                        type="tel"
-                        className="form-control"
-                        id="teamCaptainContact"
-                        required
-                        value={formData.teamCaptainContact}
-                        onChange={handleChange}
-                      />
-                      <div className="invalid-feedback">
-                        Please enter the team captain's contact number.
-                      </div>
-                    </div>
-
-                    <div className="col-md-4">
-                      <label
-                        htmlFor="teamCaptainEmail"
-                        className="form-label"
-                        title="Team Captain Email"
-                      >
-                        Team Captain Email
-                      </label>
-                      <input
-                        type="email"
-                        className="form-control"
-                        id="teamCaptainEmail"
-                        required
-                        value={formData.teamCaptainEmail}
-                        onChange={handleChange}
-                      />
-                      <div className="invalid-feedback">
-                        Please enter the team captain's email.
-                      </div>
-                    </div>
-
-                    {/* Team Members Form */}
                     <div className="col-12">
                       <h5 className="mt-4">Team Members</h5>
-                      {formData.teamMembers.map((member, index) => (
-                        <div key={index} className="mb-3">
-                          <div className="row">
-                            <div className="col-md-4">
-                              <label
-                                htmlFor={`teamMembers-${index}-name`}
-                                className="form-label"
-                                title="Team Member Name"
-                              >
-                                Name
-                              </label>
-                              <input
-                                type="text"
-                                className="form-control"
-                                name="name"
-                                id={`teamMembers-${index}-name`}
-                                value={member.name}
-                                onChange={handleChange}
-                                required
-                              />
-                            </div>
-                            <div className="col-md-4">
-                              <label
-                                htmlFor={`teamMembers-${index}-age`}
-                                className="form-label"
-                                title="Team Member Age"
-                              >
-                                Age
-                              </label>
-                              <input
-                                type="number"
-                                className="form-control"
-                                name="age"
-                                id={`teamMembers-${index}-age`}
-                                value={member.age}
-                                onChange={handleChange}
-                                required
-                              />
-                            </div>
-                            <div className="col-md-4">
-                              <label
-                                htmlFor={`teamMembers-${index}-contact`}
-                                className="form-label"
-                                title="Team Member Contact"
-                              >
-                                Contact
-                              </label>
-                              <input
-                                type="tel"
-                                className="form-control"
-                                name="contact"
-                                id={`teamMembers-${index}-contact`}
-                                value={member.contact}
-                                onChange={handleChange}
-                                required
-                              />
-                            </div>
+                      {teamFormData.members.map((member, index) => (
+                        <div key={index} className="mb-3 row">
+                          <div className="col-md-3">
+                            <label className="form-label">Name</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              value={member.name || ""}
+                              onChange={(e) =>
+                                handleMemberChange(
+                                  index,
+                                  "name",
+                                  e.target.value
+                                )
+                              }
+                              required
+                            />
+                          </div>
+                          <div className="col-md-2">
+                            <label className="form-label">Age</label>
+                            <input
+                              type="number"
+                              className="form-control"
+                              value={member.age || ""}
+                              onChange={(e) =>
+                                handleMemberChange(index, "age", e.target.value)
+                              }
+                              required
+                            />
+                          </div>
+                          <div className="col-md-3">
+                            <label className="form-label">Contact</label>
+                            <input
+                              type="tel"
+                              className="form-control"
+                              value={member.contact || ""}
+                              onChange={(e) =>
+                                handleMemberChange(
+                                  index,
+                                  "contact",
+                                  e.target.value
+                                )
+                              }
+                              required
+                            />
+                          </div>
+                          <div className="col-md-4">
+                            <label className="form-label">Email</label>
+                            <input
+                              type="email"
+                              className="form-control"
+                              value={member.email || ""}
+                              onChange={(e) =>
+                                handleMemberChange(
+                                  index,
+                                  "email",
+                                  e.target.value
+                                )
+                              }
+                              required
+                            />
                           </div>
                         </div>
                       ))}
                     </div>
 
-                    <button
-                      type="button"
-                      className="btn btn-secondary"
-                      onClick={addMember}
-                    >
-                      Add Member
-                    </button>
-                  </>
-                )}
-
-                <div className="col-12">
-                  <div className="form-check">
-                    <input
-                      className="form-check-input"
-                      type="checkbox"
-                      id="agree"
-                      required
-                      checked={formData.agree}
-                      onChange={handleChange}
-                    />
-                    <label className="form-check-label" htmlFor="agree">
-                      Agree to terms and conditions
-                    </label>
-                    <div className="invalid-feedback">
-                      You must agree before submitting.
+                    <div className="col-12 d-flex">
+                      <button
+                        type="button"
+                        className="btn btn-secondary mx-auto"
+                        onClick={addMember}
+                      >
+                        Add Member
+                      </button>
                     </div>
-                  </div>
-                </div>
 
-                <div className="col-12">
-                  <button
-                    type="submit"
-                    className="btn btn-primary w-100 fw-bold py-2"
-                  >
-                    Submit Registration
-                  </button>
-                </div>
-              </form>
+                    <div className="col-12">
+                      <div className="form-check">
+                        <input
+                          className="form-check-input"
+                          type="checkbox"
+                          required
+                          checked={agreeToTerms}
+                          onChange={(e) => setAgreeToTerms(e.target.checked)}
+                        />
+                        <label className="form-check-label">
+                          Agree to terms and conditions
+                        </label>
+                        <div className="invalid-feedback">
+                          You must agree before submitting.
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="col-12">
+                      <button
+                        type="submit"
+                        className="btn btn-primary w-100 fw-bold py-2"
+                      >
+                        Submit
+                      </button>
+                    </div>
+                  </form>
+                </>
+              )}
             </div>
           </div>
 
@@ -478,49 +520,88 @@ const EventRegistration = () => {
           </button>
         </div>
 
-        {/* Right-side Event Details Section */}
-        <div className="col-md-4 px-3">
+        <div className="col-4 px-3">
           <div className="card shadow-lg mb-4">
             <div className="card-header text-center py-3">
               <h5 className="mb-1 fw-semibold text-uppercase">Event Details</h5>
               <p className="text-muted small m-0">
-                Registration Period: {event?.registration_period}
+                Registration:{" "}
+                {new Date(event.registration_start_date).toLocaleDateString()} -{" "}
+                {new Date(event.registration_end_date).toLocaleDateString()}
               </p>
             </div>
-            <div className="card-body px-3">
-              <p>
-                <i className="bi bi-calendar-event me-2"></i>
-                <strong>DATE:</strong> {formatDate(event?.date)}
-              </p>
-              <p>
-                <i className="bi bi-clock me-2"></i>
-                <strong>TIME:</strong> {event?.details[0].split("|")[1]}
-              </p>
-              <p>
-                <i className="bi bi-geo-alt me-2"></i>
-                <strong>PLACE:</strong> {event?.details[0].split("|")[0]}
-              </p>
-
-              <div className="mt-4">
-                <h6>
-                  <i className="bi bi-list-check me-2"></i>
-                  <strong>Requirements:</strong>
-                </h6>
-                <ul className="list-unstyled">
-                  <li>
-                    <i className="bi bi-check-lg text-success me-1"></i>Youth
-                    aged 18 - 30
-                  </li>
-                  <li>
-                    <i className="bi bi-check-lg text-success me-1"></i>
-                    Registered in Youth Profiling Form
-                  </li>
-                </ul>
+            <div className="card-body">
+              <div className="px-2">
+                <p>
+                  <i className="bi bi-calendar-event"></i>{" "}
+                  <strong>Date:</strong>{" "}
+                  {new Date(event.date).toLocaleDateString("en-US", {
+                    month: "long",
+                    day: "numeric",
+                    year: "numeric",
+                  })}
+                </p>
+                <p>
+                  <i className="bi bi-clock"></i> <strong>Time:</strong>{" "}
+                  {event.time}
+                </p>
+                <p>
+                  <i className="bi bi-geo-alt"></i> <strong>Location:</strong>{" "}
+                  {event.location}
+                </p>
+                <p>
+                  <i className="bi bi-person-workspace"></i>{" "}
+                  <strong>Organizer:</strong> {event.event_organizer}
+                </p>
+                <p>
+                  <i className="bi bi-people"></i>{" "}
+                  <strong>Max Participants:</strong>{" "}
+                  {event.number_of_participants}
+                </p>
+                <p>
+                  <i className="bi bi-telephone"></i> <strong>Contact:</strong>{" "}
+                  {event.contact_number}
+                </p>
+                <p>
+                  <i className="bi bi-tags"></i> <strong>Type:</strong>{" "}
+                  {event.event_type} ({event.registration_type})
+                </p>
               </div>
+
+              {event.requirements && (
+                <div className="mt-4">
+                  <h6>
+                    <i className="bi bi-list-check"></i>{" "}
+                    <strong>Requirements:</strong>
+                  </h6>
+                  <ul className="list-unstyled px-2">
+                    {event.requirements.split("\n").map((req, index) => (
+                      <li key={index} className="mb-1">
+                        <i className="bi bi-check-lg text-success"></i> {req}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {!isEventRegistrationPageActive && <Link
+                to={`/registration/${event.id}`}
+                className="btn btn-primary w-100"
+              >
+                <i className="bi bi-pencil-square"></i> Register Now
+              </Link>}
             </div>
           </div>
         </div>
       </div>
+
+      <ModalSuccessfulRegistration
+        showModal={showModal}
+        setShowModal={setShowModal}
+        title="Registration Successful!"
+        body="Thank you for registering for the event. We have received your details and will contact you if further information is needed. You can now view the event details or check your registered events."
+        redirect="events"
+      />
     </div>
   );
 };

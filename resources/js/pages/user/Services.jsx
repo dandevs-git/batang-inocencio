@@ -1,110 +1,64 @@
 import { useState, useEffect } from "react";
 import Carousel from "../../component/Caroucel";
-import CustomCalendar from "../../component/CustomCalendar";
-
-const pcAvailability = [
-  { name: "PC-1", status: "full" },
-  { name: "PC-2", status: "available" },
-  { name: "PC-3", status: "available" },
-  { name: "PC-4", status: "full" },
-  { name: "PC-5", status: "full" },
-  { name: "PC-6", status: "available" },
-  { name: "PC-7", status: "available" },
-  { name: "PC-8", status: "full" },
-];
-
-const carousel = [
-  {
-    image: "/storage/images/Carousel2.png",
-    title: "Youth Events & Activities",
-    description:
-      "Join our various programs to develop your skills and talents.",
-  },
-  {
-    image: "/storage/images/Carousel1.png",
-    title: "Welcome to Batang Inocencio",
-    description:
-      "Empowering the youth through leadership and community service.",
-  },
-  {
-    image: "/storage/images/Carousel3.png",
-    title: "Be a Part of the Change",
-    description: "Engage with the community and make a difference.",
-  },
-  {
-    image: "no-image",
-    title: "Sample Placeholder",
-    description:
-      "Displays a placeholder image when no actual image is available",
-  },
-];
+import { useAPI } from "../../component/contexts/ApiContext";
+import ComputerRentCalendar from "../../component/ComputerRentCalendar";
+import { Modal } from "bootstrap/dist/js/bootstrap.bundle.min";
 
 function Services() {
-  const [value, onChange] = useState(new Date());
-  const [todayEvents, setTodayEvents] = useState([]);
+  const { getData } = useAPI();
+  const [carouselItems, setCarouselItems] = useState([]);
+  const [pcAvailability, setPcAvailability] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState();
+
+  const [selectedPC, setSelectedPC] = useState(null);
+  const [reservationTimes, setReservationTimes] = useState([]);
 
   useEffect(() => {
-    const fetchTodayEvents = async () => {
-      // const response = await fetch("/public/fetch_events.php"); // replace with the actual endpoint
-      // const events = await response.json();
-      // const today = new Date().toISOString().split("T")[0]; // Get today's date in YYYY-MM-DD format
-      // setTodayEvents(events.filter((event) => event.start === today));
-    };
+    getData("carousel?page=home", setCarouselItems, setLoading, setError);
+    getData(
+      "available-resources/computer",
+      setPcAvailability,
+      setLoading,
+      setError
+    );
+  }, [getData]);
 
-    fetchTodayEvents();
-  }, []);
+  const handleCardClick = (pc) => {
+    setSelectedPC(pc);
+    const times = [
+      { time: "09:00 AM", reserved: false },
+      { time: "10:00 AM", reserved: true },
+      { time: "11:00 AM", reserved: false },
+      { time: "12:00 PM", reserved: true },
+      { time: "01:00 PM", reserved: false },
+    ];
+    setReservationTimes(times);
+
+    const modal = new Modal(document.getElementById("reservationModal"));
+    modal.show();
+  };
 
   return (
     <>
-      <Carousel carouselItems={carousel} />
+      <Carousel carouselItems={carouselItems} />
 
       <div className="container mt-5 pb-5" id="calendar-section">
-        <div className="row g-4">
-          <div className="col-lg-8">
-            <div className="card rounded-4 shadow-lg ">
-              <div className="card-header bg-primary text-white text-center rounded-top-4">
-                <h2 className="mb-0 fw-bold">Reservation Calendar</h2>
-              </div>
-              <div className="card-body p-4">
-                <CustomCalendar onChange={onChange} value={value} />
-              </div>
-            </div>
-          </div>
-
-          <div className="col-lg-4">
-            <div className="card rounded-4 shadow-lg  h-100">
-              <div className="card-header bg-primary text-white text-center rounded-top-4">
-                <h4 className="mb-0 fw-bold">Sunday, March 23, 2025</h4>
-              </div>
-              <div className="card-body">
-                <ul id="today-events" className="list-group list-group-flush">
-                  {todayEvents.length === 0 ? (
-                    <li className="list-group-item text-center text-muted fst-italic">
-                      No reserves for today.
-                    </li>
-                  ) : (
-                    todayEvents.map((event, index) => (
-                      <li
-                        key={index}
-                        className="list-group-item d-flex align-items-center"
-                      >
-                        <span className="badge bg-primary me-2">📅</span>{" "}
-                        {event.title}
-                      </li>
-                    ))
-                  )}
-                </ul>
-              </div>
-            </div>
-          </div>
-        </div>
+        <ComputerRentCalendar />
       </div>
+
+      {console.log(pcAvailability)}
 
       <div className="container mt-5 pb-5">
         <div className="row g-4 justify-content-center">
           {pcAvailability.map((pc, index) => (
-            <div key={index} className="col-12 col-sm-6 col-md-4 col-lg-3">
-              <div className="card text-center shadow-lg  border-0 rounded-4 h-100 hover-shadow">
+            <div
+              key={index}
+              className="col-12 col-sm-6 col-md-4 col-lg-3"
+              onClick={() => handleCardClick(pc)}
+              style={{ cursor: "pointer" }}
+            >
+              <div className="card text-center shadow-lg border-0 rounded-4 h-100 hover-shadow">
                 <div className="card-body d-flex flex-column align-items-center justify-content-center p-4">
                   <i
                     className={`bi bi-pc-display display-3 mb-3 ${
@@ -125,6 +79,60 @@ function Services() {
               </div>
             </div>
           ))}
+        </div>
+      </div>
+
+      {/* Bootstrap Modal */}
+      <div
+        className="modal fade"
+        id="reservationModal"
+        tabIndex="-1"
+        aria-labelledby="reservationModalLabel"
+        aria-hidden="true"
+      >
+        <div className="modal-dialog modal-dialog-centered">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h5 className="modal-title" id="reservationModalLabel">
+                {selectedPC
+                  ? `Reservations for ${selectedPC.name}`
+                  : "Reservation Times"}
+              </h5>
+              <button
+                type="button"
+                className="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+              ></button>
+            </div>
+            <div className="modal-body">
+              {reservationTimes.length === 0 ? (
+                <p>No reservations found.</p>
+              ) : (
+                <ul className="list-group">
+                  {reservationTimes.map((slot, index) => (
+                    <li
+                      key={index}
+                      className={`list-group-item d-flex justify-content-between align-items-center ${
+                        slot.reserved
+                          ? "list-group-item-danger"
+                          : "list-group-item-success"
+                      }`}
+                    >
+                      {slot.time}
+                      <span
+                        className={`badge bg-${
+                          slot.reserved ? "danger" : "success"
+                        }`}
+                      >
+                        {slot.reserved ? "Reserved" : "Available"}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </div>
         </div>
       </div>
     </>

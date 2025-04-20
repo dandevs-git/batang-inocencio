@@ -4,27 +4,24 @@ import { useAPI } from "../../component/contexts/ApiContext";
 import TableComponent from "../../component/tables/TableComponent";
 
 const TransparencyManagement = () => {
-  const { getData, postData, putData, deleteData } = useAPI();
+  const { getData, postData } = useAPI();
   const [showModal, setShowModal] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState("");
-  const [categories, setCategories] = useState([]);
+  const [transparencies, setTransparencies] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const loadData = async () => {
-      await getData("transparency", setCategories, setLoading, setError);
-    };
-    loadData();
+    getData("transparencies", setTransparencies, setLoading, setError);
   }, [getData]);
 
-  const handleUploadPDF = (categoryId) => {
-    const fileInput = document.getElementById(`file-input-${categoryId}`);
+  const handleUploadPDF = (transparencyId) => {
+    const fileInput = document.getElementById(`file-input-${transparencyId}`);
     if (!fileInput) return alert("File input not found.");
     fileInput.click();
   };
 
-  const handleFileChange = async (event, categoryId) => {
+  const handleFileChange = async (event, transparencyId) => {
     const file = event.target.files[0];
     if (!file) return alert("Please select a PDF file to upload.");
 
@@ -33,75 +30,57 @@ const TransparencyManagement = () => {
 
     try {
       const response = await postData(
-        `/transparency/${categoryId}/upload`,
+        `/transparencies/${transparencyId}/upload`,
         formData,
-        null,
         setLoading,
         setError
       );
+
       if (response) {
-        setCategories((prevCategories) =>
-          prevCategories.map((category) =>
-            category.id === categoryId
-              ? { ...category, files: [...category.files, response] }
-              : category
+        setTransparencies((prev) =>
+          prev.map((t) =>
+            t.id === transparencyId
+              ? { ...t, files: [...t.files, response] }
+              : t
           )
         );
         alert("File uploaded successfully.");
       }
-    } catch (error) {
-      console.error("Error uploading file", error);
+    } catch (err) {
+      console.error("Error uploading file:", err);
       alert("Error uploading file.");
     }
   };
 
   const handleAddCategory = async () => {
     if (!newCategoryName.trim()) {
-      alert("Please enter a category name.");
+      alert("Please enter a transparency category name.");
       return;
     }
 
     try {
       const newCategory = await postData(
-        "/transparency",
-        { name: newCategoryName },
-        setCategories,
+        "/transparencies",
+        { category: newCategoryName },
         setLoading,
         setError
       );
 
       if (newCategory) {
-        const allCategories = await getData(
-          "transparency",
-          setCategories,
+        await getData(
+          "transparencies",
+          setTransparencies,
           setLoading,
           setError
         );
-        setCategories(allCategories);
-
         setShowModal(false);
         setNewCategoryName("");
       }
-    } catch (error) {
-      console.error("Error adding category", error);
+    } catch (err) {
+      console.error("Error adding category:", err);
       alert("Error adding category.");
     }
   };
-
-  const actions = [
-    {
-      label: "Delete",
-      href: "/member/show",
-      className: "btn btn-sm text-light btn-danger text-nowrap",
-      icon: "bi bi-eye",
-    },
-    {
-      label: "Change",
-      href: "/member/edit",
-      className: "btn btn-sm text-light btn-warning text-nowrap",
-      icon: "bi bi-pencil-square",
-    },
-  ];
 
   const columns = [
     {
@@ -111,10 +90,9 @@ const TransparencyManagement = () => {
     {
       header: "File Name",
       accessorKey: "file_name",
-      cell: ({ getValue }) => {
-        const value = getValue();
-        return <div className="text-center d-flex ms-3">{value}</div>;
-      },
+      cell: ({ getValue }) => (
+        <div className="text-center d-flex ms-3">{getValue()}</div>
+      ),
     },
     {
       header: "Last Modified",
@@ -153,6 +131,7 @@ const TransparencyManagement = () => {
 
   return (
     <>
+      {console.log(transparencies)}
       <Breadcrumb />
       <div className="mb-4">
         <h4 className="fw-bold text-primary">Transparency Management</h4>
@@ -180,36 +159,34 @@ const TransparencyManagement = () => {
           </p>
         </div>
       ) : (
-        categories.map((category) => (
-          <div key={category.id} className="mb-4">
+        transparencies.map((transparency) => (
+          <div key={transparency.id} className="mb-4">
             <TableComponent
               topComponent={
                 <>
                   <button
-                    className="btn btn-outline-primary px-4 btn mb-2"
-                    onClick={() => handleUploadPDF(category.id)}
+                    className="btn btn-outline-primary px-4 mb-2"
+                    onClick={() => handleUploadPDF(transparency.id)}
                   >
                     Upload PDF
                   </button>
                   <input
                     type="file"
-                    id={`file-input-${category.id}`}
+                    id={`file-input-${transparency.id}`}
                     className="d-none"
                     accept=".pdf"
-                    onChange={(e) => handleFileChange(e, category.id)}
+                    onChange={(e) => handleFileChange(e, transparency.id)}
                   />
                 </>
               }
-              title={category.name}
-              data={category?.files}
+              title={transparency.category}
+              data={transparency.files}
               columns={columns}
-              actions={actions}
             />
           </div>
         ))
       )}
 
-      {/* Modal for adding new category */}
       <AddCategoryModal
         showModal={showModal}
         setShowModal={setShowModal}
@@ -250,12 +227,12 @@ const AddCategoryModal = ({
         </div>
         <div className="modal-body">
           <div className="form-group">
-            <label htmlFor="categoryName" className="text-primary">
+            <label htmlFor="transparencyName" className="text-primary">
               Category Name
             </label>
             <input
               type="text"
-              id="categoryName"
+              id="transparencyName"
               className="form-control"
               value={newCategoryName}
               onChange={(e) => setNewCategoryName(e.target.value)}
@@ -267,7 +244,6 @@ const AddCategoryModal = ({
           <button
             type="button"
             className="btn btn-secondary"
-            data-bs-dismiss="modal"
             onClick={() => setShowModal(false)}
           >
             Close

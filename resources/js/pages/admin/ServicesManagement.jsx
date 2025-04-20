@@ -1,14 +1,100 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Breadcrumb from "../../component/ui/Breadcrumb";
 import { Link } from "react-router-dom";
+import { useAPI } from "../../component/contexts/ApiContext";
 
 function ServicesManagement() {
+  const { getData } = useAPI();
+  const [showServices, setShowServices] = useState(false);
+  const [services, setServices] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(false);
+
+  const servicesType = [
+    {
+      name: "Resource Reservation System",
+      path: "/services/resource-reservation",
+    },
+    {
+      name: "Facility Reservation System",
+      path: "/services/facility-reservation",
+    },
+    {
+      name: "Event Registration System",
+      path: "/services/event-registration",
+    },
+    {
+      name: "Resource Lending Management System",
+      path: "/services/resource-lending",
+    },
+    {
+      name: "Volunteer Management System",
+      path: "/services/volunteer-management",
+    },
+  ];
+
+  useEffect(() => {
+    getData(
+      "rrs",
+      (newData) => {
+        const updatedServices = newData.map((service) => ({
+          ...service,
+          path: `/resource-reservation/${service.id}`,
+        }));
+        setServices(updatedServices);
+      },
+      setLoading,
+      setError
+    );
+  }, [getData]);
+
   return (
     <>
       <Breadcrumb />
-      <div className="d-flex justify-content-center align-items-center gap-3" style={{ height: "200px" }}>
-        <Link to={'/admin/services/computer'} className="btn btn-primary btn-lg fs-1 px-4 py-4 fw-semibold">Computer Service</Link>
-        <Link to={'/admin/services/printing'} className="btn btn-primary btn-lg fs-1 px-4 py-4 fw-semibold">Printing Service</Link>
+
+      <div className="container mt-5 text-center">
+        {loading && <p>Loading services...</p>}
+        {error && <p className="text-danger">Failed to load services.</p>}
+        {/* <Link to={`/admin/services/computer`}>
+          <button className="btn btn-primary btn-lg mb-4 px-5 py-1 mx-2">
+            Computer Service
+          </button>
+        </Link>
+        
+        <Link to={`/admin/services/printing`}>
+          <button className="btn btn-primary btn-lg mb-4 px-5 py-1 mx-2">
+            Printing Service
+          </button>
+        </Link> */}
+
+        {!showServices &&
+          services.length > 0 &&
+          services.map((service, index) => (
+            <Link key={index} to={`/admin/services${service.path}`}>
+              <button className="btn btn-primary btn-lg mb-4 px-5 py-1 mx-2">
+                {service.service_name}
+              </button>
+            </Link>
+          ))}
+
+        <button
+          className="btn btn-outline-primary btn-lg mb-4 px-5 py-1 mx-2"
+          onClick={() => setShowServices(!showServices)}
+        >
+          {showServices ? "Back" : "Add Service"}
+        </button>
+
+        {showServices && (
+          <div className="d-flex flex-wrap justify-content-center gap-3">
+            {servicesType.map((serviceType, index) => (
+              <Link key={index} to={serviceType.path}>
+                <button className="btn btn-secondary text-nowrap shadow-sm fs-4">
+                  {serviceType.name}
+                </button>
+              </Link>
+            ))}
+          </div>
+        )}
       </div>
     </>
   );

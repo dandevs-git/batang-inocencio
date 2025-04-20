@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useAPI } from "../contexts/ApiContext";
 import TableComponent from "./TableComponent";
+import ModalPreview from "../modals/ModalPreview";
 
-function EventsTable({ hasActions }) {
+function EventsTable({ status, hasActions }) {
   const { getData, postData, putData, deleteData } = useAPI();
-  const [eventsData, setEventsData] = useState("");
+  const [eventsData, setEventsData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState();
 
@@ -12,16 +13,21 @@ function EventsTable({ hasActions }) {
     getData("events", setEventsData, setLoading, setError);
   }, [getData]);
 
-  const actions = [
+  // const filteredEventsData = status
+  // ? eventsData.filter((eventssItem) => eventssItem.status === status)
+  // : eventsData;
+
+  const actions = (eventId) => [
     {
       label: "View",
-      href: "/member/show",
+      href: `/event/show/${eventId}`,
       className: "btn btn-sm text-light btn-info text-nowrap",
       icon: "bi bi-eye",
+      "data-bs-target": "viewDetailsModal"
     },
     {
       label: "Edit",
-      href: "/member/edit",
+      href: `/event/edit/${eventId}`,
       className: "btn btn-sm text-light btn-warning text-nowrap",
       icon: "bi bi-pencil-square",
     },
@@ -69,12 +75,19 @@ function EventsTable({ hasActions }) {
 
   return (
     <>
+      <ModalPreview
+        id="viewDetailsModal"
+        // title={title}
+        // description={description}
+        // imagePreview={imagePreview}
+        // currentDate={currentDate}
+      />
       <TableComponent
         title={"Events"}
         columns={eventsColumns}
         data={eventsData}
         loading={loading}
-        actions={hasActions && actions}
+        actions={hasActions ? actions : null}
       />
     </>
   );

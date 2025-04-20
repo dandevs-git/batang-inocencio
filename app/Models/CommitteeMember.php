@@ -9,10 +9,15 @@ class CommitteeMember extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['website_information_id', 'name', 'position', 'image'];
+    protected $fillable = [
+        'setting_id',
+        'name',
+        'position',
+        'image',
+    ];
 
-    public function websiteInformation()
+    public function setting()
     {
-        return $this->belongsTo(Setting::class, 'website_information_id');
+        return $this->belongsTo(Setting::class);
     }
 }

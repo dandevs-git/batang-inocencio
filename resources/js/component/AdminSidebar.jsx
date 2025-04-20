@@ -1,12 +1,31 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import api from "../api";
+import { useAPI } from "./contexts/ApiContext";
 
 const AdminSidebar = () => {
+  const { getData } = useAPI();
   const location = useLocation();
   const navigate = useNavigate();
   const [activeEventMenu, setActiveEventMenu] = useState(false);
   const [activeServicesMenu, setActiveServicesMenu] = useState(false);
+
+  const [websiteInformation, setWebsiteInformation] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState();
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const settings = await getData(
+        "settings",
+        setWebsiteInformation,
+        setLoading,
+        setError
+      );
+    };
+
+    fetchData();
+  }, []);
 
   const pages = [
     {
@@ -42,12 +61,12 @@ const AdminSidebar = () => {
     },
     {
       page: "Computer",
-      link: "/admin/services/computer",
+      link: "/admin/services/resource-reservation/1",
       icon: "bi bi-pc-display",
     },
     {
       page: "Printing",
-      link: "/admin/services/printing",
+      link: "/admin/services/resource-reservation/2",
       icon: "bi bi-printer-fill",
     },
     {
@@ -67,7 +86,6 @@ const AdminSidebar = () => {
     setActiveServicesMenu((prevState) => !prevState);
 
   useEffect(() => {
-    // const response = getData('/settings')
     setActiveEventMenu(isEventPageActive("/admin/events"));
     setActiveServicesMenu(isServicesPageActive("/admin/services"));
   }, [location.pathname]);
@@ -88,17 +106,28 @@ const AdminSidebar = () => {
       style={{ width: "300px" }}
       id="Adminsidebar"
     >
-      <div className="d-flex justify-content-start p-3">
-        <img src="/storage/logos/Logo.png" alt="Logo" width="40" height="40" />
-        <div className="ms-2 d-flex flex-column justify-content-center">
-          <div className="m-0 fw-bold" style={{ fontSize: "0.8rem" }}>
-            BATANG INOCENCIO
-          </div>
-          <div className="m-0" style={{ fontSize: "0.6rem" }}>
-            Brgy. Inocencio, Trece Martires
+      <Link to="/admin/dashboard" className="text-decoration-none text-dark">
+        <div className="d-flex justify-content-start p-3 text-light">
+          <img
+            src={
+              websiteInformation?.logo
+                ? `/storage/${websiteInformation.logo}`
+                : "/images/Logo.png"
+            }
+            alt="Logo"
+            width="40"
+            height="40"
+          />
+          <div className="ms-2 d-flex flex-column justify-content-center">
+            <div className="m-0 fw-bold" style={{ fontSize: "0.8rem" }}>
+              {websiteInformation?.website_name}
+            </div>
+            <div className="m-0" style={{ fontSize: "0.6rem" }}>
+              Brgy. Inocencio, Trece Martires
+            </div>
           </div>
         </div>
-      </div>
+      </Link>
 
       <div className="nav nav-underline flex-column h-100">
         <div className="px-2 px-md-4 pb-4 w-100 h-100">

@@ -9,10 +9,11 @@ return new class extends Migration {
     {
         Schema::create('committee_members', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('website_information_id')->constrained('website_information')->onDelete('cascade');
+            $table->foreignId('setting_id')->constrained('settings')->onDelete('cascade');
             $table->string('name');
             $table->string('position');
             $table->string('image')->nullable();
+            $table->boolean('is_primary')->default(false);
             $table->timestamps();
         });
     }

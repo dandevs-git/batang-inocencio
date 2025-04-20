@@ -15,7 +15,7 @@ function Home() {
     getData("carousel?page=home", setCarouselItems, setLoading, setError);
   }, [getData]);
 
-  if (loading) return null
+  if (loading) return null;
 
   return (
     <>

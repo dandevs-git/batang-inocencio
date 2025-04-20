@@ -37,6 +37,11 @@ import AnnouncementsDrafts from "./pages/admin/AnnouncementsDrafts";
 import PrivateRoute from "./pages/PrivateRoute";
 import EventsCreate from "./pages/admin/EventsCreate";
 import EventsDrafts from "./pages/admin/EventsDrafts";
+import ResourceReservationServiceForm from "./component/forms/ResourceReservationServiceForm";
+import FacilityReservationServiceForm from "./component/forms/FacilityReservationServiceForm";
+import VolunteerManagementServiceForm from "./component/forms/VolunteerManagementServiceForm";
+import ResourceLendingServiceForm from "./component/forms/ResourceLendingServiceForm";
+import EventRegistrationServiceForm from "./component/forms/EventRegistrationServiceForm";
 
 function route() {
   return (
@@ -100,15 +105,19 @@ function route() {
           path="/admin/events/participants"
           element={<EventsParticipantsManagement />}
         />
-
         <Route path="/admin/services" element={<Navigate to={"manage"} />} />
         <Route path="/admin/services/manage" element={<ServicesManagement />} />
+        <Route path="/services/resource-reservation" element={<ResourceReservationServiceForm />} />
+        <Route path="/services/facility-reservation" element={<FacilityReservationServiceForm />} />
+        <Route path="/services/event-registration" element={<EventRegistrationServiceForm />} />
+        <Route path="/services/resource-lending" element={<ResourceLendingServiceForm />} />
+        <Route path="/services/volunteer-management" element={<VolunteerManagementServiceForm />} />
         <Route
-          path="/admin/services/computer"
+          path="/admin/services/resource-reservation/1"
           element={<ServicesComputerManagement />}
         />
         <Route
-          path="/admin/services/printing"
+          path="/admin/services/resource-reservation/2"
           element={<ServicesPrintingManagement />}
         />
       </Route>

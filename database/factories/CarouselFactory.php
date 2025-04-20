@@ -17,7 +17,13 @@ class CarouselFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'setting_id' => 1,
+            'image' => 'https://picsum.photos/id/' . $this->faker->numberBetween(1, 1000) . '/600/400',
+            'title' => $this->faker->sentence(6, true),
+            'description' => $this->faker->paragraph(3, true),
+            'page' => $this->faker->randomElement(['home', 'membership', 'news', 'events', 'services', 'about', 'faqs', 'transparency']),
+            'created_at' => now(),
+            'updated_at' => now(),
         ];
     }
 }

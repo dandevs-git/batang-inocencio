@@ -9,8 +9,6 @@ class Setting extends Model
 {
     use HasFactory;
 
-    protected $table = 'website_information';
-
     protected $fillable = [
         'logo',
         'website_name',
@@ -18,11 +16,16 @@ class Setting extends Model
         'phone_number',
         'email',
         'mission',
-        'vision'
+        'vision',
     ];
 
     public function committeeMembers()
     {
         return $this->hasMany(CommitteeMember::class);
+    }
+
+    public function carousels()
+    {
+        return $this->hasMany(Carousel::class);
     }
 }

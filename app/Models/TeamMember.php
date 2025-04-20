@@ -9,16 +9,13 @@ class TeamMember extends Model
 {
     use HasFactory;
 
-    protected $table = 'team_members';
-
-
     protected $fillable = [
         'team_id',
         'name',
         'age',
-        'contact'
+        'contact',
+        'email',
     ];
-
 
     public function team()
     {

@@ -1,20 +1,21 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { useAPI } from "../../component/contexts/ApiContext";
+import Carousel from "../../component/Caroucel";
 
 function MembershipPage() {
+  const { getData } = useAPI();
+  const [carouselItems, setCarouselItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState();
+
+  useEffect(() => {
+    getData("carousel?page=membership", setCarouselItems, setLoading, setError);
+  }, [getData]);
+
   return (
     <>
-      <div
-        className="container-fluid p-0 position-relative"
-        style={{ height: "500px", overflow: "hidden" }}
-      >
-        <img
-          src="/storage/images/MembershipHeader1.png"
-          className="img-fluid w-100 h-100 object-fit-fill"
-          alt="Membership Image"
-        />
-      </div>
-
+      <Carousel carouselItems={carouselItems} />
       <div className="text-bg-primary text-center py-3 fs-4 fw-semibold mb-5">
         KUNG KAYO AY 15-20 TAONG GULANG AT RESIDENTE NG BARANGAY INOCENCIO
         MAKIISA SA ISINAGAWANG YOUTH PROFILING

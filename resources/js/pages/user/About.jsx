@@ -1,52 +1,25 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { useAPI } from "../../component/contexts/ApiContext";
+import Carousel from "../../component/Caroucel";
 
 function About() {
-  const orgMembers = [
-    {
-      name: "Hon. Krisha Shane Atas",
-      position: "SK Chairperson",
-      image: "/orgchart1.png",
-      isPrimary: true,
-    },
-    {
-      name: "Ronavie Larong",
-      position: "SK Secretary",
-      image: "/orgchart2.png",
-    },
-    {
-      name: "Zachary James Jamora",
-      position: "SK Treasurer",
-      image: "/orgchart3.png",
-    },
-    {
-      name: "Hon. John Paulo Ulep",
-      position: "Committee in Youth Employment and Livelihood",
-      image: "/orgchart4.png",
-    },
-  ];
+  const { getData } = useAPI();
+  const [carouselItems, setCarouselItems] = useState([]);
+  const [orgMembers, setOrgMembers] = useState([]);
+  const [settings, setSettings] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState();
+
+  useEffect(() => {
+    getData("carousel?page=home", setCarouselItems, setLoading, setError);
+    getData("committee", setOrgMembers, setLoading, setError);
+    getData("settings", setSettings, setLoading, setError);
+  }, [getData]);
+  
 
   return (
     <>
-      <div
-        className="container-fluid p-0 position-relative mb-5"
-        style={{ height: "500px", overflow: "hidden" }}
-      >
-        <img
-          src="/Announcement1.png"
-          className="img-fluid w-100 h-100 object-fit-fill"
-          alt="Announcement"
-        />
-        <div className="position-absolute top-0 start-0 w-100 h-100 bg-dark opacity-75"></div>
-        <div className="position-absolute top-50 start-50 translate-middle text-white text-center">
-          <h1 className="display-1 fw-bold text-uppercase text-nowrap">
-            About us
-          </h1>
-          <p className="fs-4">
-            Got a question? We’re here to answer! If you don’t see your question
-            here, drop us a line in our contact information or send us feedback.
-          </p>
-        </div>
-      </div>
+      <Carousel carouselItems={carouselItems} />
 
       <div className="container pb-5">
         <div className="container text-center my-5">
@@ -64,13 +37,7 @@ function About() {
             <div className="border-top shadow-lg rounded-4 d-flex flex-column p-4 bg-gradient h-100">
               <div className="fs-2 fw-bold text-primary mb-3">Mission</div>
               <p className="fs-5 my-auto fst-italic text-muted">
-                The Mission of Batang Inocencio Youth Organization is to provide
-                a safe and supportive environment for young people to learn and
-                grow. These organizations often focus on developing leadership
-                skills, promoting community service, and fostering positive
-                social connections among youth. By providing these
-                opportunities, youth organizations aim to empower young people
-                to become engaged and responsible members of their communities.
+                {settings?.mission}
               </p>
             </div>
           </div>
@@ -78,9 +45,7 @@ function About() {
             <div className="border-top shadow-lg rounded-4 d-flex flex-column p-4 bg-gradient h-100">
               <div className="fs-2 fw-bold text-primary mb-3">Vision</div>
               <p className="fs-5 my-auto fst-italic text-muted">
-                The Vision of Batang Inocencio Youth Organization is to create a
-                world where all young people feel empowered to reach their full
-                potential and make positive contributions to society.
+              {settings?.vision}
               </p>
             </div>
           </div>
@@ -92,10 +57,9 @@ function About() {
           Organizational Chart
         </div>
 
-        {/* Primary Member Row */}
         <div className="row justify-content-center mb-5">
           {orgMembers
-            .filter((member) => member.isPrimary)
+            .filter((member) => member.is_primary)
             .map((member, index) => (
               <div
                 key={`primary-${index}`}
@@ -110,7 +74,11 @@ function About() {
                 >
                   <div className="card-body">
                     <img
-                      src={`/storage/images/${member.image}`}
+                      src={
+                        member.image && member.image.startsWith('http')
+                          ? member.image
+                          : `/storage/${member.image || 'placeholder.png'}`
+                      }
                       className="img-fluid rounded-circle mb-3 border-5 border border-light"
                       style={{
                         width: "150px",
@@ -129,7 +97,7 @@ function About() {
 
         <div className="row justify-content-center g-5">
           {orgMembers
-            .filter((member) => !member.isPrimary)
+            .filter((member) => !member.is_primary)
             .map((member, index) => (
               <div
                 key={`other-${index}`}
@@ -144,7 +112,11 @@ function About() {
                 >
                   <div className="card-body">
                     <img
-                      src={`/storage/images/${member.image}`}
+                      src={
+                        member.image && member.image.startsWith('http')
+                          ? member.image
+                          : `/storage/${member.image || 'placeholder.png'}`
+                      }
                       className="img-fluid rounded-circle mb-3 border-5 border border-light"
                       style={{
                         width: "130px",

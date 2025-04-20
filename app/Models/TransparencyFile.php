@@ -11,7 +11,6 @@ class TransparencyFile extends Model
 
     protected $fillable = ['transparency_id', 'file_name', 'file_url'];
 
-
     public function transparency()
     {
         return $this->belongsTo(Transparency::class);

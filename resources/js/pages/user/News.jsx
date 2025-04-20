@@ -25,7 +25,7 @@ function News({ isFullPage = true }) {
 
     const fetchData = async () => {
       await getData(
-        "news",
+        "news?sort=published",
         (data) => {
           const sorted = [...data].sort(
             (a, b) => new Date(b.date) - new Date(a.date)
@@ -49,18 +49,24 @@ function News({ isFullPage = true }) {
     fetchData();
   }, [getData, isFullPage]);
 
+  useEffect(() => {
+    const handleManualFilter = () => {
+      const filtered = newsList.filter((n) => {
+        const formattedDate = new Date(n.date_published).toISOString().slice(0, 7);
+        return formattedDate === filterDate;
+      });
+      setFilteredNews(filtered);
+    };
+
+    if (isFullPage && newsList.length > 0 && filterDate) {
+      handleManualFilter();
+    }
+  }, [newsList, filterDate, isFullPage]);
+
+
   const handleFilterChange = (e) => {
     const selected = e.target.value;
-    setFilterDate(selected);
-    console.log(newsList);
-    
-    const filtered = newsList.filter((n) => n.date_published === selected);
-    setFilteredNews(filtered);
-  };
-
-  const handleManualFilter = () => {
-    const filtered = newsList.filter((n) => n.date_published === filterDate);
-    setFilteredNews(filtered);
+    setFilterDate(selected); 
   };
 
   if (loading) return null;
@@ -75,16 +81,13 @@ function News({ isFullPage = true }) {
 
       <div className="container pb-5">
         {isFullPage ? (
-          <div className="input-group mb-4" style={{ maxWidth: "300px" }}>
+          <div className="input-group mb-4 mt-5" style={{ maxWidth: "300px" }}>
             <input
               type="month"
               className="form-control"
               value={filterDate}
               onChange={handleFilterChange}
             />
-            <button className="btn btn-primary" onClick={handleManualFilter}>
-              Filter
-            </button>
           </div>
         ) : (
           <div className="container text-center my-5">
@@ -107,9 +110,9 @@ function News({ isFullPage = true }) {
                 <div className="card rounded-3 shadow-lg border-0 h-100 d-flex flex-column">
                   <img
                     src={
-                      news.image
-                        ? `/storage/${news.image}`
-                        : "/storage/placeholder.png"
+                      news.image && news.image.startsWith("http")
+                        ? news.image
+                        : `/storage/${news.image || "placeholder.png"}`
                     }
                     className="card-img-top rounded-top-3 object-fit-cover"
                     alt="News"
@@ -117,11 +120,14 @@ function News({ isFullPage = true }) {
                   />
                   <div className="card-body d-flex flex-column h-100 p-3">
                     <p className="news-date small text-uppercase">
-                      {new Date(news.date_published).toLocaleDateString(undefined, {
-                        year: "numeric",
-                        month: "long",
-                        day: "numeric",
-                      })}
+                      {new Date(news.date_published).toLocaleDateString(
+                        undefined,
+                        {
+                          year: "numeric",
+                          month: "long",
+                          day: "numeric",
+                        }
+                      )}
                     </p>
                     <h5 className="card-title">{news.title}</h5>
                     <p className="card-text flex-grow-1">

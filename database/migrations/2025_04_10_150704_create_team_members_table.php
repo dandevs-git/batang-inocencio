@@ -16,6 +16,7 @@ return new class extends Migration {
             $table->string('name');
             $table->unsignedTinyInteger('age');
             $table->string('contact')->nullable();
+            $table->string('email')->nullable();
             $table->timestamps();
         });
     }

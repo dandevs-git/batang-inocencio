@@ -39,12 +39,11 @@ function Header() {
 
   return (
     <>
-      {/* First Nav */}
       <nav className="navbar bg-primary">
         <div className="container">
           <NavLink className="navbar-brand d-flex align-items-center" to="/">
             <img
-              src={websiteInformation.logo ?`/storage/${websiteInformation.logo}` : "images/Logo.png"} 
+              src={websiteInformation?.logo ?`/storage/${websiteInformation?.logo}` : "/images/Logo.png"} 
               alt="Logo"
               width="110"
               height="100"
@@ -72,7 +71,6 @@ function Header() {
         </div>
       </nav>
 
-      {/* Second Nav */}
       <nav className="navbar nav-underline navbar-expand-lg bg-body-tertiary shadow-lg">
         <div className="container">
           <button

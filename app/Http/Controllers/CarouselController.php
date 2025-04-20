@@ -3,56 +3,78 @@
 namespace App\Http\Controllers;
 
 use App\Models\Carousel;
+use App\Models\Setting;
 use Illuminate\Http\Request;
 
 class CarouselController extends Controller
 {
     public function index(Request $request)
     {
-        if ($request->query('page') === 'home') {
-            return Carousel::where('page', 'home')->get();
+        $page = $request->query('page');
+
+        if (!is_null($page)) {
+            return response()->json(
+                Carousel::where('page', $page)->get()
+            );
         }
 
-        return Carousel::all();
+        return response()->json(Carousel::all());
     }
+
+
 
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'image' => 'required|string',
+            'setting_id' => 'required|exists:settings,id',
+            'image' => 'nullable|image|max:2048',
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'page' => 'required|string|max:255',
+            'page' => 'nullable|string',
         ]);
+
+        if ($request->hasFile('image')) {
+            $validated['image'] = $request->file('image')->store('carousels', 'public');
+        }
 
         $carousel = Carousel::create($validated);
-        return response()->json($carousel, 201);
+
+        return response()->json([
+            'message' => 'Carousel item created successfully.',
+            'data' => $carousel,
+        ], 201);
     }
 
-    public function show($id)
+    public function show(Carousel $carousel)
     {
-        return response()->json(Carousel::findOrFail($id));
-    }
-
-    public function update(Request $request, $id)
-    {
-        $carousel = Carousel::findOrFail($id);
-
-        $validated = $request->validate([
-            'image' => 'sometimes|string',
-            'title' => 'sometimes|string|max:255',
-            'description' => 'nullable|string',
-            'page' => 'sometimes|string|max:255',
-        ]);
-
-        $carousel->update($validated);
         return response()->json($carousel);
     }
 
-    public function destroy($id)
+    public function update(Request $request, Carousel $carousel)
     {
-        $carousel = Carousel::findOrFail($id);
+        $data = $request->validate([
+            'title' => 'sometimes|required|string|max:255',
+            'description' => 'nullable|string',
+            'page' => 'nullable|string',
+            'image' => 'nullable|image|max:2048',
+        ]);
+
+        if ($request->hasFile('image')) {
+            $data['image'] = $request->file('image')->store('carousels', 'public');
+        }
+
+        $carousel->update($data);
+
+        return response()->json([
+            'message' => 'Carousel item updated successfully.',
+            'data' => $carousel,
+        ]);
+    }
+
+    public function destroy(Carousel $carousel)
+    {
         $carousel->delete();
-        return response()->json(['message' => 'Deleted successfully.']);
+
+        return response()->json(['message' => 'Carousel item deleted successfully.']);
     }
 }

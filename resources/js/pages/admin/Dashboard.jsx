@@ -2,8 +2,6 @@ import React, { useState, useEffect } from "react";
 import EventCalendar from "../../component/EventCalendar";
 import Breadcrumb from "../../component/ui/Breadcrumb";
 import AdminDashboardWidget from "../../component/AdminDashboardWidget";
-import TableComponent from "../../component/tables/TableComponent";
-import { useAPI } from "../../component/contexts/ApiContext";
 import NewsTable from "../../component/tables/NewsTable";
 import EventsTable from "../../component/tables/EventsTable";
 import AnnouncementsTable from "../../component/tables/AnnouncementTable";
@@ -27,8 +25,8 @@ function Dashboard() {
       <AdminDashboardWidget />
       <EventCalendar />
 
-      <EventsTable />
-      <NewsTable />
+      <EventsTable hasActions={false}/>
+      <NewsTable hasActions={false}/>
       <AnnouncementsTable />
     </>
   );

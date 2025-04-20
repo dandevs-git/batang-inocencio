@@ -264,6 +264,7 @@ function NewsCreate() {
       </div>
 
       <ModalPreview
+        header="Preview Modal"
         id="previewModal"
         title={title}
         description={description}

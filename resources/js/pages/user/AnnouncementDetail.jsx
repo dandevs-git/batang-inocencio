@@ -1,48 +1,27 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-
-const announcementList = [
-  {
-    id: "1",
-    date: "2025-04-01",
-    data_date: "2025-04",
-    title: "Community Meeting: April 2025",
-    image: "Announcement1.png",
-    description:
-      "Join us for an important community meeting to discuss upcoming projects...",
-  },
-  {
-    id: "2",
-    date: "2025-03-25",
-    data_date: "2025-03",
-    title: "Scholarship Application Deadline",
-    image: "Announcement1.png",
-    description:
-      "The deadline for the SK scholarship program applications is fast approaching...",
-  },
-  {
-    id: "3",
-    date: "2025-04-01",
-    data_date: "2025-04",
-    title: "Community Meeting: April 2025",
-    image: "Announcement1.png",
-    description:
-      "Join us for an important community meeting to discuss upcoming projects...",
-  },
-  {
-    id: "4",
-    date: "2025-03-25",
-    data_date: "2025-03",
-    title: "Scholarship Application Deadline",
-    image: "Announcement1.png",
-    description:
-      "The deadline for the SK scholarship program applications is fast approaching...",
-  },
-];
+import { useAPI } from "../../component/contexts/ApiContext";
 
 function AnnouncementDetail() {
+  const { getData } = useAPI();
   const { id } = useParams();
-  const announcement = announcementList.find((item) => item.id === id);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState();
+  const [announcementList, setAnnouncementList] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const data = await getData(
+        "announcements?sort=published",
+        setLoading,
+        setError
+      );
+      setAnnouncementList(data);
+    };
+    fetchData();
+  }, []);
+
+  const announcement = announcementList.find((item) => item.id == id);
 
   if (!announcement) {
     return (
@@ -65,14 +44,18 @@ function AnnouncementDetail() {
           <h1>{announcement.title}</h1>
           <p className="text-muted ps-2">
             Date:{" "}
-            {new Date(announcement.date).toLocaleDateString("en-US", {
+            {new Date(announcement.date_published).toLocaleDateString("en-US", {
               month: "long",
               day: "numeric",
               year: "numeric",
             })}
           </p>
           <img
-            src={`/storage/images/${announcement.image}`}
+            src={
+              announcement.image && announcement.image.startsWith("http")
+                ? announcement.image
+                : `/storage/${announcement.image || "placeholder.png"}`
+            }
             className="rounded-4 border shadow-lg object-fit-cover w-100"
             alt={announcement.title}
           />
@@ -102,10 +85,7 @@ function AnnouncementDetail() {
           >
             {announcement.description}
           </p>
-          <Link
-            to={'/'}
-            className="btn btn-outline-dark"
-          >
+          <Link to={"/"} className="btn btn-outline-dark">
             <i className="bi bi-arrow-left"></i> Go to Home Page
           </Link>
         </div>
@@ -113,23 +93,23 @@ function AnnouncementDetail() {
         <div className="col-4 px-3">
           <h5 className="fw-bold">Latest Announcements</h5>
 
-          {announcementList.map((item, index) => (
-            <div className="card shadow-lg mb-4" key={item.id || index}>
+          {announcementList.slice(0, 4).map((announcement, index) => (
+            <div className="card shadow-lg mb-4" key={announcement.id || index}>
               <div className="card-body">
                 <p className="text-muted">
-                  {new Date(item.date).toLocaleDateString("en-US", {
+                  {new Date(announcement.date_published).toLocaleDateString("en-US", {
                     month: "long",
                     day: "numeric",
                     year: "numeric",
                   })}
                 </p>
-                <h5 className="fw-semibold text-uppercase">{item.title}</h5>
+                <h5 className="fw-semibold text-uppercase">{announcement.title}</h5>
                 <p>
-                  {item.description?.slice(0, 120) || "No preview available..."}
+                  {announcement.description?.slice(0, 120) || "No preview available..."}
                 </p>
                 <div className="text-end">
                   <Link
-                    to={`/announcements/${item.id}`}
+                    to={`/announcements/${announcement.id}`}
                     className="text-dark link-underline-primary link-offset-2 link-underline link-underline-opacity-50"
                   >
                     See More

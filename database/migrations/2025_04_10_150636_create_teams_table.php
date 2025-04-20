@@ -12,12 +12,8 @@ return new class extends Migration {
     {
         Schema::create('teams', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('event_id')->constrained('events')->onDelete('cascade');
             $table->string('team_name')->unique()->index();
-            $table->string('team_captain');
-            $table->unsignedTinyInteger('team_captain_age');
-            $table->string('team_captain_address');
-            $table->string('team_captain_contact_number')->nullable();
-            $table->string('team_captain_email')->unique()->index();
             $table->timestamps();
         });
     }

@@ -1,32 +1,39 @@
 import React, { useEffect, useState } from "react";
 import { useAPI } from "../contexts/ApiContext";
 import TableComponent from "./TableComponent";
+import ModalPreview from "../modals/ModalPreview";
+import { Modal } from "bootstrap/dist/js/bootstrap.bundle.min";
 
 function NewsTable({ status, hasActions }) {
-  const { getData, postData, putData, deleteData } = useAPI();
-  const [newsData, setNewsData] = useState("");
+  const { getData } = useAPI();
+  const [newsData, setNewsData] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState();
+  const [error, setError] = useState(null);
+  const [selectedNews, setSelectedNews] = useState(null);
 
   useEffect(() => {
     getData("news", setNewsData, setLoading, setError);
   }, [getData]);
 
-  // Filter the news data based on the 'status' prop
   const filteredNewsData = status
     ? newsData.filter((newsItem) => newsItem.status === status)
     : newsData;
 
-  const actions = [
+  const actions = (id) => [
     {
       label: "View",
-      href: "/member/show",
+      onClick: () => {
+        const newsItem = newsData.find((item) => item.id === id);
+        setSelectedNews(newsItem);
+        const modal = new Modal(document.getElementById("previewModal"));
+        modal.show();
+      },
       className: "btn btn-sm text-light btn-info text-nowrap",
       icon: "bi bi-eye",
     },
     {
       label: "Edit",
-      href: "/member/edit",
+      onClick: () => console.log("Edit ID:", id),
       className: "btn btn-sm text-light btn-warning text-nowrap",
       icon: "bi bi-pencil-square",
     },
@@ -72,14 +79,32 @@ function NewsTable({ status, hasActions }) {
     },
   ];
 
+  const formattedDate =
+    selectedNews?.updated_at &&
+    new Date(selectedNews.updated_at).toLocaleDateString("en-US", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+
   return (
     <>
+      <ModalPreview
+        header="Preview News"
+        id="previewModal"
+        title={selectedNews?.title}
+        description={selectedNews?.description}
+        imagePreview={selectedNews?.image}
+        currentDate={formattedDate}
+      />
+
       <TableComponent
-        title={"News & Updates"}
+        title="News & Updates"
         columns={newsColumns}
-        data={filteredNewsData} 
+        data={filteredNewsData}
         loading={loading}
-        actions={hasActions && actions}
+        actions={hasActions ? actions : null}
       />
     </>
   );

@@ -105,15 +105,7 @@ function Settings() {
     });
   
     try {
-      const existing = await getData("/settings");
-      let response;
-  
-      if (existing) {
-        response = await putData("/settings/update", form);
-      } else {
-        response = await postData("/settings", form);
-      }
-  
+      const response = await postData("/settings/save", form);
       showSuccessAlert("Website Information Updated Successfully");
     } catch (error) {
       console.error("Error saving website info:", error);

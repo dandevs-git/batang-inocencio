@@ -12,18 +12,20 @@ return new class extends Migration {
     {
         Schema::create('events', function (Blueprint $table) {
             $table->id();
-            $table->string('title', 100)->index();
+            $table->string('title');
             $table->date('date');
+            $table->date('date_published');
             $table->string('location');
             $table->string('event_organizer');
             $table->date('registration_start_date');
             $table->date('registration_end_date');
+            $table->enum('registration_type', ['group', 'individual']);
             $table->string('event_type');
             $table->text('requirements')->nullable();
             $table->text('description')->nullable();
             $table->time('time');
             $table->string('contact_number');
-            $table->integer('number_of_participants')->default(0);
+            $table->integer('number_of_participants');
             $table->string('image')->nullable();
             $table->enum('status', ['draft', 'published'])->default('draft');
             $table->timestamps();

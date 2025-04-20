@@ -11,10 +11,8 @@ function EventCalendar() {
   useEffect(() => {
     const fetchEventsByDate = async () => {
       const selectedDate = value.toLocaleDateString("en-CA");
-      console.log(selectedDate);
-
       await getData(
-        `/events?date=${selectedDate}`,
+        `events?date=${selectedDate}`,
         setSelectedDateEvents,
         setLoading
       );
@@ -81,12 +79,31 @@ function EventCalendar() {
                       {selectedDateEvents.map((event, index) => (
                         <li
                           key={index}
-                          className="list-group-item d-flex align-items-center border-0 px-4"
+                          className="list-group-item d-flex align-items-start gap-3 border-0 px-4 py-3"
                         >
+                          <div className="flex-shrink-0">
+                            <div
+                              className="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center"
+                              style={{ width: "40px", height: "40px" }}
+                            >
+                              <i className="bi bi-calendar-event-fill fs-5"></i>
+                            </div>
+                          </div>
                           <div className="flex-grow-1">
-                            <h6 className="mb-0 fw-semibold">{event.title}</h6>
+                            <h6 className="mb-1 fw-semibold text-dark">
+                              {event.title}
+                            </h6>
                             {event.time && (
-                              <small className="text-muted">{event.time}</small>
+                              <small className="text-muted d-block">
+                                <i className="bi bi-clock me-1"></i>{" "}
+                                {event.time}
+                              </small>
+                            )}
+                            {event.location && (
+                              <small className="text-muted d-block">
+                                <i className="bi bi-geo-alt me-1"></i>{" "}
+                                {event.location}
+                              </small>
                             )}
                           </div>
                         </li>

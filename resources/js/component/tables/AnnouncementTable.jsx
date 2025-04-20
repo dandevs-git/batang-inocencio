@@ -1,12 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { useAPI } from "../contexts/ApiContext";
 import TableComponent from "./TableComponent";
+import { Modal } from "bootstrap/dist/js/bootstrap.bundle.min";
+import ModalPreview from "../modals/ModalPreview";
 
 function AnnouncementsTable({ status, hasActions }) {
   const { getData, postData, putData, deleteData } = useAPI();
-  const [announcementsData, setAnnouncementsData] = useState("");
+  const [announcementsData, setAnnouncementsData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState();
+  const [selectedAnnouncement, setSelectedAnnouncement] = useState(null);
 
   useEffect(() => {
     getData("announcements", setAnnouncementsData, setLoading, setError);
@@ -18,16 +21,27 @@ function AnnouncementsTable({ status, hasActions }) {
       )
     : announcementsData;
 
-  const actions = [
+  const actions = (id) => [
     {
       label: "View",
-      href: "/member/show",
+      onClick: () => {
+        const announcementsItem = announcementsData.find((item) => item.id === id);
+        setSelectedAnnouncement(announcementsItem);
+        setTimeout(() => {
+          const modalElement = document.getElementById("previewModal");
+          if (modalElement) {
+            const modal = new Modal(modalElement);
+            modal.show();
+          }
+        }, 0);
+      },
+      
       className: "btn btn-sm text-light btn-info text-nowrap",
       icon: "bi bi-eye",
     },
     {
       label: "Edit",
-      href: "/member/edit",
+      href: `/member/edit/${id}`,
       className: "btn btn-sm text-light btn-warning text-nowrap",
       icon: "bi bi-pencil-square",
     },
@@ -73,14 +87,35 @@ function AnnouncementsTable({ status, hasActions }) {
     },
   ];
 
+  const formattedDate =
+    selectedAnnouncement?.updated_at &&
+    new Date(selectedAnnouncement.updated_at).toLocaleDateString("en-US", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+
   return (
     <>
+      {/* Conditionally render the preview modal only if there is a selectedAnnouncement */}
+      {selectedAnnouncement && (
+        <ModalPreview
+          header="Preview Announcement"
+          id="previewModal"
+          title={selectedAnnouncement?.title}
+          description={selectedAnnouncement?.description}
+          imagePreview={selectedAnnouncement?.image}
+          currentDate={formattedDate}
+        />
+      )}
+
       <TableComponent
         title={"Announcements & Updates"}
         columns={announcementsColumns}
-        data={filteredAnnouncementsData} 
+        data={filteredAnnouncementsData}
         loading={loading}
-        actions={hasActions && actions}
+        actions={hasActions ? actions : null} // Only pass actions if `hasActions` is true
       />
     </>
   );

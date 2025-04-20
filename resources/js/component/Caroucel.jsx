@@ -10,7 +10,7 @@ function Carousel({ carouselItems }) {
   return (
     <div
       id="carouselExampleFade"
-      className="carousel slide carousel-fade mb-5 position-relative"
+      className="carousel slide carousel-fade position-relative"
     >
       <div className="carousel-inner">
         {carouselItems.map((item, index) => (

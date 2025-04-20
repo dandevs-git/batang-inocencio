@@ -4,18 +4,20 @@ import { Link, useLocation } from "react-router-dom";
 import { useAPI } from "../../component/contexts/ApiContext";
 
 const EventsCard = ({ events }) => {
-  const { id, title, description, date, image } = events;  
+  const { id, title, description, date, image } = events;
 
   return (
     <div
-      className="events-card card border-0 shadow-lg rounded-4 mb-4"
+      className="events-card card border-0 shadow-lg rounded-4 mb-4 p-0"
       data-date={date.substring(0, 7)}
     >
       <div className="row g-0 align-items-stretch">
         <div className="col-md-2">
           <img
             src={
-              image ? `/storage/${image}` : "/storage/images/placeholder.png"
+              image && image.startsWith("http")
+                ? image
+                : `/storage/${image || "placeholder.png"}`
             }
             className="w-100 h-100 object-fit-cover rounded-start"
             alt="Events"
@@ -32,12 +34,18 @@ const EventsCard = ({ events }) => {
             </p>
             <p>{description.slice(0, 100)}...</p>
           </div>
-          <div className="d-flex align-items-center mt-auto">
+          <div className="d-flex align-items-center mt-auto justify-content-between">
             <Link
               to={`/events/${id}`}
               className="fw-bold text-primary text-decoration-none"
             >
               View full events
+            </Link>
+            <Link
+              to={`/registration/${id}`}
+              className="btn btn-primary rounded-pill px-4 py-1 read-more-btn"
+            >
+              Register
             </Link>
           </div>
         </div>
@@ -60,31 +68,31 @@ function Events({ isFullPage = true }) {
   const location = useLocation();
 
   const [eventsList, setEventsList] = useState([]);
-    const [carouselItems, setCarouselItems] = useState([]);
+  const [carouselItems, setCarouselItems] = useState([]);
   const [filteredEvents, setFilteredEvents] = useState([]);
-  const [selectedMonth, setSelectedMonth] = useState("");
+  const [filterDate, setFilterDate] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState();
 
-   useEffect(() => {
-      getData("carousel?page=events", setCarouselItems, setLoading, setError);
-    }, [getData]);
+  useEffect(() => {
+    getData("carousel?page=events", setCarouselItems, setLoading, setError);
+  }, [getData]);
 
   useEffect(() => {
     const now = new Date();
     const year = now.getFullYear();
     const month = String(now.getMonth() + 1).padStart(2, "0");
-    const defaultMonth = `${year}-${month}`;
-    setSelectedMonth(defaultMonth);
+    const defaultFilter = `${year}-${month}`;
+    setFilterDate(defaultFilter);
 
     const fetchData = async () => {
       try {
-        const data = await getData("events");
+        const data = await getData("events?sort=published");
         setEventsList(data);
 
         if (isFullPage) {
           const filtered = data.filter(
-            (events) => events.date.substring(0, 7) === defaultMonth
+            (events) => events.date.substring(0, 7) === defaultFilter
           );
           setFilteredEvents(filtered);
         } else {
@@ -100,19 +108,24 @@ function Events({ isFullPage = true }) {
 
     fetchData();
   }, [getData, isFullPage]);
-  
 
-  const handleMonthChange = (e) => {
-    const selectedValue = e.target.value;
-    setSelectedMonth(selectedValue);
+  useEffect(() => {
+    const handleManualFilter = () => {
+      const filtered = eventsList.filter((n) => {
+        const formattedDate = n.date.substring(0, 7);
+        return formattedDate === filterDate;
+      });
+      setFilteredEvents(filtered);
+    };
 
-    const filtered = eventsList.filter(
-      (events) => events.date.substring(0, 7) === selectedValue
-    );
-    console.log(eventsList);
-    console.log(filteredEvents);
-    
-    setFilteredEvents(filtered);
+    if (isFullPage && eventsList.length > 0 && filterDate) {
+      handleManualFilter();
+    }
+  }, [eventsList, filterDate, isFullPage]);
+
+  const handleFilterChange = (e) => {
+    const selected = e.target.value;
+    setFilterDate(selected);
   };
 
   if (loading) return null;
@@ -124,21 +137,13 @@ function Events({ isFullPage = true }) {
 
       <div className="container pb-5">
         {isFullPage ? (
-          <div className="input-group mb-4" style={{ maxWidth: "300px" }}>
+          <div className="input-group mb-4 mt-5" style={{ maxWidth: "300px" }}>
             <input
               type="month"
               className="form-control"
-              value={selectedMonth}
-              onChange={handleMonthChange}
+              value={filterDate}
+              onChange={handleFilterChange}
             />
-            <button
-              className="btn btn-primary"
-              onClick={() =>
-                handleMonthChange({ target: { value: selectedMonth } })
-              }
-            >
-              Filter
-            </button>
           </div>
         ) : (
           <div className="container text-center my-5">

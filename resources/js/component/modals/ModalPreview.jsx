@@ -1,6 +1,7 @@
 import React from "react";
 
 function ModalPreview({
+  header = "Notification!",
   id,
   title,
   description,
@@ -20,7 +21,7 @@ function ModalPreview({
         <div className="modal-content">
           <div className="modal-header">
             <h5 className="modal-title" id={`${id}Label`}>
-              Preview Content
+              {header}
             </h5>
             <button
               type="button"
@@ -34,7 +35,11 @@ function ModalPreview({
             <p className="text-muted ps-2">{currentDate}</p>
             {imagePreview && (
               <img
-                src={imagePreview}
+                src={
+                  imagePreview && imagePreview.startsWith("http")
+                    ? imagePreview
+                    : `/storage/${imagePreview || "placeholder.png"}`
+                }
                 alt="Preview"
                 className="img-fluid rounded-3 mb-3"
               />
@@ -47,18 +52,23 @@ function ModalPreview({
             </p>
           </div>
           <div className="modal-footer">
-            <button
-              className="btn btn-warning fw-bold text-white px-5 py-2"
-              onClick={onSaveDraft}
-            >
-              <i className="bi bi-save"></i> Save as Draft
-            </button>
-            <button
-              className="btn btn-success fw-bold text-white px-5 py-2"
-              onClick={onPublish}
-            >
-              <i className="bi bi-send"></i> Publish
-            </button>
+            {onSaveDraft && (
+              <button
+                className="btn btn-warning fw-bold text-white px-5 py-2"
+                onClick={onSaveDraft}
+              >
+                <i className="bi bi-save"></i> Save as Draft
+              </button>
+            )}
+
+            {onPublish && (
+              <button
+                className="btn btn-success fw-bold text-white px-5 py-2"
+                onClick={onPublish}
+              >
+                <i className="bi bi-send"></i> Publish
+              </button>
+            )}
           </div>
         </div>
       </div>

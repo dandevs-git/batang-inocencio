@@ -17,6 +17,7 @@ class Announcement extends Model
         'description',
         'image',
         'status',
+        'date_published'
     ];
 
 

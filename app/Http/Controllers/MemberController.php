@@ -23,7 +23,86 @@ class MemberController extends Controller
      */
     public function store(Request $request)
     {
-        $validator = Validator::make($request->all(), [
+        $validator = Validator::make($request->all(), $this->validationRules());
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Validation failed',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        $data = $request->all();
+        if (!is_null($data['kk_reason'] ?? null)) {
+            $data['kk_reason'] = json_encode($data['kk_reason']);
+        }
+
+        $member = Member::create($data);
+
+        $member->notify(new \App\Notifications\MemberNotification($member));
+
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Member created successfully',
+            'data' => $member,
+        ], 201);
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(Request $request, Member $member)
+    {
+        $validator = Validator::make($request->all(), $this->validationRules($member->id));
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Validation failed',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        $data = $request->all();
+        if (!is_null($data['kk_reason'] ?? null)) {
+            $data['kk_reason'] = json_encode($data['kk_reason']);
+        }
+
+        $member->update($data);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Member updated successfully',
+            'data' => $member,
+        ], 200);
+    }
+
+    /**
+     * Display the specified resource.
+     */
+    public function show(Member $member)
+    {
+        return response()->json($member, 200);
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(Member $member)
+    {
+        $member->delete();
+
+        return response()->json(['message' => 'Member deleted successfully'], 200);
+    }
+
+    /**
+     * Validation rules
+     */
+    protected function validationRules($memberId = null)
+    {
+        return [
             'last_name' => 'required|string|max:255',
             'first_name' => 'required|string|max:255',
             'middle_name' => 'nullable|string|max:255',
@@ -42,7 +121,11 @@ class MemberController extends Controller
             ],
             'sex' => ['required', Rule::in(['Male', 'Female'])],
             'age' => 'required|integer|min:18',
-            'email' => 'required|email|unique:members,email',
+            'email' => [
+                'required',
+                'email',
+                Rule::unique('members', 'email')->ignore($memberId),
+            ],
             'contact_number' => 'required|string|max:15',
             'civil_status' => ['required', Rule::in(['Single', 'Married', 'Widowed', 'Divorced', 'Separated'])],
             'age_group' => [
@@ -77,90 +160,17 @@ class MemberController extends Controller
             'youth_concerns' => 'nullable|string',
             'recommendations' => 'nullable|string',
             'project_recommendations' => 'nullable|string',
-        ]);
+        ];
+    }
 
-        if ($validator->fails()) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Validation failed',
-                'errors' => $validator->errors(),
-            ], 422);
-        }
+    public function checkEmail(Request $request)
+    {
+        $request->validate(['email' => 'required|email']);
 
-        $kk_reason = json_encode($request->input('kk_reason'));
-
-        $member = Member::create(array_merge($request->all(), ['kk_reason' => $kk_reason]));
+        $exists = Member::where('email', $request->email)->exists();
 
         return response()->json([
-            'status' => 'success',
-            'message' => 'Member created successfully',
-            'data' => $member,
-        ], 201);
-    }
-
-    public function update(Request $request, Member $member)
-    {
-        $validator = Validator::make($request->all(), [
-            'last_name' => 'required|string|max:255',
-            'first_name' => 'required|string|max:255',
-            'middle_name' => 'nullable|string|max:255',
-            'suffix' => 'nullable|string|max:10',
-            'address' => 'required|string',
-            'area' => 'required|string',
-            'sex' => 'required|string',
-            'age' => 'required|integer|min:18',
-            'email' => ['required', 'email', Rule::unique('members')->ignore($member->id)],
-            'contact_number' => 'required|string|max:15',
-            'civil_status' => 'required|string',
-            'age_group' => 'required|string',
-            'education' => 'nullable|string',
-            'employment' => 'nullable|string',
-            'sk_voter' => 'required|boolean',
-            'election_vote' => 'required|boolean',
-            'national_voter' => 'required|boolean',
-            'kk_assembly' => 'required|boolean',
-            'kk_attendances' => 'required|integer|min:0',
-            'kk_reason' => 'nullable|string',
-            'youth_concerns' => 'nullable|string',
-            'recommendations' => 'nullable|string',
-            'project_recommendations' => 'nullable|string',
+            'available' => !$exists,
         ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Validation failed',
-                'errors' => $validator->errors(),
-            ], 422);
-        }
-
-        $member->update($request->all());
-
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Member updated successfully',
-            'data' => $member,
-        ], 200);
-    }
-
-
-
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(Member $member)
-    {
-        return response()->json($member, 200);
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Member $member)
-    {
-        $member->delete();
-
-        return response()->json(['message' => 'Member deleted successfully'], 200);
     }
 }

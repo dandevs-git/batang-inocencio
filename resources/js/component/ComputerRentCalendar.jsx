@@ -12,7 +12,7 @@ function ComputerRentCalendar() {
       const today = new Date();
       const formattedDate = today.toISOString().split("T")[0];
 
-      await getData(`/rentals/today?date=${formattedDate}`, setTodayRentals);
+      // await getData(`/rentals/today?date=${formattedDate}`, setTodayRentals);
     };
 
     fetchTodayRentals();

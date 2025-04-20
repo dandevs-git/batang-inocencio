@@ -7,21 +7,26 @@ use Illuminate\Database\Eloquent\Model;
 
 class Team extends Model
 {
-    /** @use HasFactory<\Database\Factories\ParticipantFactory> */
     use HasFactory;
 
     protected $fillable = [
+        'event_id',
         'team_name',
-        'team_captain',
-        'team_captain_age',
-        'team_captain_address',
-        'team_captain_contact_number',
-        'team_captain_email'
+        'team_leader_id',
     ];
 
+    public function event()
+    {
+        return $this->belongsTo(Event::class);
+    }
 
     public function members()
     {
         return $this->hasMany(TeamMember::class);
+    }
+
+    public function leader()
+    {
+        return $this->belongsTo(TeamMember::class, 'team_leader_id');
     }
 }

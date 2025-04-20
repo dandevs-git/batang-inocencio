@@ -12,12 +12,12 @@ return new class extends Migration {
     {
         Schema::create('carousels', function (Blueprint $table) {
             $table->id();
-            $table->string('image');
+            $table->foreignId('setting_id')->constrained('settings')->onDelete('cascade');
+            $table->string('image')->nullable();
             $table->string('title');
             $table->text('description')->nullable();
             $table->string('page')->default('home');
             $table->timestamps();
-            $table->softDeletes();
         });
     }
 
