@@ -1,12 +1,15 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 function ErrorPage({ statusCode }) {
+  const location = useLocation();
+  const isAdminPath = location.pathname.startsWith("/admin");
+
   return (
     <>
       <div className="d-flex flex-column align-items-center justify-content-center vh-100 bg-primary text-white text-center p-4">
         <img
-          src="/storage/logos/Logo.png"
+          src="/images/Logo.png"
           alt="Logo"
           width="110"
           height="100"
@@ -31,7 +34,7 @@ function ErrorPage({ statusCode }) {
           </li>
           <li className="mb-3">
             <Link
-              to="/"
+              to={isAdminPath ? "/admin/dashboard" : "/"}
               className="btn btn-lg btn-outline-light rounded-4 px-4 btn-small"
             >
               Go to Home Page

@@ -16,7 +16,7 @@ function ResourceReservationServiceForm({serviceType}) {
     description: "",
     resource_name: "",
     available_resources: "",
-    timeslot_duration: "00:30",
+    timeslot_duration: "30",
     max_reservation_per_timeslot: "",
     start_time: "",
     end_time: "",
@@ -81,7 +81,7 @@ function ResourceReservationServiceForm({serviceType}) {
         formData.reservation_type === "Group"
           ? parseInt(formData.max_group_size) || 0
           : null,
-      timeslot_duration: parseInt(formData.timeslot_duration) || 0, // Ensure it's an integer
+      timeslot_duration: parseInt(formData.timeslot_duration) || 0,
       timeslot_enabled: timeslotEnabled,
       penalty_enabled: penaltyEnabled,
     };

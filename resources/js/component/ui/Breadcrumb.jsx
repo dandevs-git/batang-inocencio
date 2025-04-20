@@ -1,5 +1,3 @@
-// src/component/Breadcrumb.js
-
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
@@ -11,11 +9,11 @@ const Breadcrumb = () => {
     const pathSegments = path.split("/").filter((segment) => segment !== "");
 
     const breadcrumbData = [];
-    let breadcrumbPath = "/admin"; 
+    let breadcrumbPath = "/admin";
 
     pathSegments.forEach((segment, index) => {
-      if (segment === "admin") {
-        return;
+      if (segment === "admin" || /^\d+$/.test(segment)) {
+        return; // Skip "admin" and numeric segments
       }
 
       breadcrumbPath += "/" + segment;

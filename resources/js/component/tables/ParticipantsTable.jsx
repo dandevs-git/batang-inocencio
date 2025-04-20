@@ -1,68 +1,120 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
 import { useAPI } from "../contexts/ApiContext";
+import TableComponent from "./TableComponent";
+import ModalPreview from "../modals/ModalPreview";
+import { Modal } from "bootstrap/dist/js/bootstrap.bundle.min";
 
-function ParticipantsTable() {
+function ParticipantsTable({ eventId, status, hasActions }) {
   const { getData } = useAPI();
-  const [eventsData, setEventsData] = useState([]);
+  const [participantsData, setParticipantsData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [selectedParticipant, setSelectedParticipant] = useState(null);
+  const [showModal, setShowModal] = useState(false); // To control modal visibility
 
   useEffect(() => {
-    getData("events", setEventsData, setLoading, setError);
-  }, [getData]);
+    // Fetch participants for the selected event
+    getData(
+      `participants${eventId}`,
+      setParticipantsData,
+      setLoading,
+      setError
+    );
+  }, [getData, eventId]);
+
+  // Filter participants data if status is provided
+  const filteredParticipantsData = status
+    ? participantsData.filter((participant) => participant.status === status)
+    : participantsData;
+
+  // Actions array for buttons (view, edit)
+  const actions = (id) => [
+    {
+      label: "View",
+      onClick: () => {
+        const participant = participantsData.find((item) => item.id === id);
+        setSelectedParticipant(participant);
+        setShowModal(true); // Open the modal
+      },
+      className: "btn btn-sm text-light btn-info text-nowrap",
+      icon: "bi bi-eye",
+    },
+    {
+      label: "Edit",
+      href: `/admin/participants/edit/${id}`,
+      className: "btn btn-sm text-light btn-warning text-nowrap",
+      icon: "bi bi-pencil-square",
+    },
+  ];
+
+  // Participant columns configuration
+  const participantsColumns = [
+    {
+      header: "#",
+      cell: ({ row }) => row.index + 1,
+    },
+    {
+      header: "Name",
+      accessorKey: "name",
+    },
+    {
+      header: "Email",
+      accessorKey: "email",
+    },
+    {
+      header: "Status",
+      accessorKey: "status",
+      cell: ({ getValue }) => {
+        const status = getValue();
+        if (status === "active") {
+          return <span className="badge bg-success">Active</span>;
+        } else if (status === "inactive") {
+          return <span className="badge bg-warning">Inactive</span>;
+        }
+        return null;
+      },
+    },
+  ];
+
+  const formattedDate =
+    selectedParticipant?.updated_at &&
+    new Date(selectedParticipant.updated_at).toLocaleDateString("en-US", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+
+  // Close the modal
+  const closeModal = () => {
+    setShowModal(false);
+    setSelectedParticipant(null); // Reset selected participant when closing the modal
+  };
 
   return (
-    <div className="container py-5">
-      {loading ? (
-        <div
-          className="d-flex flex-column justify-content-center align-items-center"
-          style={{ minHeight: "200px" }}
-        >
-          <div className="spinner-border text-primary mb-3" role="status">
-            <span className="visually-hidden">Loading...</span>
-          </div>
-          <p className="text-muted fw-semibold">Fetching events...</p>
-        </div>
-      ) : error ? (
-        <div className="text-center text-danger fw-semibold">
-          <i className="bi bi-exclamation-triangle-fill me-2"></i> {error}
-        </div>
-      ) : eventsData.length > 0 ? (
-        <div className="row g-4">
-          {eventsData.map((event, index) => (
-            <div className="col-md-6 col-lg-4" key={index}>
-              <Link
-                to="/admin/services/computer"
-                className="text-decoration-none"
-              >
-                <div className="card h-100 shadow-sm rounded-4 hover-shadow transition p-4 border-0 shadow-lg">
-                  <div className="card-body text-center">
-                    <h4 className="fw-bold text-dark">{event?.title}</h4>
-                    <p className="text-muted mt-2">
-                      Number of Participants:
-                      <span className="fw-bold text-primary ms-2">
-                        {event?.participants?.length ?? 0}
-                      </span>
-                    </p>
-                  </div>
-                </div>
-              </Link>
-            </div>
-          ))}
-        </div>
-      ) : (
-        <div className="text-center text-muted fst-italic">
-          <img
-            src="https://cdn-icons-png.flaticon.com/512/4076/4076549.png"
-            alt="No events"
-            style={{ width: "80px", opacity: 0.4 }}
-            className="mb-3"
-          />
-          <p>No events found.</p>
-        </div>
+    <>
+      {/* Preview Modal */}
+      {showModal && selectedParticipant && (
+        <ModalPreview
+          header="Preview Participant"
+          id="previewModal"
+          title={selectedParticipant?.name}
+          description={selectedParticipant?.description}
+          imagePreview={selectedParticipant?.image}
+          currentDate={formattedDate}
+          onClose={closeModal} // Close the modal on close button click
+        />
       )}
-    </div>
+
+      {/* Participants Table */}
+      <TableComponent
+        title="Participants"
+        columns={participantsColumns}
+        data={filteredParticipantsData}
+        loading={loading}
+        actions={hasActions ? actions : null} // Show actions only if hasActions is true
+      />
+    </>
   );
 }
 

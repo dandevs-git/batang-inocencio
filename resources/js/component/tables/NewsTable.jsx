@@ -3,6 +3,7 @@ import { useAPI } from "../contexts/ApiContext";
 import TableComponent from "./TableComponent";
 import ModalPreview from "../modals/ModalPreview";
 import { Modal } from "bootstrap/dist/js/bootstrap.bundle.min";
+import { href } from "react-router-dom";
 
 function NewsTable({ status, hasActions }) {
   const { getData } = useAPI();
@@ -33,7 +34,7 @@ function NewsTable({ status, hasActions }) {
     },
     {
       label: "Edit",
-      onClick: () => console.log("Edit ID:", id),
+      href: `/admin/news/edit/${id}`,
       className: "btn btn-sm text-light btn-warning text-nowrap",
       icon: "bi bi-pencil-square",
     },

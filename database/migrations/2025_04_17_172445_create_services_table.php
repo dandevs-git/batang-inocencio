@@ -39,16 +39,16 @@ return new class extends Migration {
             $table->string('event_location')->nullable();
             $table->string('event_type')->nullable();
             $table->string('registration_type')->nullable();
-            $table->date('registration_start')->nullable();
-            $table->date('registration_end')->nullable();
+            $table->date('registration_start_date')->nullable();
+            $table->date('registration_end_date')->nullable();
             $table->integer('max_registrations')->nullable();
             $table->text('requirements')->nullable();
 
             // Resource Lending
             $table->string('resource_category')->nullable();
             $table->string('lending_location')->nullable();
-            $table->string('available_day_start')->nullable();
-            $table->string('available_day_end')->nullable();
+            $table->string('availability_day_start')->nullable();
+            $table->string('availability_day_end')->nullable();
             $table->time('available_time_start')->nullable();
             $table->time('available_time_end')->nullable();
 

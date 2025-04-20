@@ -1,22 +1,28 @@
 import React, { useState } from "react";
 import Breadcrumb from "../ui/Breadcrumb";
+import { useNavigate } from "react-router-dom";
+import { useAPI } from "../contexts/ApiContext";
 
 function VolunteerManagementServiceForm() {
+  const { postData } = useAPI();
+  const [loading, setLoading] = useState(false);  
+  const [error, setError] = useState(null); 
   const [formData, setFormData] = useState({
-    serviceName: "",
+    service_name: "",
     description: "",
     category: "Community Service",
     location: "",
-    startDate: "",
-    endDate: "",
-    contactPerson: "",
-    contactNumber: "",
-    contactEmail: "",
-    volunteerRequirements: "",
-    penaltyDescription: "",
-    launchDate: "",
-    availabilityStatus: "Available",
+    start_date: "",
+    end_date: "",
+    contact_person: "",
+    contact_number: "",
+    contact_email: "",
+    volunteer_requirements: "",
+    penalty_description: "",
+    launch_date: "",
+    availability_status: "Available",
   });
+  const navigate = useNavigate()
 
   const [penaltyEnabled, setPenaltyEnabled] = useState(false);
 
@@ -28,9 +34,42 @@ function VolunteerManagementServiceForm() {
     }));
   };
 
-  const handleSubmit = (e) => {
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Submitted Volunteer Service:", { ...formData, penaltyEnabled });
+    if (!formData.service_name || !formData.date || !formData.location) {
+      setError("Please fill out all required fields.");
+      navigate("/admin/ResourceLendingServiceForm");
+      return;
+    }
+    setLoading(true);
+    setError(null);
+
+    try {
+      console.log("Submitted Event Registration Form:", formData);
+      await postData("ers", formData);
+      setLoading(false);
+      setFormData({
+        service_name: "",
+        description: "",
+        available_facilities: "",
+        timeslot_duration: "30 minutes",
+        max_reservation_per_timeslot: "",
+        start_time: "",
+        end_time: "",
+        reservation_type: "Individual",
+        individuals_per_reservation: "",
+        min_group_size: "",
+        max_group_size: "",
+        booking_window: "",
+        penalty_description: "",
+        launch_date: "",
+        availability_status: "Available",
+      });
+    } catch (err) {
+      setLoading(false);
+      setError("Failed to submit the form. Please try again later.");
+    }
   };
 
   return (
@@ -42,15 +81,15 @@ function VolunteerManagementServiceForm() {
             <h4 className="mb-0">Volunteer Management Service</h4>
           </div>
           <div className="card-body">
-            <form onSubmit={handleSubmit}>
+            <form noValidate onSubmit={handleSubmit}>
               {/* Service Name */}
               <div className="mb-3">
                 <label className="form-label">Service Name</label>
                 <input
-                  name="serviceName"
+                  name="serviceN\ame"
                   type="text"
                   className="form-control"
-                  value={formData.serviceName}
+                  value={formData.service_name}
                   onChange={handleChange}
                   placeholder="Enter service name"
                   required
@@ -108,10 +147,10 @@ function VolunteerManagementServiceForm() {
                 <div className="col-md-6">
                   <label className="form-label">Start Date</label>
                   <input
-                    name="startDate"
+                    name="start_date"
                     type="date"
                     className="form-control"
-                    value={formData.startDate}
+                    value={formData.start_date}
                     onChange={handleChange}
                     required
                   />
@@ -119,10 +158,10 @@ function VolunteerManagementServiceForm() {
                 <div className="col-md-6">
                   <label className="form-label">End Date</label>
                   <input
-                    name="endDate"
+                    name="end_date"
                     type="date"
                     className="form-control"
-                    value={formData.endDate}
+                    value={formData.end_date}
                     onChange={handleChange}
                     required
                   />
@@ -133,10 +172,10 @@ function VolunteerManagementServiceForm() {
               <div className="mb-3">
                 <label className="form-label">Contact Person</label>
                 <input
-                  name="contactPerson"
+                  name="contact_person"
                   type="text"
                   className="form-control"
-                  value={formData.contactPerson}
+                  value={formData.contact_person}
                   onChange={handleChange}
                   placeholder="Full name"
                   required
@@ -147,10 +186,10 @@ function VolunteerManagementServiceForm() {
               <div className="mb-3">
                 <label className="form-label">Contact Number</label>
                 <input
-                  name="contactNumber"
+                  name="contact_number"
                   type="tel"
                   className="form-control"
-                  value={formData.contactNumber}
+                  value={formData.contact_number}
                   onChange={handleChange}
                   placeholder="Phone number"
                   required
@@ -161,10 +200,10 @@ function VolunteerManagementServiceForm() {
               <div className="mb-3">
                 <label className="form-label">Contact Email</label>
                 <input
-                  name="contactEmail"
+                  name="contact_email"
                   type="email"
                   className="form-control"
-                  value={formData.contactEmail}
+                  value={formData.contact_email}
                   onChange={handleChange}
                   placeholder="Email address"
                   required
@@ -175,10 +214,10 @@ function VolunteerManagementServiceForm() {
               <div className="mb-3">
                 <label className="form-label">Volunteer Requirements</label>
                 <textarea
-                  name="volunteerRequirements"
+                  name="volunteer_requirements"
                   className="form-control"
                   rows="3"
-                  value={formData.volunteerRequirements}
+                  value={formData.volunteer_requirements}
                   onChange={handleChange}
                   placeholder="List any requirements for volunteers"
                   required
@@ -204,10 +243,10 @@ function VolunteerManagementServiceForm() {
                 <div className="mb-3">
                   <label className="form-label">Penalty Description</label>
                   <textarea
-                    name="penaltyDescription"
+                    name="penalty_description"
                     className="form-control"
                     rows="3"
-                    value={formData.penaltyDescription}
+                    value={formData.penalty_description}
                     onChange={handleChange}
                     placeholder="Describe penalty policy here..."
                   />
@@ -218,10 +257,10 @@ function VolunteerManagementServiceForm() {
               <div className="mb-3">
                 <label className="form-label">Launch Date</label>
                 <input
-                  name="launchDate"
+                  name="launch_date"
                   type="date"
                   className="form-control"
-                  value={formData.launchDate}
+                  value={formData.launch_date}
                   onChange={handleChange}
                   required
                 />
@@ -231,9 +270,9 @@ function VolunteerManagementServiceForm() {
               <div className="mb-4">
                 <label className="form-label">Availability Status</label>
                 <select
-                  name="availabilityStatus"
+                  name="availability_status"
                   className="form-select"
-                  value={formData.availabilityStatus}
+                  value={formData.availability_status}
                   onChange={handleChange}
                   required
                 >

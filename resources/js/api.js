@@ -5,10 +5,6 @@ const API_URL = "http://127.0.0.1:8000/api";
 const api = axios.create({
   baseURL: API_URL,
   withCredentials: true,
-  headers: {
-    "Content-Type": "application/json",
-    "Content-Type": "multipart/form-data",
-  },
 });
 
 api.interceptors.request.use(
@@ -17,6 +13,11 @@ api.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+
+    if (!config.headers["Content-Type"] && !(config.data instanceof FormData)) {
+      config.headers["Content-Type"] = "application/json";
+    }
+
     return config;
   },
   (error) => {

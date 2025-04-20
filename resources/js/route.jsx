@@ -42,6 +42,9 @@ import FacilityReservationServiceForm from "./component/forms/FacilityReservatio
 import VolunteerManagementServiceForm from "./component/forms/VolunteerManagementServiceForm";
 import ResourceLendingServiceForm from "./component/forms/ResourceLendingServiceForm";
 import EventRegistrationServiceForm from "./component/forms/EventRegistrationServiceForm";
+import NewsEdit from "./pages/admin/NewsEdit";
+import AnnouncementsEdit from "./pages/admin/AnnouncementsEdit";
+import EventsEdit from "./pages/admin/EventsEdit";
 
 function route() {
   return (
@@ -76,6 +79,7 @@ function route() {
 
         <Route path="/admin/news" element={<NewsManagement />} />
         <Route path="/admin/news/create" element={<NewsCreate />} />
+        <Route path="/admin/news/edit/:id" element={<NewsEdit />} />
         <Route path="/admin/news/drafts" element={<NewsDrafts />} />
 
         <Route
@@ -85,6 +89,10 @@ function route() {
         <Route
           path="/admin/announcements/create"
           element={<AnnouncementsCreate />}
+        />
+        <Route
+          path="/admin/announcements/edit/:id"
+          element={<AnnouncementsEdit />}
         />
         <Route
           path="/admin/announcements/drafts"
@@ -100,6 +108,7 @@ function route() {
         <Route path="/admin/events" element={<Navigate to={"manage"} />} />
         <Route path="/admin/events/manage" element={<EventsManagement />} />
         <Route path="/admin/events/create" element={<EventsCreate />} />
+        {/* <Route path="/admin/events/edit/:id" element={<EventsEdit />} /> */}
         <Route path="/admin/events/drafts" element={<EventsDrafts />} />
         <Route
           path="/admin/events/participants"

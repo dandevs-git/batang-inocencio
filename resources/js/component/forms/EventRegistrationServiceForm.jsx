@@ -1,11 +1,12 @@
 import React, { useState } from "react";
 import Breadcrumb from "../ui/Breadcrumb";
 import { useAPI } from "../contexts/ApiContext";
+import { useNavigate } from "react-router-dom";
 
 function EventRegistrationServiceForm() {
   const { postData } = useAPI();
-  const [loading, setLoading] = useState(false);  // Set to false initially
-  const [error, setError] = useState(null);  // Initializing error state
+  const [loading, setLoading] = useState(false);  
+  const [error, setError] = useState(null); 
   const [formData, setFormData] = useState({
     service_name: "",
     date: "",
@@ -20,8 +21,9 @@ function EventRegistrationServiceForm() {
     description: "",
     launch_date: "",
     availability_status: "Available",
-    penaltyEnabled: false,  // Added to formData
+    penaltyEnabled: false, 
   });
+  const navigate = useNavigate()
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -40,21 +42,20 @@ function EventRegistrationServiceForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    // Simple form validation
     if (!formData.service_name || !formData.date || !formData.location) {
       setError("Please fill out all required fields.");
+      navigate('/admin/EventRegistrationServiceForm')
       return;
     }
 
+
     setLoading(true);
-    setError(null);  // Clear any previous error
+    setError(null); 
 
     try {
       console.log("Submitted Event Registration Form:", formData);
-      await postData("ers", formData);  // Assuming postData is async
-      setLoading(false);  // Set loading to false after submission
-      // Optionally reset form after successful submission
+      await postData("ers", formData);  
+      setLoading(false);  
       setFormData({
         service_name: "",
         date: "",
@@ -72,7 +73,7 @@ function EventRegistrationServiceForm() {
         penaltyEnabled: false,
       });
     } catch (err) {
-      setLoading(false);  // Set loading to false on error
+      setLoading(false);  
       setError("Failed to submit the form. Please try again later.");
     }
   };
@@ -87,7 +88,7 @@ function EventRegistrationServiceForm() {
           </div>
           <div className="card-body">
             {error && <div className="alert alert-danger">{error}</div>}
-            <form onSubmit={handleSubmit}>
+            <form noValidate onSubmit={handleSubmit}>
               <div className="mb-3">
                 <label className="form-label">Service Name</label>
                 <input
@@ -265,7 +266,7 @@ function EventRegistrationServiceForm() {
                 <button
                   type="submit"
                   className="btn btn-primary btn-lg text-light"
-                  disabled={loading}  // Disable button while loading
+                  disabled={loading}
                 >
                   {loading ? "Creating..." : "Create Event Service"}
                 </button>

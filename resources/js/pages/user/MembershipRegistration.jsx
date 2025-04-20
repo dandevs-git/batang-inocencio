@@ -88,8 +88,8 @@ const MembershipRegistration = () => {
   const [error, setError] = useState("");
   const [showModal, setShowModal] = useState(false);
   const formRef = useRef(null);
-  const [isEmailValid, setIsEmailValid] = useState(null);
-  const [isAgeValid, setIsAgeValid] = useState(true);
+  const [isEmailValid, setIsEmailValid] = useState(false);
+  const [isAgeValid, setIsAgeValid] = useState(false);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -142,8 +142,7 @@ const MembershipRegistration = () => {
   const onNext = () => {
     const form = formRef.current;
     if (form.checkValidity() === false) {
-      form.classList.add("was-validated");
-
+      form.classList.add("was-validated");    
       if (!isAgeValid) {
         form.classList.add("was-validated");
         return;
@@ -253,7 +252,7 @@ const MembershipRegistration = () => {
                       </div>
                     ))}
 
-                    {["middle_name", "suffix"].map((field) => (
+                    {["middle_name", "suffix"]?.map((field) => (
                       <div className="mb-3" key={field}>
                         <label className="form-label">
                           {field.replace(/([A-Z])/g, " $1").toUpperCase()}
@@ -300,6 +299,7 @@ const MembershipRegistration = () => {
                       formData={formData}
                       handleChange={handleChange}
                       onValidate={setIsEmailValid}
+                      validate={isEmailValid}
                     />
                     <div className="mb-3">
                       <label className="form-label">Contact Number</label>

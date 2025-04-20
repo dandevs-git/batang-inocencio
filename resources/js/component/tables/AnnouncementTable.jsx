@@ -41,7 +41,7 @@ function AnnouncementsTable({ status, hasActions }) {
     },
     {
       label: "Edit",
-      href: `/member/edit/${id}`,
+      href: `/admin/announcements/edit/${id}`,
       className: "btn btn-sm text-light btn-warning text-nowrap",
       icon: "bi bi-pencil-square",
     },

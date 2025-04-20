@@ -1,28 +1,40 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useAPI } from "../contexts/ApiContext";
+import { Modal } from "bootstrap/dist/js/bootstrap.bundle.min";
 
-const announcements = [
-  {
-    id: 1,
-    title: "HARVEST FESTIVAL 2023",
-    date: "AUGUST 16, 2023",
-    image: "/storage/images/Announcement1.png",
-    description: `“Invest in your hair. It’s the crown you never take off.” 
-      Sa huling pagkatok ng Batang Inocencio ay pinagbuksan ito para sa 
-      proyektong “Knock-knock, Who’s hair?” na ....`,
-  },
-  {
-    id: 2,
-    title: "HARVEST FESTIVAL 2023",
-    date: "AUGUST 16, 2023",
-    image: "/storage/images/Announcement1.png",
-    description: `“Invest in your hair. It’s the crown you never take off.” 
-      Sa huling pagkatok ng Batang Inocencio ay pinagbuksan ito para sa 
-      proyektong “Knock-knock, Who’s hair?” na ....`,
-  },
-];
+function ModalAnnouncement() {
+  const { getData } = useAPI();
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState();
+  const [filteredAnnouncements, setFilteredAnnouncements] = useState([]);
 
-function AnnouncementModal() {
+  useEffect(() => {
+    const fetchData = async () => {
+      await getData(
+        "announcements?sort=published",
+        (data) => {
+          const sorted = [...data].sort(
+            (a, b) => new Date(b.date) - new Date(a.date)
+          );
+          setFilteredAnnouncements(sorted.slice(0, 4));
+        },
+        setLoading,
+        setError
+      );
+    };
+    fetchData();
+  }, [getData]);
+
+  const handleReadMore = (id) => {
+    navigate(`/announcements/${id}`);
+    const modal = Modal.getInstance(
+      document.getElementById("announcement_modal")
+    );
+    if (modal) modal.hide();
+  };
+
   return (
     <>
       <div
@@ -32,7 +44,6 @@ function AnnouncementModal() {
         data-bs-keyboard="false"
         tabIndex="-1"
         aria-labelledby="announcementModalLabel"
-        
       >
         <div className="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
           <div className="modal-content">
@@ -50,7 +61,7 @@ function AnnouncementModal() {
             <div className="modal-body">
               <div className="container mb-5">
                 <div className="row g-5">
-                  {announcements.map((announcement) => (
+                  {filteredAnnouncements.map((announcement) => (
                     <div className="col-12" key={announcement.id}>
                       <div className="card shadow">
                         <img
@@ -59,14 +70,17 @@ function AnnouncementModal() {
                           alt={announcement.title}
                         />
                         <div className="card-body">
-                          <p className="small">{announcement.date}</p>
+                          <p className="small">{announcement.date_published}</p>
                           <h5 className="card-title">{announcement.title}</h5>
                           <p className="card-text">
                             {announcement.description}
                           </p>
-                          <Link to={'#'} className="btn btn-primary">
+                          <button
+                            onClick={() => handleReadMore(announcement.id)}
+                            className="btn btn-primary rounded-pill px-4 py-1 read-more-btn"
+                          >
                             Read more
-                          </Link>
+                          </button>
                         </div>
                       </div>
                     </div>
@@ -90,4 +104,4 @@ function AnnouncementModal() {
   );
 }
 
-export default AnnouncementModal;
+export default ModalAnnouncement;

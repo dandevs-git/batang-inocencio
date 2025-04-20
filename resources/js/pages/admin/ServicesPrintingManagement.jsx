@@ -39,7 +39,7 @@ function ServicesPrintingManagement() {
         </div>
 
         <div className="text-center">
-          <button className="btn btn-outline-primary px-4 rounded-pill col-3 btn-lg">Update</button>
+          <a href="/admin/services/resource-reservation/collected-bottles/update" className="btn btn-outline-primary px-4 rounded-pill col-3 btn-lg">Update</a>
         </div>
       </div>
       <PrinterScheduleTable title={'Pending Printing Schedule'} hasActions={true} />

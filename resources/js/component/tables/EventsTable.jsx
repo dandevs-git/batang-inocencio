@@ -20,14 +20,14 @@ function EventsTable({ status, hasActions }) {
   const actions = (eventId) => [
     {
       label: "View",
-      href: `/event/show/${eventId}`,
+      href: `/events/show/${eventId}`,
       className: "btn btn-sm text-light btn-info text-nowrap",
       icon: "bi bi-eye",
       "data-bs-target": "viewDetailsModal"
     },
     {
       label: "Edit",
-      href: `/event/edit/${eventId}`,
+      href: `/admin/events/edit/${eventId}`,
       className: "btn btn-sm text-light btn-warning text-nowrap",
       icon: "bi bi-pencil-square",
     },
@@ -77,10 +77,6 @@ function EventsTable({ status, hasActions }) {
     <>
       <ModalPreview
         id="viewDetailsModal"
-        // title={title}
-        // description={description}
-        // imagePreview={imagePreview}
-        // currentDate={currentDate}
       />
       <TableComponent
         title={"Events"}

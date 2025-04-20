@@ -23,7 +23,7 @@ class ServiceController extends Controller
             'available_resources' => 'nullable|string',
             'available_facilities' => 'nullable|string',
             'timeslot_management' => 'nullable|boolean',
-            'timeslot_duration' => 'nullable|integer',  // Expecting an integer value (e.g., minutes)
+            'timeslot_duration' => 'nullable|integer',
             'max_reservation_per_timeslot' => 'nullable|integer',
             'start_time' => 'nullable|date_format:H:i',
             'end_time' => 'nullable|date_format:H:i',
@@ -73,13 +73,10 @@ class ServiceController extends Controller
      */
     public function store(Request $request)
     {
-        // Validate the service input
         $validated = $this->validateService($request);
 
-        // Create the service
         $service = Service::create($validated);
 
-        // Return a success response with the created service
         return response()->json(['message' => 'Service created successfully.', 'service' => $service], 201);
     }
 

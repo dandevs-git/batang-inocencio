@@ -68,14 +68,23 @@ function EventDetail() {
 
   if (!event) {
     return (
-      <div className="container text-center my-5">
-        <h3 className="text-danger">Event not found</h3>
-        <button
-          onClick={() => window.history.back()}
-          className="btn btn-outline-primary"
-        >
-          Go back to the previous page
-        </button>
+      // <div className="container text-center my-5">
+      //   <h3 className="text-danger">Event not found</h3>
+      //   <button
+      //     onClick={() => window.history.back()}
+      //     className="btn btn-outline-primary"
+      //   >
+      //     Go back to the previous page
+      //   </button>
+      // </div>
+      <div
+        className="d-flex flex-column justify-content-center align-items-center"
+        style={{ minHeight: "200px" }}
+      >
+        <div className="spinner-border text-primary mb-2" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </div>
+        <p className="text-muted fw-semibold">Fetching data, please wait...</p>
       </div>
     );
   }

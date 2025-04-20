@@ -28,8 +28,7 @@ function EmailField({ formData, handleChange, onValidate }) {
       });
 
       const isValid = response?.available ?? false;
-      // console.log(response);
-      
+
       setValidated(isValid);
       setMessage(
         isValid ? "✅ Email is available." : "❌ Email is already taken."
@@ -49,6 +48,11 @@ function EmailField({ formData, handleChange, onValidate }) {
       <label htmlFor="email" className="form-label">
         Email Address
       </label>
+        <span>
+          <div className={`form-text text-danger`}>
+            Please check your email before to proceed!
+          </div>
+        </span>
       <div className="input-group">
         <input
           id="email"
@@ -64,6 +68,7 @@ function EmailField({ formData, handleChange, onValidate }) {
           }}
           required
         />
+        
         <button
           type="button"
           className="btn btn-outline-primary"
@@ -75,7 +80,9 @@ function EmailField({ formData, handleChange, onValidate }) {
       </div>
       {message && (
         <div
-          className={`form-text ${validated === true ? "text-success" : "text-danger"}`}
+          className={`form-text ${
+            validated === true ? "text-success" : "text-danger"
+          }`}
         >
           {message}
         </div>

@@ -1,24 +1,30 @@
 import React, { useState } from "react";
 import Breadcrumb from "../ui/Breadcrumb";
+import { useNavigate } from "react-router-dom";
+import { useAPI } from "../contexts/ApiContext";
 
 function FacilityReservationServiceForm() {
+  const { postData } = useAPI();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
   const [formData, setFormData] = useState({
-    serviceName: "",
+    service_name: "",
     description: "",
-    availableFacilities: "",
-    timeslotDuration: "30 minutes",
-    maxReservationPerTimeslot: "",
-    startTime: "",
-    endTime: "",
-    reservationType: "Individual",
-    individualsPerReservation: "",
-    minGroupSize: "",
-    maxGroupSize: "",
-    bookingWindow: "",
-    penaltyDescription: "",
-    launchDate: "",
-    availabilityStatus: "Available",
+    available_facilities: "",
+    timeslot_duration: "30 minutes",
+    max_reservation_per_timeslot: "",
+    start_time: "",
+    end_time: "",
+    reservation_type: "Individual",
+    individuals_per_reservation: "",
+    min_group_size: "",
+    max_group_size: "",
+    booking_window: "",
+    penalty_description: "",
+    launch_date: "",
+    availability_status: "Available",
   });
+  const navigate = useNavigate();
 
   const [timeslotEnabled, setTimeslotEnabled] = useState(true);
   const [penaltyEnabled, setPenaltyEnabled] = useState(true);
@@ -31,13 +37,42 @@ function FacilityReservationServiceForm() {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Submitted formData:", {
-      ...formData,
-      timeslotEnabled,
-      penaltyEnabled,
-    });
+    if (!formData.service_name || !formData.date || !formData.location) {
+      setError("Please fill out all required fields.");
+      navigate("/admin/FacilityReservationServiceForm");
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      console.log("Submitted Event Registration Form:", formData);
+      await postData("ers", formData);
+      setLoading(false);
+      setFormData({
+        service_name: "",
+        description: "",
+        available_facilities: "",
+        timeslot_duration: "30 minutes",
+        max_reservation_per_timeslot: "",
+        start_time: "",
+        end_time: "",
+        reservation_type: "Individual",
+        individuals_per_reservation: "",
+        min_group_size: "",
+        max_group_size: "",
+        booking_window: "",
+        penalty_description: "",
+        launch_date: "",
+        availability_status: "Available",
+      });
+    } catch (err) {
+      setLoading(false);
+      setError("Failed to submit the form. Please try again later.");
+    }
   };
 
   return (
@@ -49,14 +84,14 @@ function FacilityReservationServiceForm() {
             <h4 className="mb-0">Facility Reservation Service</h4>
           </div>
           <div className="card-body">
-            <form onSubmit={handleSubmit}>
+            <form noValidate onSubmit={handleSubmit}>
               <div className="mb-3">
                 <label className="form-label">Service Name</label>
                 <input
-                  name="serviceName"
+                  name="service_name"
                   type="text"
                   className="form-control"
-                  value={formData.serviceName}
+                  value={formData.service_name}
                   onChange={handleChange}
                   placeholder="Enter service name"
                 />
@@ -75,12 +110,14 @@ function FacilityReservationServiceForm() {
               </div>
 
               <div className="mb-3">
-                <label className="form-label">Number of Available Facility(s)</label>
+                <label className="form-label">
+                  Number of Available Facility(s)
+                </label>
                 <input
-                  name="availableFacilities"
+                  name="available_facilities"
                   type="number"
                   className="form-control"
-                  value={formData.availableFacilities}
+                  value={formData.available_facilities}
                   onChange={handleChange}
                   placeholder="e.g. 3"
                 />
@@ -95,7 +132,8 @@ function FacilityReservationServiceForm() {
                   id="timeslotSwitch"
                 />
                 <label className="form-check-label" htmlFor="timeslotSwitch">
-                  Timeslot Management: {timeslotEnabled ? "Enabled" : "Disabled"}
+                  Timeslot Management:{" "}
+                  {timeslotEnabled ? "Enabled" : "Disabled"}
                 </label>
               </div>
 
@@ -104,9 +142,9 @@ function FacilityReservationServiceForm() {
                   <div className="col-md-6 mb-2">
                     <label className="form-label">Timeslot Duration</label>
                     <select
-                      name="timeslotDuration"
+                      name="timeslot_duration"
                       className="form-select"
-                      value={formData.timeslotDuration}
+                      value={formData.timeslot_duration}
                       onChange={handleChange}
                     >
                       <option>30 minutes</option>
@@ -114,12 +152,14 @@ function FacilityReservationServiceForm() {
                     </select>
                   </div>
                   <div className="col-md-6 mb-2">
-                    <label className="form-label">Max Reservation per Timeslot</label>
+                    <label className="form-label">
+                      Max Reservation per Timeslot
+                    </label>
                     <input
-                      name="maxReservationPerTimeslot"
+                      name="max_reservation_per_timeslot"
                       type="number"
                       className="form-control"
-                      value={formData.maxReservationPerTimeslot}
+                      value={formData.max_reservation_per_timeslot}
                       onChange={handleChange}
                       placeholder="e.g. 10"
                     />
@@ -127,20 +167,20 @@ function FacilityReservationServiceForm() {
                   <div className="col-md-6 mb-2">
                     <label className="form-label">Start Time</label>
                     <input
-                      name="startTime"
+                      name="start_time"
                       type="time"
                       className="form-control"
-                      value={formData.startTime}
+                      value={formData.start_time}
                       onChange={handleChange}
                     />
                   </div>
                   <div className="col-md-6 mb-2">
                     <label className="form-label">End Time</label>
                     <input
-                      name="endTime"
+                      name="end_time"
                       type="time"
                       className="form-control"
-                      value={formData.endTime}
+                      value={formData.end_time}
                       onChange={handleChange}
                     />
                   </div>
@@ -150,9 +190,9 @@ function FacilityReservationServiceForm() {
               <div className="mb-3">
                 <label className="form-label">Reservation Type</label>
                 <select
-                  name="reservationType"
+                  name="reservation_type"
                   className="form-select"
-                  value={formData.reservationType}
+                  value={formData.reservation_type}
                   onChange={handleChange}
                 >
                   <option value="Individual">Individual</option>
@@ -160,14 +200,16 @@ function FacilityReservationServiceForm() {
                 </select>
               </div>
 
-              {formData.reservationType === "Individual" ? (
+              {formData.reservation_type === "Individual" ? (
                 <div className="mb-3">
-                  <label className="form-label">Number of Individuals Per Reservation</label>
+                  <label className="form-label">
+                    Number of Individuals Per Reservation
+                  </label>
                   <input
-                    name="individualsPerReservation"
+                    name="individuals_per_reservation"
                     type="number"
                     className="form-control"
-                    value={formData.individualsPerReservation}
+                    value={formData.individuals_per_reservation}
                     onChange={handleChange}
                     placeholder="e.g. 3"
                   />
@@ -177,10 +219,10 @@ function FacilityReservationServiceForm() {
                   <div className="mb-3">
                     <label className="form-label">Minimum Group Size</label>
                     <input
-                      name="minGroupSize"
+                      name="min_group_size"
                       type="number"
                       className="form-control"
-                      value={formData.minGroupSize}
+                      value={formData.min_group_size}
                       onChange={handleChange}
                       placeholder="e.g. 2"
                     />
@@ -189,10 +231,10 @@ function FacilityReservationServiceForm() {
                   <div className="mb-3">
                     <label className="form-label">Maximum Group Size</label>
                     <input
-                      name="maxGroupSize"
+                      name="max_group_size"
                       type="number"
                       className="form-control"
-                      value={formData.maxGroupSize}
+                      value={formData.max_group_size}
                       onChange={handleChange}
                       placeholder="e.g. 10"
                     />
@@ -203,10 +245,10 @@ function FacilityReservationServiceForm() {
               <div className="mb-3">
                 <label className="form-label">Maximum Booking Window</label>
                 <input
-                  name="bookingWindow"
+                  name="booking_window"
                   type="text"
                   className="form-control"
-                  value={formData.bookingWindow}
+                  value={formData.booking_window}
                   onChange={handleChange}
                   placeholder="e.g. 1 week"
                 />
@@ -228,10 +270,10 @@ function FacilityReservationServiceForm() {
               <div className="mb-3">
                 <label className="form-label">Penalty Description</label>
                 <textarea
-                  name="penaltyDescription"
+                  name="penalty_description"
                   className="form-control"
                   rows="3"
-                  value={formData.penaltyDescription}
+                  value={formData.penalty_description}
                   onChange={handleChange}
                   placeholder="Describe penalty policy here..."
                 />
@@ -240,10 +282,10 @@ function FacilityReservationServiceForm() {
               <div className="mb-3">
                 <label className="form-label">Launch Date</label>
                 <input
-                  name="launchDate"
+                  name="launch_date"
                   type="date"
                   className="form-control"
-                  value={formData.launchDate}
+                  value={formData.launch_date}
                   onChange={handleChange}
                 />
               </div>
@@ -251,9 +293,9 @@ function FacilityReservationServiceForm() {
               <div className="mb-4">
                 <label className="form-label">Availability Status</label>
                 <select
-                  name="availabilityStatus"
+                  name="availability_status"
                   className="form-select"
-                  value={formData.availabilityStatus}
+                  value={formData.availability_status}
                   onChange={handleChange}
                 >
                   <option>Available</option>
@@ -262,7 +304,10 @@ function FacilityReservationServiceForm() {
               </div>
 
               <div className="d-grid">
-                <button type="submit" className="btn text-light btn-primary btn-lg">
+                <button
+                  type="submit"
+                  className="btn text-light btn-primary btn-lg"
+                >
                   Create Facility Service
                 </button>
               </div>

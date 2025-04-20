@@ -31,7 +31,7 @@ function MembershipManagement() {
     ];
     csvRows.push(headers.join(","));
 
-    members.forEach((member) => {
+    membersData.forEach((member) => {
       const row = [
         member.first_name,
         member.last_name,

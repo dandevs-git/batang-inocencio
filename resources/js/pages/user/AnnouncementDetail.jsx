@@ -25,14 +25,23 @@ function AnnouncementDetail() {
 
   if (!announcement) {
     return (
-      <div className="container text-center my-5">
-        <h3 className="text-danger">Announcement not found</h3>
-        <button
-          onClick={() => window.history.back()}
-          className="btn btn-outline-primary"
-        >
-          Go back to the previous page
-        </button>
+      // <div className="container text-center my-5">
+      //   <h3 className="text-danger">Announcement not found</h3>
+      //   <button
+      //     onClick={() => window.history.back()}
+      //     className="btn btn-outline-primary"
+      //   >
+      //     Go back to the previous page
+      //   </button>
+      // </div>
+      <div
+        className="d-flex flex-column justify-content-center align-items-center"
+        style={{ minHeight: "200px" }}
+      >
+        <div className="spinner-border text-primary mb-2" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </div>
+        <p className="text-muted fw-semibold">Fetching data, please wait...</p>
       </div>
     );
   }
@@ -97,15 +106,21 @@ function AnnouncementDetail() {
             <div className="card shadow-lg mb-4" key={announcement.id || index}>
               <div className="card-body">
                 <p className="text-muted">
-                  {new Date(announcement.date_published).toLocaleDateString("en-US", {
-                    month: "long",
-                    day: "numeric",
-                    year: "numeric",
-                  })}
+                  {new Date(announcement.date_published).toLocaleDateString(
+                    "en-US",
+                    {
+                      month: "long",
+                      day: "numeric",
+                      year: "numeric",
+                    }
+                  )}
                 </p>
-                <h5 className="fw-semibold text-uppercase">{announcement.title}</h5>
+                <h5 className="fw-semibold text-uppercase">
+                  {announcement.title}
+                </h5>
                 <p>
-                  {announcement.description?.slice(0, 120) || "No preview available..."}
+                  {announcement.description?.slice(0, 120) ||
+                    "No preview available..."}
                 </p>
                 <div className="text-end">
                   <Link
