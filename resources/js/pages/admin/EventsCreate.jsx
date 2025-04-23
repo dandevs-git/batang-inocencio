@@ -9,8 +9,8 @@ import ModalPreview from "../../component/modals/ModalPreview";
 function EventCreate() {
   const { postData } = useAPI();
   const [loading, setLoading] = useState(false);
-  const [image, setImage] = useState(null);
-  const [imagePreview, setImagePreview] = useState(null);
+  const [images, setImages] = useState([]);
+  const [imagePreviews, setImagePreviews] = useState([]);
 
   const [eventDetails, setEventDetails] = useState({
     title: "",
@@ -20,12 +20,12 @@ function EventCreate() {
     registration_start_date: "",
     registration_end_date: "",
     event_type: "",
+    registration_type: "",
     requirements: "",
     description: "",
     time: "",
     contact_number: "",
     number_of_participants: "",
-    image: "",
   });
 
   const [formValid, setFormValid] = useState(false);
@@ -38,23 +38,16 @@ function EventCreate() {
   const descriptionCount = `${eventDetails.description.length}/2000 characters`;
 
   const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
+    const files = Array.from(e.target.files);
+    const maxSize = 5 * 1024 * 1024;
 
-    const maxSizeMB = 5;
-    const maxSizeBytes = maxSizeMB * 1024 * 1024;
-
-    if (file.size > maxSizeBytes) {
-      alert(`Image must be less than ${maxSizeMB}MB.`);
-      return;
+    const validFiles = files.filter((file) => file.size <= maxSize);
+    if (validFiles.length !== files.length) {
+      alert("Some images exceeded 5MB and were not added.");
     }
 
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setImage(file);
-      setImagePreview(reader.result);
-    };
-    reader.readAsDataURL(file);
+    setImages(validFiles);
+    setImagePreviews(validFiles.map((file) => URL.createObjectURL(file)));
   };
 
   const handleInputChange = (e) => {
@@ -79,17 +72,10 @@ function EventCreate() {
       eventDetails.description.trim() !== "" &&
       eventDetails.contact_number.trim() !== "" &&
       eventDetails.number_of_participants.trim() !== "" &&
-      image !== null;
+      images.length > 0;
 
     setFormValid(isValid);
     form.classList.add("was-validated");
-
-    if (!image) {
-      const imageInput = document.querySelector(
-        '.upload-label input[type="file"]'
-      );
-      if (imageInput) imageInput.classList.add("is-invalid");
-    }
 
     if (isValid) {
       new Modal(document.getElementById("previewModal")).show();
@@ -114,10 +100,9 @@ function EventCreate() {
       time: "",
       contact_number: "",
       number_of_participants: "",
-      image: "",
     });
-    setImage(null);
-    setImagePreview(null);
+    setImages([]);
+    setImagePreviews([]);
     setFormValid(false);
   };
 
@@ -127,9 +112,10 @@ function EventCreate() {
     setTimeout(() => setShowAlert(false), 4000);
   };
 
-  const buildFormData = () => {
+  const buildFormData = (status) => {
     const formData = new FormData();
-    if (image) formData.append("image", image);
+    formData.append("status", status);
+    images.forEach((image) => formData.append("images[]", image));
     Object.entries(eventDetails).forEach(([key, value]) => {
       if (value) formData.append(key, value);
     });
@@ -138,7 +124,7 @@ function EventCreate() {
 
   const saveAsDraft = async () => {
     try {
-      const formData = buildFormData();
+      const formData = buildFormData("draft");
       await postData("events", formData);
       showSuccessAlert("Event saved as draft!");
       Modal.getInstance(document.getElementById("previewModal"))?.hide();
@@ -156,7 +142,7 @@ function EventCreate() {
 
   const publishEvent = async () => {
     try {
-      const formData = buildFormData();
+      const formData = buildFormData("published");
       await postData("events", formData);
       showSuccessAlert("Event published successfully!");
       Modal.getInstance(document.getElementById("previewModal"))?.hide();
@@ -327,6 +313,26 @@ function EventCreate() {
           </div>
 
           <div className="mb-3">
+            <label htmlFor="registration_type" className="form-label">
+              Registration Type
+            </label>
+            <select
+              className="form-control"
+              id="registration_type"
+              name="registration_type"
+              value={eventDetails.registration_type}
+              onChange={handleInputChange}
+              required
+            >
+              <option value="" disabled>
+                Select a type
+              </option>
+              <option value="group">Group</option>
+              <option value="individual">Individual</option>
+            </select>
+          </div>
+
+          <div className="mb-3">
             <label htmlFor="requirements" className="form-label">
               Requirements
             </label>
@@ -418,30 +424,33 @@ function EventCreate() {
             style={{ cursor: "pointer" }}
           >
             <i
-              className="bi bi-image text-primary"
+              className="bi bi-images text-primary"
               style={{ fontSize: "3rem" }}
             ></i>
-            <p className="text-muted m-0">Click to upload an image</p>
+            <p className="text-muted m-0">Click to upload images</p>
             <input
               type="file"
               className={`d-none form-control ${
-                formValid && !imagePreview ? "is-invalid" : ""
+                formValid && images.length === 0 ? "is-invalid" : ""
               }`}
               accept="image/*"
+              multiple
               onChange={handleImageChange}
             />
-            {imagePreview && (
+            {imagePreviews.length > 0 && (
               <div className="mt-3 border rounded-3 shadow">
-                <img
-                  src={imagePreview}
-                  alt="Preview"
-                  className="img-fluid rounded-3"
-                  style={{ maxWidth: "100%", height: "auto" }}
-                />
+                {imagePreviews.map((src, i) => (
+                  <img
+                    key={i}
+                    src={src}
+                    alt={`Preview ${i + 1}`}
+                    className="img-fluid rounded-3"
+                  />
+                ))}
               </div>
             )}
             <div className="invalid-feedback">
-              Image is required (max 5mb size).
+              Image is required (max 5MB size per image).
             </div>
           </label>
         </div>
@@ -466,7 +475,7 @@ function EventCreate() {
         id="previewModal"
         title={eventDetails.title}
         description={eventDetails.description}
-        imagePreview={imagePreview}
+        imagePreviews={imagePreviews} // Pass imagePreviews correctly
         currentDate={currentDate}
         onSaveDraft={saveAsDraft}
         onPublish={confirmPublish}

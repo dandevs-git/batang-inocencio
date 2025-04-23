@@ -19,10 +19,9 @@ class CommitteeMemberFactory extends Factory
 
         return [
             'setting_id' => 1,
-            'name' => $name,
-            'position' => $this->faker->jobTitle(),
+            'name' => $this->faker->name,
+            'position' => $this->faker->jobTitle,
             'image' => 'https://ui-avatars.com/api/?name=' . urlencode($name) . '&background=random&size=400',
-            'is_primary' => false,
         ];
     }
 }

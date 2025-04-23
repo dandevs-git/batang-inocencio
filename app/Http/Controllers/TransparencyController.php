@@ -11,9 +11,14 @@ class TransparencyController extends Controller
 {
     public function index()
     {
-        return response()->json(
-            Transparency::with('files')->get()
-        );
+        $transparencies = Transparency::with([
+            'files' => function ($query) {
+                $query->orderByDesc('created_at');
+            }
+        ])->orderByDesc('created_at')
+            ->get();
+
+        return response()->json($transparencies);
     }
 
     public function store(Request $request)

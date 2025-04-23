@@ -48,7 +48,6 @@ function EventRegistrationServiceForm() {
       return;
     }
 
-
     setLoading(true);
     setError(null); 
 

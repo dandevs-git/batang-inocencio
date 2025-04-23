@@ -4,21 +4,21 @@ import { useAPI } from "./contexts/ApiContext";
 const AdminHeader = () => {
   const { getData } = useAPI();
   const [websiteInformation, setWebsiteInformation] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState();
-  
-    useEffect(() => {
-      const fetchData = async () => {
-        const settings = await getData(
-          "settings",
-          setWebsiteInformation,
-          setLoading,
-          setError
-        );
-      };
-  
-      fetchData();
-    }, []);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState();
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const settings = await getData(
+        "settings",
+        setWebsiteInformation,
+        setLoading,
+        setError
+      );
+    };
+
+    fetchData();
+  }, []);
   return (
     <nav className="navbar navbar-expand-lg shadow-sm mb-3">
       <div className="container-fluid d-flex align-items-center justify-content-between align-items-center px-4">
@@ -101,8 +101,20 @@ const AdminHeader = () => {
           </div> */}
 
           {/* Logo Image */}
-          
-        <img src={websiteInformation?.logo ?`/storage/${websiteInformation?.logo}` : "/images/Logo.png"}  alt="Logo" width="40" height="40" />
+
+          <img
+            alt="Logo"
+            width="40"
+            height="40"
+            src={
+              websiteInformation?.logo
+                ? websiteInformation?.logo.startsWith("http") ||
+                  websiteInformation?.logo.startsWith("blob:")
+                  ? websiteInformation?.logo
+                  : `/storage/${websiteInformation?.logo}`
+                : "/images/Logo.png"
+            }
+          />
         </div>
       </div>
     </nav>

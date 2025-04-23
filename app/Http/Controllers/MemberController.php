@@ -14,9 +14,10 @@ class MemberController extends Controller
      */
     public function index()
     {
-        $members = Member::all();
+        $members = Member::orderByDesc('created_at')->get(); // or 'id', or another column
         return response()->json($members, 200);
     }
+
 
     /**
      * Store a newly created resource in storage.

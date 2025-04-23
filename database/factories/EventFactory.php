@@ -39,7 +39,7 @@ class EventFactory extends Factory
             'time' => sprintf('%02d:%02d:00', rand(8, 15), 0),
             'contact_number' => '09' . $this->faker->numberBetween(100000000, 999999999),
             'number_of_participants' => rand(30, 100),
-            'image' => 'https://picsum.photos/id/' . $this->faker->numberBetween(1, 1000) . '/600/400',
+            'images' => array_map(fn() => 'https://picsum.photos/id/' . $this->faker->numberBetween(1, 1000) . '/600/400', range(1, rand(2, 5))),
             'status' => $status,
         ];
     }

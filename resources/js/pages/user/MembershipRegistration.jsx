@@ -18,7 +18,6 @@ const formFields = {
   contact_number: "",
   email: "",
   education: "",
-  employment: "",
   national_voter: "",
   sk_voter: "",
   election_vote: "",
@@ -46,7 +45,8 @@ const civilStatusOptions = [
   "Married",
   "Widowed",
   "Divorced",
-  "Separated",
+  "Annulled",
+  "Live-in",
 ];
 
 const ageGroupOptions = [
@@ -66,9 +66,24 @@ const educationOptions = [
   "Doctorate Level",
   "Doctorate Graduate",
   "Out of School",
+  "Unemployed",
+  "Employed",
 ];
 
-const employmentOptions = ["Unemployed", "Employed"];
+const suffixOptions = [
+  "",
+  "Jr.",
+  "Sr.",
+  "II",
+  "III",
+  "IV",
+  "Ph.D.",
+  "M.D.",
+  "D.D.S.",
+  "Esq.",
+  "CPA",
+  "RN",
+];
 
 const yesNoOptions = ["Yes", "No"];
 
@@ -142,7 +157,7 @@ const MembershipRegistration = () => {
   const onNext = () => {
     const form = formRef.current;
     if (form.checkValidity() === false) {
-      form.classList.add("was-validated");    
+      form.classList.add("was-validated");
       if (!isAgeValid) {
         form.classList.add("was-validated");
         return;
@@ -183,10 +198,31 @@ const MembershipRegistration = () => {
                   <h2 className="text-center fw-bold mb-4 text-primary">
                     YOUTH PROFILING OF KATIPUNAN NG KABATAAN (KK)
                   </h2>
-                  <p className="text-muted text-justify">
-                    The Sangguniang Kabataan (SK) of Barangay Inocencio is
-                    gathering important demographic information...
-                  </p>
+                  <div className="container my-5">
+                    <h5 className="card-title text-primary fw-bold">
+                      Good day, Youth!
+                    </h5>
+                    <p className="card-text">
+                      The <strong>Sangguniang Kabataan (SK)</strong> of Barangay
+                      Inocencio is currently gathering important demographic
+                      information of the members of the{" "}
+                      <strong>Katipunan ng Kabataan (KK)</strong> who are aged{" "}
+                      <strong>15–30 years old</strong>.
+                    </p>
+                    <p className="card-text">
+                      Therefore, we would like to ask for your participation by
+                      answering this Form.
+                    </p>
+                    <p className="card-text">
+                      Please read each question carefully and answer them
+                      correctly. Rest assured that all information gathered from
+                      this will be treated{" "}
+                      <strong>private and confidential</strong>.
+                    </p>
+                    <p className="card-text mb-0">
+                      Thank you very much, <strong>Batang Inocencio!</strong>
+                    </p>
+                  </div>
 
                   <form
                     ref={formRef}
@@ -236,10 +272,13 @@ const MembershipRegistration = () => {
                   <h4 className="text-center mb-4 text-muted">A. Profile</h4>
 
                   <form ref={formRef} className="needs-validation" noValidate>
-                    {["last_name", "first_name", "address"].map((field) => (
+                    {["last_name", "first_name"].map((field) => (
                       <div className="mb-3" key={field}>
                         <label className="form-label">
-                          {field.replace(/([A-Z])/g, " $1").toUpperCase()}
+                          {field
+                            .replace(/_/g, " ")
+                            .replace(/([A-Z])/g, " $1")
+                            .toUpperCase()}
                         </label>
                         <input
                           type="text"
@@ -251,11 +290,13 @@ const MembershipRegistration = () => {
                         />
                       </div>
                     ))}
-
-                    {["middle_name", "suffix"]?.map((field) => (
+                    {["middle_name"]?.map((field) => (
                       <div className="mb-3" key={field}>
                         <label className="form-label">
-                          {field.replace(/([A-Z])/g, " $1").toUpperCase()}
+                          {field
+                            .replace(/_/g, " ")
+                            .replace(/([A-Z])/g, " $1")
+                            .toUpperCase()}
                         </label>
                         <input
                           type="text"
@@ -267,6 +308,47 @@ const MembershipRegistration = () => {
                       </div>
                     ))}
 
+                    <div className="mb-3">
+                      <label
+                        className="form-label"
+                        htmlFor="suffixSelect"
+                      >
+                        Suffix
+                      </label>
+                      <select
+                        className="form-select"
+                        id="suffixSelect"
+                        name="suffix"
+                        value={formData.suffix || ""}
+                        onChange={handleChange}
+                      >
+                        <option value="">Choose...</option>
+                        {suffixOptions.map((option, idx) => (
+                          <option key={idx} value={option}>
+                            {option || "None"}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {["address"].map((field) => (
+                      <div className="mb-3" key={field}>
+                        <label className="form-label">
+                          {field
+                            .replace(/_/g, " ")
+                            .replace(/([A-Z])/g, " $1")
+                            .toUpperCase()}
+                        </label>
+                        <input
+                          type="text"
+                          name={field}
+                          className="form-control"
+                          value={formData[field] || ""}
+                          onChange={handleChange}
+                          required
+                        />
+                      </div>
+                    ))}
                     <fieldset className="mb-3">
                       <legend className="form-label">Inocencio Area</legend>
                       {areaOptions.map((area) => (
@@ -284,12 +366,12 @@ const MembershipRegistration = () => {
                         </div>
                       ))}
                     </fieldset>
-
                     <div className="mb-3">
-                      <legend className="form-label">Gender</legend>
+                      <legend className="form-label">
+                        Sex Assigned at Birth
+                      </legend>
                       {renderRadioButtons("sex", genderOptions)}
                     </div>
-
                     <AgeField
                       formData={formData}
                       handleChange={handleChange}
@@ -312,7 +394,6 @@ const MembershipRegistration = () => {
                         required
                       />
                     </div>
-
                     <div className="d-flex justify-content-between mt-4">
                       <button
                         className="btn btn-secondary"
@@ -355,37 +436,43 @@ const MembershipRegistration = () => {
                     </div>
 
                     <div className="mb-3">
-                      <legend className="form-label">Age Group</legend>
+                      <legend className="form-label">Youth Age Group</legend>
                       {renderRadioButtons("age_group", ageGroupOptions)}
                     </div>
 
                     <div className="mb-3">
-                      <legend className="form-label">Education</legend>
+                      <legend className="form-label">
+                        Educational Background
+                      </legend>
                       {renderRadioButtons("education", educationOptions)}
                     </div>
 
                     <div className="mb-3">
-                      <legend className="form-label">Employment</legend>
-                      {renderRadioButtons("employment", employmentOptions)}
-                    </div>
-
-                    <div className="mb-3">
-                      <legend className="form-label">SK Voter</legend>
+                      <legend className="form-label">
+                        Are you a registered SK Voter?
+                      </legend>
                       {renderRadioButtons("sk_voter", yesNoOptions)}
                     </div>
 
                     <div className="mb-3">
-                      <legend className="form-label">Election Vote</legend>
+                      <legend className="form-label">
+                        Did you vote in the Barangay and SK elections of 2023?
+                      </legend>
                       {renderRadioButtons("election_vote", yesNoOptions)}
                     </div>
 
                     <div className="mb-3">
-                      <legend className="form-label">National Voter</legend>
+                      <legend className="form-label">
+                        Are you a registered National Voter?
+                      </legend>
                       {renderRadioButtons("national_voter", yesNoOptions)}
                     </div>
 
                     <div className="mb-3">
-                      <legend className="form-label">KK Assembly</legend>
+                      <legend className="form-label">
+                        Have you ever attended a Katipunan ng Kabataan (KK)
+                        Assembly Meeting?
+                      </legend>
                       {renderRadioButtons("kk_assembly", yesNoOptions)}
                     </div>
 
@@ -539,16 +626,30 @@ const MembershipRegistration = () => {
                     </div>
                   )}
 
-                  <div className="text-center mt-4">
-                    <button
-                      className="btn text-light btn-success w-100 fw-bold py-2"
-                      type="button"
-                      onClick={onFinish}
-                    >
-                      <i className="bi bi-check-circle me-2"></i>
-                      Submit & Finish
-                    </button>
-                  </div>
+                  {loading ? (
+                    <div className="text-center mt-4">
+                      <div
+                        className="spinner-border text-success"
+                        role="status"
+                      >
+                        <span className="visually-hidden">Loading...</span>
+                      </div>
+                      <div className="mt-2 text-muted fw-semibold">
+                        Processing your submission...
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="text-center mt-4">
+                      <button
+                        className="btn btn-success text-light w-100 fw-bold py-2 d-flex align-items-center justify-content-center gap-2"
+                        type="button"
+                        onClick={onFinish}
+                      >
+                        <i className="bi bi-check-circle-fill fs-5"></i>
+                        <span>Submit & Finish</span>
+                      </button>
+                    </div>
+                  )}
 
                   <div className="d-flex justify-content-between mt-4">
                     <button

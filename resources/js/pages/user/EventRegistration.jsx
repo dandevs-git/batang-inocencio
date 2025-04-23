@@ -35,7 +35,8 @@ const EventRegistration = () => {
     contact_number: "",
   });
 
-  const isEventRegistrationPageActive = () => location.pathname.startsWith('/registration');
+  const isEventRegistrationPageActive = () =>
+    location.pathname.startsWith("/registration");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -188,6 +189,16 @@ const EventRegistration = () => {
           <div className="card shadow-lg mb-5 rounded-4 w-100">
             <div className="card-body p-5">
               <h2 className="text-center fw-bold mb-4">Registration Form</h2>
+              <div className="d-flex justify-content-around">
+                <p>
+                  <i className="bi bi-tags"></i> <strong>Event Type:</strong>{" "}
+                  {event.event_type}
+                </p>
+                <p>
+                  <i className="bi bi-person-lines-fill"></i>{" "}
+                  <strong>Registration Type:</strong> {event.registration_type}
+                </p>
+              </div>
 
               {event.registration_type === "individual" ? (
                 <>
@@ -584,12 +595,14 @@ const EventRegistration = () => {
                 </div>
               )}
 
-              {!isEventRegistrationPageActive && <Link
-                to={`/registration/${event.id}`}
-                className="btn btn-primary w-100"
-              >
-                <i className="bi bi-pencil-square"></i> Register Now
-              </Link>}
+              {!isEventRegistrationPageActive && (
+                <Link
+                  to={`/registration/${event.id}`}
+                  className="btn btn-primary w-100"
+                >
+                  <i className="bi bi-pencil-square"></i> Register Now
+                </Link>
+              )}
             </div>
           </div>
         </div>

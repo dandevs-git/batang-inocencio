@@ -110,7 +110,7 @@ function ResourceReservationServiceForm({serviceType}) {
 
       <div className="container mt-5">
         <div className="card shadow-lg border-0">
-          <div className="card-header bg-success text-white">
+          <div className="card-header bg-primary text-white">
             <h4 className="mb-0">Resource Reservation System</h4>
           </div>
           <div className="card-body">

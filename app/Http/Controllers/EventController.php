@@ -20,7 +20,7 @@ class EventController extends Controller
         }
 
         if ($sort === 'published') {
-            $query->where('status', 'published')->orderByDesc('date');
+            $query->where('status', 'published')->orderBy('date');
         } else {
             $query->orderByDesc('id');
         }
@@ -30,20 +30,17 @@ class EventController extends Controller
         return response()->json($events);
     }
 
-
-
-
     public function show($id)
     {
         $event = Event::find($id);
-        if ($event) {
-            return response()->json($event);
-        }
-        return response()->json(['message' => 'Event not found'], 404);
+        return $event
+            ? response()->json($event)
+            : response()->json(['message' => 'Event not found'], 404);
     }
 
     public function store(Request $request)
     {
+        // Validate request data
         $validated = $request->validate([
             'title' => 'required|string|max:100',
             'date' => 'required|date',
@@ -58,14 +55,36 @@ class EventController extends Controller
             'contact_number' => 'required|string',
             'number_of_participants' => 'required|integer',
             'status' => 'nullable|in:draft,published',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5048',
+            'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5048',
         ]);
 
-        if ($request->hasFile('image')) {
-            $validated['image'] = $request->file('image')->store('events_images', 'public');
+        // Handle image uploads
+        $imagePaths = [];
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $image) {
+                $imagePaths[] = $image->store('events_images', 'public');
+            }
         }
 
-        $event = Event::create($validated);
+        $status = $validated['status'] ?? 'draft';
+
+        $event = Event::create([
+            'title' => $validated['title'],
+            'date' => $validated['date'],
+            'location' => $validated['location'],
+            'event_organizer' => $validated['event_organizer'],
+            'registration_start_date' => $validated['registration_start_date'],
+            'registration_end_date' => $validated['registration_end_date'],
+            'registration_type' => $validated['registration_type'],
+            'event_type' => $validated['event_type'],
+            'description' => $validated['description'],
+            'time' => $validated['time'],
+            'contact_number' => $validated['contact_number'],
+            'number_of_participants' => $validated['number_of_participants'],
+            'status' => $status,
+            'date_published' => $status === 'published' ? now() : null,
+            'images' => $imagePaths,
+        ]);
 
         return response()->json([
             'message' => 'Event created successfully.',
@@ -77,7 +96,6 @@ class EventController extends Controller
     public function update(Request $request, $id)
     {
         $event = Event::find($id);
-
         if (!$event) {
             return response()->json(['message' => 'Event not found'], 404);
         }
@@ -96,18 +114,39 @@ class EventController extends Controller
             'contact_number' => 'required|string',
             'number_of_participants' => 'required|integer',
             'status' => 'nullable|in:draft,published',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5048',
+            'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5048',
         ]);
 
-        if ($request->hasFile('image')) {
-            if ($event->image && Storage::disk('public')->exists($event->image)) {
-                Storage::disk('public')->delete($event->image);
+        $existingImages = $event->images ?? [];
+
+        if ($request->hasFile('images')) {
+            foreach ($existingImages as $oldImage) {
+                Storage::disk('public')->delete($oldImage);
             }
 
-            $validated['image'] = $request->file('image')->store('events_images', 'public');
+            foreach ($request->file('images') as $image) {
+                $existingImages[] = $image->store('events_images', 'public');
+            }
         }
 
-        $event->update($validated);
+        $updateData = [
+            'title' => $validated['title'],
+            'date' => $validated['date'],
+            'location' => $validated['location'],
+            'event_organizer' => $validated['event_organizer'],
+            'registration_start_date' => $validated['registration_start_date'],
+            'registration_end_date' => $validated['registration_end_date'],
+            'registration_type' => $validated['registration_type'],
+            'event_type' => $validated['event_type'],
+            'description' => $validated['description'] ?? $event->description,
+            'time' => $validated['time'],
+            'contact_number' => $validated['contact_number'],
+            'number_of_participants' => $validated['number_of_participants'],
+            'status' => $validated['status'] ?? $event->status,
+            'images' => $existingImages,
+        ];
+
+        $event->update($updateData);
 
         return response()->json([
             'message' => 'Event updated successfully.',
@@ -123,8 +162,10 @@ class EventController extends Controller
             return response()->json(['message' => 'Event not found'], 404);
         }
 
-        if ($event->image) {
-            Storage::disk('public')->delete($event->image);
+        if (is_array($event->images)) {
+            foreach ($event->images as $img) {
+                Storage::disk('public')->delete($img);
+            }
         }
 
         $event->delete();

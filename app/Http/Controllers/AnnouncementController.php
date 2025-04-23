@@ -29,21 +29,24 @@ class AnnouncementController extends Controller
     {
         $validated = $request->validate([
             'title' => 'required|string|max:255',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5048',
             'description' => 'required|string',
             'status' => 'nullable|in:draft,published',
         ]);
 
-        $imagePath = $request->hasFile('image')
-            ? $request->file('image')->store('announcement_images', 'public')
-            : null;
+        $imagePaths = [];
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $image) {
+                $imagePaths[] = $image->store('announcement_images', 'public');
+            }
+        }
 
         $status = $validated['status'] ?? 'draft';
 
         $announcement = Announcement::create([
             'title' => $validated['title'],
-            'image' => $imagePath,
             'description' => $validated['description'],
+            'images' => $imagePaths,
             'status' => $status,
             'date_published' => $status === 'published' ? now() : null,
         ]);
@@ -63,34 +66,38 @@ class AnnouncementController extends Controller
     {
         $validated = $request->validate([
             'title' => 'required|string|max:255',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5048',
             'description' => 'required|string',
             'status' => 'nullable|in:draft,published',
         ]);
 
-        if ($request->hasFile('image')) {
-            if ($announcement->image) {
-                Storage::disk('public')->delete($announcement->image);
+        $existingImages = $announcement->images ?? [];
+
+        if ($request->hasFile('images')) {
+            // Optionally: delete old images here if you want to replace them
+            foreach ($existingImages as $oldImage) {
+                Storage::disk('public')->delete($oldImage);
             }
 
-            $imagePath = $request->file('image')->store('announcement_images', 'public');
-        } else {
-            $imagePath = $announcement->image;
+            foreach ($request->file('images') as $image) {
+                $existingImages[] = $image->store('announcement_images', 'public');
+            }
         }
 
-        $status = $validated['status'] ?? $announcement->status;
+        $announcement->title = $validated['title'];
+        $announcement->description = $validated['description'];
+        $announcement->images = $existingImages;
+        $announcement->status = $validated['status'] ?? $announcement->status;
 
-        $announcement->update([
-            'title' => $validated['title'],
-            'image' => $imagePath,
-            'description' => $validated['description'],
-            'status' => $status,
-            'date_published' => $status === 'published' ? now() : null,
-        ]);
+        if ($announcement->status === 'published' && !$announcement->date_published) {
+            $announcement->date_published = now();
+        }
+
+        $announcement->save();
 
         return response()->json([
-            'message' => 'Announcement article updated successfully',
-            'announcement' => $announcement,
+            'message' => 'announcement article updated successfully',
+            'announcement' => $announcement
         ]);
     }
 

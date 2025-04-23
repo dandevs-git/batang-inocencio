@@ -3,6 +3,7 @@ import Breadcrumb from "../../component/ui/Breadcrumb";
 import { Modal } from "bootstrap/dist/js/bootstrap.bundle.min";
 import { useAPI } from "../../component/contexts/ApiContext";
 import { useParams, useNavigate } from "react-router-dom";
+import ModalPreview from "../../component/modals/ModalPreview";
 
 function NewsEdit() {
   const { id } = useParams();
@@ -11,8 +12,8 @@ function NewsEdit() {
   const [loading, setLoading] = useState(false);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [image, setImage] = useState(null);
-  const [imagePreview, setImagePreview] = useState(null);
+  const [images, setImages] = useState([]);
+  const [imagePreviews, setImagePreviews] = useState([]);
   const [formValid, setFormValid] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
   const [showAlert, setShowAlert] = useState(false);
@@ -24,7 +25,7 @@ function NewsEdit() {
         const res = await getData(`news/${id}`);
         setTitle(res.title);
         setDescription(res.description);
-        setImagePreview(res.image);
+        setImagePreviews(res.images);
         setStatus(res.status); // assuming API returns 'draft' or 'published'
       } catch (error) {
         console.error("Failed to fetch news data", error);
@@ -36,15 +37,15 @@ function NewsEdit() {
   const titleCount = `${title.length}/700 characters`;
   const descriptionCount = `${description.length}/2000 characters`;
 
-  // Handle image change and convert it to base64 string
+  // Handle images change and convert it to base64 string
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
     const reader = new FileReader();
     reader.onloadend = () => {
-      setImagePreview(reader.result); // base64 image string
-      setImage(reader.result); // store base64 string
+      setImagePreviews(reader.result); // base64 images string
+      setImages(reader.result); // store base64 string
     };
     reader.readAsDataURL(file);
   };
@@ -79,7 +80,7 @@ function NewsEdit() {
       const payload = {
         title,
         description,
-        image,
+        images,
         status: publish ? "published" : status, // Update the status if publish is true
       };
 
@@ -124,7 +125,9 @@ function NewsEdit() {
             </label>
             <input
               type="text"
-              className={`form-control ${formValid && !title ? "is-invalid" : ""}`}
+              className={`form-control ${
+                formValid && !title ? "is-invalid" : ""
+              }`}
               id="title"
               placeholder="Enter title..."
               maxLength="700"
@@ -143,7 +146,9 @@ function NewsEdit() {
               Description
             </label>
             <textarea
-              className={`form-control ${formValid && !description ? "is-invalid" : ""}`}
+              className={`form-control ${
+                formValid && !description ? "is-invalid" : ""
+              }`}
               id="description"
               rows="15"
               placeholder="Enter detailed description..."
@@ -159,26 +164,32 @@ function NewsEdit() {
         <div className="col-md-4">
           <label className="w-100 d-flex flex-column align-items-center border p-4 rounded-3 bg-light-subtle">
             <i
-              className="bi bi-image text-primary"
+              className="bi bi-images text-primary"
               style={{ fontSize: "3rem" }}
             ></i>
-            <p className="text-muted">Click to upload a new image</p>
+            <p className="text-muted">Click to upload a new images</p>
             <input
               type="file"
               className="d-none"
-              accept="image/*"
+              accept="images/*"
               onChange={handleImageChange}
             />
-            {imagePreview && (
-              <img
-                src={
-                  imagePreview && imagePreview.startsWith("http")
-                    ? imagePreview
-                    : `/storage/${imagePreview || "placeholder.png"}`
-                }
-                alt="Preview"
-                className="img-fluid rounded-3 mt-3"
-              />
+            {imagePreviews.length > 0 && (
+              <div className="mt-3 w-100">
+                {imagePreviews.map((src, i) => (
+                  <img
+                    key={i}
+                    src={
+                      src.startsWith("http")
+                          ? src
+                          : `/storage/${src}`
+                    }    
+                    alt={`Preview ${i + 1}`}
+                    className="img-fluid rounded-3 mb-2"
+                    style={{ maxWidth: "100%", height: "auto" }}
+                  />
+                ))}
+              </div>
             )}
           </label>
         </div>
@@ -197,78 +208,31 @@ function NewsEdit() {
         >
           <i className="bi bi-save"></i> Update
         </button>
-        {status == 'draft' && <button
-          className="btn btn-success fw-bold text-white px-5 py-2 mx-2"
-          onClick={() => handleUpdate(true)} // For publishing action
-        >
-          <i className="bi bi-upload"></i> Publish
-        </button>}
+        {status == "draft" && (
+          <button
+            className="btn btn-success fw-bold text-white px-5 py-2 mx-2"
+            onClick={() => handleUpdate(true)} // For publishing action
+          >
+            <i className="bi bi-upload"></i> Publish
+          </button>
+        )}
       </div>
 
       <ModalPreview
         id="previewModal"
         title={title}
         description={description}
-        imagePreview={imagePreview}
+        imagePreviews={imagePreviews}
         currentDate={new Date().toLocaleDateString("en-US", {
           weekday: "long",
           year: "numeric",
           month: "long",
           day: "numeric",
         })}
-        status={status} // pass status
-        onPublish={() => handleUpdate(true)} // Pass publish to update
+        status={status}
+        onPublish={() => handleUpdate(true)}
       />
     </>
-  );
-}
-
-function ModalPreview({
-  id,
-  title,
-  description,
-  imagePreview,
-  currentDate,
-  status,
-  onPublish,
-}) {
-  return (
-    <div
-      className="modal fade"
-      id={id}
-      tabIndex="-1"
-      aria-labelledby={`${id}Label`}
-    >
-      <div className="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
-        <div className="modal-content">
-          <div className="modal-header">
-            <h5 className="modal-title" id={`${id}Label`}>
-              Preview Content
-            </h5>
-            <button
-              type="button"
-              className="btn-close"
-              data-bs-dismiss="modal"
-            ></button>
-          </div>
-          <div className="modal-body">
-            <h1>{title}</h1>
-            <p className="text-muted ps-2">{currentDate}</p>
-            {imagePreview && (
-              <img
-                src={imagePreview}
-                alt="Preview"
-                className="img-fluid rounded-3 mb-3"
-              />
-            )}
-            <p style={{ textIndent: "50px", textAlign: "justify" }}>
-              {description}
-            </p>
-          </div>
-          
-        </div>
-      </div>
-    </div>
   );
 }
 

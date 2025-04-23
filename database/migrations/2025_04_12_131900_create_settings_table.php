@@ -9,13 +9,16 @@ return new class extends Migration {
     {
         Schema::create('settings', function (Blueprint $table) {
             $table->id();
+            $table->string('website_name');
             $table->string('logo')->nullable();
-            $table->string('website_name')->nullable();
-            $table->string('address')->nullable();
-            $table->string('phone_number')->nullable();
-            $table->string('email')->nullable();
-            $table->text('mission')->nullable();
-            $table->text('vision')->nullable();
+            $table->string('address');
+            $table->string('phone_number');
+            $table->string('email');
+            $table->text('mission');
+            $table->text('vision');
+            $table->string('chairperson_name');
+            $table->string('chairperson_position');
+            $table->string('chairperson_image')->nullable();
             $table->timestamps();
         });
     }

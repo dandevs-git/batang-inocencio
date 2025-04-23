@@ -13,7 +13,7 @@ return new class extends Migration {
         Schema::create('announcements', function (Blueprint $table) {
             $table->id();
             $table->string('title');
-            $table->string('image')->nullable();
+            $table->json('images')->nullable();
             $table->text('description');
             $table->enum('status', ['draft', 'published'])->default('draft');
             $table->timestamp('date_published')->nullable();

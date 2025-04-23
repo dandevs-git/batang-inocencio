@@ -16,8 +16,19 @@ class SettingFactory extends Factory
      */
     public function definition(): array
     {
+        $name = $this->faker->name();
+
         return [
-            //
+            'website_name' => 'Batang Inocencio',
+            // 'logo' => 'images/Logo.png',
+            'address' => $this->faker->address,
+            'phone_number' => $this->faker->phoneNumber,
+            'email' => $this->faker->unique()->safeEmail,
+            'mission' => $this->faker->paragraph,
+            'vision' => $this->faker->paragraph,
+            'chairperson_name' => $this->faker->name,
+            'chairperson_position' => 'Chairperson',
+            'chairperson_image' => 'https://ui-avatars.com/api/?name=' . urlencode($name) . '&background=random&size=400',
         ];
     }
 }

@@ -2,55 +2,6 @@ import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useAPI } from "../../component/contexts/ApiContext";
 
-// const eventsList = [
-//   {
-//     id: "1",
-//     data_date: "2025-04",
-//     image: "Event2.png",
-//     title: "Knock-Knock, Who’s Hair?",
-//     registration_period: "April 12 - 15, 2025",
-//     details: [
-//       "Tradition Homes Ph2 Court Subdivision | 2:00PM",
-//       "April 15, 2025 (Sunday)",
-//     ],
-//     date: "2025-04-17",
-//     description: `Ito na yun Batang Inocencio! Date ba kamo? For single or for couple? Syempre sagot na namin yan! Join us for the first-ever event of Sangguniang Kabataan...`,
-//   },
-//   {
-//     id: "2",
-//     data_date: "2025-04",
-//     image: "Event2.png",
-//     title: "Another Event Title",
-//     registration_period: "April 20 - 23, 2025",
-//     details: ["Another Venue | 3:00PM", "April 23, 2025 (Wednesday)"],
-//     date: "2025-04-23",
-//     description: `Ito na yun Batang Inocencio! Date ba kamo? For single or for couple? Syempre sagot na namin yan! Join us for the first-ever event of Sangguniang Kabataan...`,
-//   },
-//   {
-//     id: "3",
-//     data_date: "2025-04",
-//     image: "Event2.png",
-//     title: "Knock-Knock, Who’s Hair?",
-//     registration_period: "April 12 - 15, 2025",
-//     details: [
-//       "Tradition Homes Ph2 Court Subdivision | 2:00PM",
-//       "April 15, 2025 (Sunday)",
-//     ],
-//     date: "2025-04-17",
-//     description: `Ito na yun Batang Inocencio! Date ba kamo? For single or for couple? Syempre sagot na namin yan! Join us for the first-ever event of Sangguniang Kabataan...`,
-//   },
-//   {
-//     id: "4",
-//     data_date: "2025-04",
-//     image: "Event2.png",
-//     title: "Another Event Title",
-//     registration_period: "April 20 - 23, 2025",
-//     details: ["Another Venue | 3:00PM", "April 23, 2025 (Wednesday)"],
-//     date: "2025-04-23",
-//     description: `Ito na yun Batang Inocencio! Date ba kamo? For single or for couple? Syempre sagot na namin yan! Join us for the first-ever event of Sangguniang Kabataan...`,
-//   },
-// ];
-
 function EventDetail() {
   const { getData } = useAPI();
   const { id } = useParams();
@@ -68,15 +19,6 @@ function EventDetail() {
 
   if (!event) {
     return (
-      // <div className="container text-center my-5">
-      //   <h3 className="text-danger">Event not found</h3>
-      //   <button
-      //     onClick={() => window.history.back()}
-      //     className="btn btn-outline-primary"
-      //   >
-      //     Go back to the previous page
-      //   </button>
-      // </div>
       <div
         className="d-flex flex-column justify-content-center align-items-center"
         style={{ minHeight: "200px" }}
@@ -103,15 +45,29 @@ function EventDetail() {
             })}{" "}
             at {event.time}
           </p>
-          <img
-            src={
-              event.image && event.image.startsWith("http")
-                ? event.image
-                : `/storage/${event.image || "placeholder.png"}`
-            }
-            className="rounded-4 border shadow-lg object-fit-cover w-100"
-            alt={event.title}
-          />
+          {console.log(event)}
+          
+          {event.images?.length > 0 && (
+            <div className="row g-3 mb-3">
+              {event.images.map((src, index) => {
+                return (
+                  <div key={index} className="col-12 col-md-6">
+                    <figure className="mb-0">
+                      <img
+                        src={
+                          src.startsWith("http") || src.startsWith("blob:")
+                            ? src
+                            : `/storage/${src}`
+                        }
+                        alt={`Preview ${index + 1}`}
+                        className="img-fluid rounded border object-fit-contain"
+                      />
+                    </figure>
+                  </div>
+                );
+              })}
+            </div>
+          )}
           <div className="fs-3 mt-3">
             <Link
               to={"#"}

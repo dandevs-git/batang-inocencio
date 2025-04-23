@@ -1,17 +1,16 @@
 import React, { useState } from "react";
 import Breadcrumb from "../../component/ui/Breadcrumb";
-import { Modal } from "bootstrap/dist/js/bootstrap.bundle.min";
+import { Modal } from "bootstrap";
 import { useAPI } from "../../component/contexts/ApiContext";
+import ModalPreview from "../../component/modals/ModalPreview";
 
 function NewsCreate() {
-  const { getData, postData, putData, deleteData } = useAPI();
-  const [loading, setLoading] = useState(false);
+  const { postData } = useAPI();
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [image, setImage] = useState(null);
-  const [imagePreview, setImagePreview] = useState(null);
+  const [images, setImages] = useState([]);
+  const [imagePreviews, setImagePreviews] = useState([]);
   const [formValid, setFormValid] = useState(false);
-
   const [alertMessage, setAlertMessage] = useState("");
   const [showAlert, setShowAlert] = useState(false);
 
@@ -22,75 +21,60 @@ function NewsCreate() {
     day: "numeric",
   });
 
-  const titleCount = `${title.length}/700 characters`;
-  const descriptionCount = `${description.length}/2000 characters`;
-
   const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
+    const files = Array.from(e.target.files);
+    const maxSize = 5 * 1024 * 1024;
 
-    const maxSizeMB = 5;
-    const maxSizeBytes = maxSizeMB * 1024 * 1024;
-
-    if (file.size > maxSizeBytes) {
-      alert(`Image must be less than ${maxSizeMB}MB.`);
-      return;
+    const validFiles = files.filter((file) => file.size <= maxSize);
+    if (validFiles.length !== files.length) {
+      alert("Some images exceeded 5MB and were not added.");
     }
 
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setImage(file);
-      setImagePreview(reader.result);
-    };
-    reader.readAsDataURL(file);
+    setImages(validFiles);
+    setImagePreviews(validFiles.map((file) => URL.createObjectURL(file)));
   };
 
   const handlePreview = () => {
-    const isValid = title.trim() !== "" && description.trim() !== "" && image;
+    const isValid = title.trim() && description.trim() && images.length > 0;
     setFormValid(true);
     if (isValid) {
-      new Modal(document.getElementById("previewModal")).show();
+      const modal = new Modal(document.getElementById("previewModal"));
+      modal.show();
     }
   };
 
   const handleDiscard = () => {
-    new Modal(document.getElementById("discardModal")).show();
+    const modal = new Modal(document.getElementById("discardModal"));
+    modal.show();
   };
 
   const discard = () => {
     setTitle("");
     setDescription("");
-    setImage(null);
-    setImagePreview(null);
+    setImages([]);
+    setImagePreviews([]);
     setFormValid(false);
   };
 
   const showSuccessAlert = (message) => {
     setAlertMessage(message);
     setShowAlert(true);
-    setTimeout(() => {
-      setShowAlert(false);
-    }, 4000);
+    setTimeout(() => setShowAlert(false), 4000);
   };
 
   const buildFormData = (status) => {
     const formData = new FormData();
     formData.append("title", title);
     formData.append("description", description);
-    if (image) formData.append("image", image);
     formData.append("status", status);
+    images.forEach((img, i) => formData.append(`images[${i}]`, img));
     return formData;
   };
 
   const saveAsDraft = async () => {
-    if (!image) {
-      alert("Please upload an image before publishing.");
-      return;
-    }
     Modal.getInstance(document.getElementById("previewModal"))?.hide();
     try {
-      const formData = buildFormData("draft");
-      const res = await postData("news", formData);
+      await postData("news", buildFormData("draft"));
       showSuccessAlert("News saved as draft!");
     } catch (err) {
       console.error(err);
@@ -101,20 +85,15 @@ function NewsCreate() {
   };
 
   const confirmPublish = () => {
-    if (!image) {
-      alert("Please upload an image before publishing.");
-      return;
-    }
-    new Modal(document.getElementById("confirmPublishModal")).show();
+    const modal = new Modal(document.getElementById("confirmPublishModal"));
+    modal.show();
   };
 
   const publishNews = async () => {
     Modal.getInstance(document.getElementById("previewModal"))?.hide();
     try {
-      const formData = buildFormData("published");
-      const res = await postData("news", formData);
+      await postData("news", buildFormData("published"));
       showSuccessAlert("News published successfully!");
-      discard();
     } catch (err) {
       console.error(err);
       alert("Failed to publish news.");
@@ -126,7 +105,6 @@ function NewsCreate() {
   return (
     <>
       <Breadcrumb />
-
       <div className="mb-4 border-bottom pb-3">
         <h4 className="fw-bold">News & Updates</h4>
         <p className="text-muted m-0">
@@ -168,7 +146,7 @@ function NewsCreate() {
               onChange={(e) => setTitle(e.target.value)}
               required
             />
-            <small className="form-text text-muted">{titleCount}</small>
+            <small className="form-text text-muted">{`${title.length}/700 characters`}</small>
             <div className="invalid-feedback">
               Title is required (max 700 characters).
             </div>
@@ -193,7 +171,7 @@ function NewsCreate() {
               onChange={(e) => setDescription(e.target.value)}
               required
             />
-            <small className="form-text text-muted">{descriptionCount}</small>
+            <small className="form-text text-muted">{`${description.length}/2000 characters`}</small>
             <div className="invalid-feedback">
               Description is required (max 2000 characters).
             </div>
@@ -206,32 +184,33 @@ function NewsCreate() {
             style={{ cursor: "pointer" }}
           >
             <i
-              className="bi bi-image text-primary"
+              className="bi bi-images text-primary"
               style={{ fontSize: "3rem" }}
             ></i>
-            <p className="text-muted m-0">Click to upload an image</p>
+            <p className="text-muted m-0">Click to upload images</p>
             <input
               type="file"
-              className={`d-none form-control ${
-                !formValid && !imagePreview ? "is-invalid" : ""
-              }`}
+              className="d-none"
+              multiple
               accept="image/*"
               onChange={handleImageChange}
             />
-
-            {imagePreview && (
-              <div className="mt-3 border rounded-3 shadow">
-                <img
-                  src={imagePreview}
-                  alt="Preview"
-                  className="img-fluid rounded-3"
-                  style={{ maxWidth: "100%", height: "auto" }}
-                />
+            {imagePreviews.length > 0 && (
+              <div className="mt-3 w-100">
+                {imagePreviews.map((src, i) => (
+                  <img
+                    key={i}
+                    src={
+                      src.startsWith("http") || src.startsWith("blob:")
+                        ? src
+                        : `/storage/${src}`
+                    }
+                    alt={`Preview ${i + 1}`}
+                    className="img-fluid rounded-3 mb-2"
+                  />
+                ))}
               </div>
             )}
-            <div className="invalid-feedback">
-              Image is required (max 5mb size).
-            </div>
           </label>
         </div>
       </form>
@@ -249,103 +228,95 @@ function NewsCreate() {
         >
           <i className="bi bi-eye"></i> Preview
         </button>
-        {/* <button
-          className="btn btn-warning fw-bold text-white px-5 py-2 mx-2"
-          onClick={saveAsDraft}
-        >
-          <i className="bi bi-save"></i> Save as Draft
-        </button>
-        <button
-          className="btn btn-success fw-bold text-white px-5 py-2 mx-2"
-          onClick={confirmPublish}
-        >
-          <i className="bi bi-send"></i> Publish
-        </button> */}
       </div>
 
       <ModalPreview
-        header="Preview Modal"
         id="previewModal"
         title={title}
         description={description}
-        imagePreview={imagePreview}
+        imagePreviews={imagePreviews}
         currentDate={currentDate}
         onSaveDraft={saveAsDraft}
         onPublish={confirmPublish}
       />
 
       <ModalDiscard id="discardModal" onConfirm={discard} />
-
       <ModalConfirmPublish id="confirmPublishModal" onConfirm={publishNews} />
     </>
   );
 }
 
-function ModalPreview({
-  id,
-  title,
-  description,
-  imagePreview,
-  currentDate,
-  onSaveDraft,
-  onPublish,
-}) {
-  return (
-    <div
-      className="modal fade"
-      id={id}
-      tabIndex="-1"
-      aria-labelledby={`${id}Label`}
-    >
-      <div className="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
-        <div className="modal-content">
-          <div className="modal-header">
-            <h5 className="modal-title" id={`${id}Label`}>
-              Preview Content
-            </h5>
-            <button
-              type="button"
-              className="btn-close"
-              data-bs-dismiss="modal"
-              aria-label="Close"
-            />
-          </div>
-          <div className="modal-body">
-            <h1 className="mt-3">{title}</h1>
-            <p className="text-muted ps-2">{currentDate}</p>
-            {imagePreview && (
-              <img
-                src={imagePreview}
-                alt="Preview"
-                className="img-fluid rounded-3 mb-3"
-              />
-            )}
-            <p
-              className="p-3 lead"
-              style={{ textIndent: "50px", textAlign: "justify" }}
-            >
-              {description}
-            </p>
-          </div>
-          <div className="modal-footer">
-            <button
-              className="btn btn-warning fw-bold text-white px-5 py-2"
-              onClick={onSaveDraft}
-            >
-              <i className="bi bi-save"></i> Save as Draft
-            </button>
-            <button
-              className="btn btn-success fw-bold text-white px-5 py-2"
-              onClick={onPublish}
-            >
-              <i className="bi bi-send"></i> Publish
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
+// function ModalPreview({
+//   id,
+//   title,
+//   description,
+//   imagePreviews,
+//   currentDate,
+//   onSaveDraft,
+//   onPublish,
+// }) {
+//   return (
+//     <div
+//       className="modal fade"
+//       id={id}
+//       tabIndex="-1"
+//       aria-labelledby={`${id}Label`}
+//     >
+//       <div className="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+//         <div className="modal-content">
+//           <div className="modal-header">
+//             <h5 className="modal-title" id={`${id}Label`}>
+//               Preview Content
+//             </h5>
+//             <button
+//               type="button"
+//               className="btn-close"
+//               data-bs-dismiss="modal"
+//               aria-label="Close"
+//             />
+//           </div>
+//           <div className="modal-body">
+//             <h1 className="mt-3">{title}</h1>
+//             <p className="text-muted ps-2">{currentDate}</p>
+//             {imagePreviews.map((src, i) => (
+//               <img
+//                 key={i}
+//                 src={
+//                   src.startsWith("http")
+//                       ? src
+//                       : `/storage/${src}`
+//                 }
+//                 alt={`Preview ${i + 1}`}
+//                 className="img-fluid rounded-3 mb-3"
+//               />
+//             ))}
+
+//             <p
+//               className="p-3 lead"
+//               style={{ textIndent: "50px", textAlign: "justify" }}
+//             >
+//               {description}
+//             </p>
+//           </div>
+//           <div className="modal-footer">
+//             <button
+//               className="btn btn-warning fw-bold text-white px-5 py-2"
+//               onClick={onSaveDraft}
+//             >
+//               <i className="bi bi-save"></i> Save as Draft
+//             </button>
+//             <button
+//               className="btn btn-success fw-bold text-white px-5 py-2"
+//               onClick={onPublish}
+//             >
+//               <i className="bi bi-send"></i> Publish
+//             </button>
+//           </div>
+//         </div>
+//       </div>
+//     </div>
+//   );
+// }
 
 function ModalDiscard({ id, onConfirm }) {
   return (

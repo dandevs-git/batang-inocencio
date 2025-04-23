@@ -3,7 +3,6 @@ import { useAPI } from "../contexts/ApiContext";
 import TableComponent from "./TableComponent";
 import ModalPreview from "../modals/ModalPreview";
 import { Modal } from "bootstrap/dist/js/bootstrap.bundle.min";
-import { href } from "react-router-dom";
 
 function NewsTable({ status, hasActions }) {
   const { getData } = useAPI();
@@ -96,7 +95,7 @@ function NewsTable({ status, hasActions }) {
         id="previewModal"
         title={selectedNews?.title}
         description={selectedNews?.description}
-        imagePreview={selectedNews?.image}
+        imagePreviews={selectedNews?.images}
         currentDate={formattedDate}
       />
 

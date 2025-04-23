@@ -15,7 +15,6 @@ function About() {
     getData("committee", setOrgMembers, setLoading, setError);
     getData("settings", setSettings, setLoading, setError);
   }, [getData]);
-  
 
   return (
     <>
@@ -45,7 +44,7 @@ function About() {
             <div className="border-top shadow-lg rounded-4 d-flex flex-column p-4 bg-gradient h-100">
               <div className="fs-2 fw-bold text-primary mb-3">Vision</div>
               <p className="fs-5 my-auto fst-italic text-muted">
-              {settings?.vision}
+                {settings?.vision}
               </p>
             </div>
           </div>
@@ -58,46 +57,39 @@ function About() {
         </div>
 
         <div className="row justify-content-center mb-5">
-          {orgMembers
-            .filter((member) => member.is_primary)
-            .map((member, index) => (
-              <div
-                key={`primary-${index}`}
-                className="col-lg-4 col-md-6 text-center mb-4"
-              >
-                <div
-                  className="card shadow-lg rounded-4 p-3 border h-100 text-light"
+          <div className="col-lg-4 col-md-6 text-center mb-4">
+            <div
+              className="card shadow-lg rounded-4 p-3 border h-100 text-light"
+              style={{
+                background:
+                  "linear-gradient(to top, rgba(var(--bs-info-rgb)), rgba(0,0,0,0))",
+              }}
+            >
+              <div className="card-body">
+                <img
+                  src={
+                    settings.chairperson_image && (settings.chairperson_image.startsWith("http") ||
+                    settings.chairperson_image.startsWith("blob:")
+                      ? settings.chairperson_image
+                      : `/storage/${settings.chairperson_image}`)
+                  }
+                  className="img-fluid rounded-circle mb-3 border-5 border border-light"
                   style={{
-                    background:
-                      "linear-gradient(to top, rgba(var(--bs-info-rgb)), rgba(0,0,0,0))",
+                    width: "150px",
+                    height: "200px",
+                    objectFit: "cover",
                   }}
-                >
-                  <div className="card-body">
-                    <img
-                      src={
-                        member.image && member.image.startsWith('http')
-                          ? member.image
-                          : `/storage/${member.image || 'placeholder.png'}`
-                      }
-                      className="img-fluid rounded-circle mb-3 border-5 border border-light"
-                      style={{
-                        width: "150px",
-                        height: "200px",
-                        objectFit: "cover",
-                      }}
-                      alt={member.name}
-                    />
-                    <h4 className="fw-semibold">{member.name}</h4>
-                    <p className="text-muted mb-0">{member.position}</p>
-                  </div>
-                </div>
+                  alt={settings.name}
+                />
+                <h4 className="fw-semibold">{settings.chairperson_name}</h4>
+                <p className="text-muted mb-0">{settings.chairperson_position}</p>
               </div>
-            ))}
+            </div>
+          </div>
         </div>
 
         <div className="row justify-content-center g-5">
           {orgMembers
-            .filter((member) => !member.is_primary)
             .map((member, index) => (
               <div
                 key={`other-${index}`}
@@ -113,9 +105,10 @@ function About() {
                   <div className="card-body">
                     <img
                       src={
-                        member.image && member.image.startsWith('http')
+                        member.image && (member.image.startsWith("http") ||
+                        member.image.startsWith("blob:")
                           ? member.image
-                          : `/storage/${member.image || 'placeholder.png'}`
+                          : `/storage/${member.image}`)
                       }
                       className="img-fluid rounded-circle mb-3 border-5 border border-light"
                       style={{

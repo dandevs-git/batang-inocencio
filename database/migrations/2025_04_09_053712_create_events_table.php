@@ -14,7 +14,7 @@ return new class extends Migration {
             $table->id();
             $table->string('title');
             $table->date('date');
-            $table->date('date_published');
+            $table->timestamp('date_published')->nullable();
             $table->string('location');
             $table->string('event_organizer');
             $table->date('registration_start_date');
@@ -26,7 +26,7 @@ return new class extends Migration {
             $table->time('time');
             $table->string('contact_number');
             $table->integer('number_of_participants');
-            $table->string('image')->nullable();
+            $table->json('images')->nullable();
             $table->enum('status', ['draft', 'published'])->default('draft');
             $table->timestamps();
         });

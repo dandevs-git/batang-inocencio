@@ -23,7 +23,6 @@ class DatabaseSeeder extends Seeder
             AnnouncementSeeder::class,
             SettingSeeder::class,
             CarouselSeeder::class,
-            CommitteeMemberSeeder::class,
             FaqSeeder::class,
             TransparencySeeder::class,
         ]);

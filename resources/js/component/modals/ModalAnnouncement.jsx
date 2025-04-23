@@ -65,7 +65,11 @@ function ModalAnnouncement() {
                     <div className="col-12" key={announcement.id}>
                       <div className="card shadow">
                         <img
-                          src={announcement.image}
+                          src={
+                            announcement.image && (announcement.image.startsWith("http") || announcement.image.startsWith("blob:")
+                              ? announcement.image
+                              : `/storage/${announcement.image}`)
+                          }
                           className="card-img-top object-fit-fill"
                           alt={announcement.title}
                         />

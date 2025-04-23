@@ -7,6 +7,8 @@ function EventCalendar() {
   const [selectedDateEvents, setSelectedDateEvents] = useState([]);
   const [loading, setLoading] = useState(false);
   const { getData } = useAPI();
+  const [eventDates, setEventDates] = useState([]);
+
 
   useEffect(() => {
     const fetchEventsByDate = async () => {
@@ -20,6 +22,20 @@ function EventCalendar() {
     fetchEventsByDate();
   }, [value]);
 
+  useEffect(() => {
+    const fetchAllEventDates = async () => {
+      await getData("events", (data) => {
+        const dates = data.map((event) =>
+          new Date(event.date).toLocaleDateString("en-CA")
+        );
+        setEventDates(dates);
+      });
+    };
+  
+    fetchAllEventDates();
+  }, []);
+  
+
   return (
     <div className="mb-5" id="calendar-section">
       <div className="row g-4">
@@ -29,7 +45,7 @@ function EventCalendar() {
               <h2 className="mb-0 fw-bold">Events Calendar</h2>
             </div>
             <div className="card-body p-4">
-              <CustomCalendar onChange={setValue} value={value} />
+              <CustomCalendar onChange={setValue} value={value} eventDates={eventDates} />
             </div>
           </div>
         </div>

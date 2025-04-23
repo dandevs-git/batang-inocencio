@@ -20,7 +20,7 @@ class AnnouncementFactory extends Factory
             'title' => $this->faker->sentence(6, true),
             'date_published' => $this->faker->dateTimeBetween('2025-01-01', 'now'),
             'description' => $this->faker->paragraph(3, true),
-            'image' => 'https://picsum.photos/id/' . $this->faker->numberBetween(1, 1000) . '/600/400',
+            'images' => array_map(fn() => 'https://picsum.photos/id/' . $this->faker->numberBetween(1, 1000) . '/600/400', range(1, rand(2, 5))),
             'status' => $this->faker->randomElement(['published', 'draft']),
         ];
     }

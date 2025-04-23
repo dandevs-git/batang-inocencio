@@ -46,8 +46,9 @@ return new class extends Migration {
                 'Doctorate Level',
                 'Doctorate Graduate',
                 'Out of School',
+                'Unemployed',
+                'Employed'
             ]);
-            $table->enum('employment', ['Unemployed', 'Employed']);
             $table->enum('sk_voter', ['Yes', 'No']);
             $table->enum('election_vote', ['Yes', 'No'])->nullable();
             $table->enum('national_voter', ['Yes', 'No'])->nullable();

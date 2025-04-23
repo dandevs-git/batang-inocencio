@@ -54,6 +54,7 @@ class ResourceReservationServiceController extends Controller
             $count = $service->available_resources;
             for ($i = 1; $i <= $count; $i++) {
                 $resources[] = [
+                    'id' => $i,
                     'name' => "PC-$i",
                     'status' => rand(0, 1) ? 'available' : 'full'
                 ];

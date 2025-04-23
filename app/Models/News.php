@@ -9,23 +9,17 @@ class News extends Model
 {
     use HasFactory;
 
-
-
     protected $fillable = [
         'title',
         'description',
-        'image',
+        'images',
         'status',
-        'date_published'
+        'date_published',
     ];
-
 
     protected $casts = [
-        'status' => 'string',
-    ];
-
-    protected $attributes = [
-        'status' => 'draft',
+        'images' => 'array',
+        'date_published' => 'datetime',
     ];
 
     public function getFormattedCreatedAtAttribute()

@@ -52,7 +52,9 @@ function News({ isFullPage = true }) {
   useEffect(() => {
     const handleManualFilter = () => {
       const filtered = newsList.filter((n) => {
-        const formattedDate = new Date(n.date_published).toISOString().slice(0, 7);
+        const formattedDate = new Date(n.date_published)
+          .toISOString()
+          .slice(0, 7);
         return formattedDate === filterDate;
       });
       setFilteredNews(filtered);
@@ -63,10 +65,9 @@ function News({ isFullPage = true }) {
     }
   }, [newsList, filterDate, isFullPage]);
 
-
   const handleFilterChange = (e) => {
     const selected = e.target.value;
-    setFilterDate(selected); 
+    setFilterDate(selected);
   };
 
   if (loading) return null;
@@ -102,7 +103,7 @@ function News({ isFullPage = true }) {
             </p>
           </div>
         )}
-
+        {console.log(filteredNews)}
         <div className="row g-4">
           {filteredNews.length > 0 ? (
             filteredNews.map((news, index) => (
@@ -110,9 +111,10 @@ function News({ isFullPage = true }) {
                 <div className="card rounded-3 shadow-lg border-0 h-100 d-flex flex-column">
                   <img
                     src={
-                      news.image && news.image.startsWith("http")
-                        ? news.image
-                        : `/storage/${news.image || "placeholder.png"}`
+                      news.images[0].startsWith("http") ||
+                      news.images[0].startsWith("blob:")
+                        ? news.images[0]
+                        : `/storage/${news.images[0]}`
                     }
                     className="card-img-top rounded-top-3 object-fit-cover"
                     alt="News"

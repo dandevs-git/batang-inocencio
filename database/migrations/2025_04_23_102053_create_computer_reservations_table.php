@@ -10,13 +10,15 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::create('news', function (Blueprint $table) {
+        Schema::create('computer_reservations', function (Blueprint $table) {
             $table->id();
-            $table->string('title');
-            $table->json('images')->nullable();
-            $table->text('description');
-            $table->enum('status', ['draft', 'published'])->default('draft');
-            $table->timestamp('date_published')->nullable();
+            $table->string('pc_number');
+            $table->date('reservation_date');
+            $table->string('time_range');
+            $table->string('name');
+            $table->string('address')->nullable();
+            $table->string('email');
+            $table->string('contact');
             $table->timestamps();
         });
     }
@@ -26,6 +28,6 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::dropIfExists('news');
+        Schema::dropIfExists('computer_reservations');
     }
 };

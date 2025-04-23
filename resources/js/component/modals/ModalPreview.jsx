@@ -1,11 +1,11 @@
 import React from "react";
 
 function ModalPreview({
-  header = "Notification!",
+  header = "Preview News Content",
   id,
   title,
   description,
-  imagePreview,
+  imagePreviews = [],
   currentDate,
   onSaveDraft,
   onPublish,
@@ -16,11 +16,12 @@ function ModalPreview({
       id={id}
       tabIndex="-1"
       aria-labelledby={`${id}Label`}
+      aria-hidden="true"
     >
       <div className="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
         <div className="modal-content">
           <div className="modal-header">
-            <h5 className="modal-title" id={`${id}Label`}>
+            <h5 className="modal-title fw-bold text-primary" id={`${id}Label`}>
               {header}
             </h5>
             <button
@@ -30,43 +31,54 @@ function ModalPreview({
               aria-label="Close"
             />
           </div>
+
           <div className="modal-body">
-            <h1 className="mt-3">{title}</h1>
-            <p className="text-muted ps-2">{currentDate}</p>
-            {imagePreview && (
-              <img
-                src={
-                  imagePreview && imagePreview.startsWith("http")
-                    ? imagePreview
-                    : `/storage/${imagePreview || "placeholder.png"}`
-                }
-                alt="Preview"
-                className="img-fluid rounded-3 mb-3"
-              />
-            )}
-            <p
-              className="p-3 lead"
-              style={{ textIndent: "50px", textAlign: "justify" }}
-            >
-              {description}
-            </p>
+            <article>
+              <h2 className="fw-bold">{title}</h2>
+              <p className="text-muted">{currentDate}</p>
+              {console.log(imagePreviews)}
+
+              {imagePreviews.length > 0 && (
+                <div className="row g-3 mb-3">
+                  {imagePreviews.map((src, index) => {
+                    return (
+                      <div key={index} className="col-12 col-md-6">
+                        <figure className="mb-0">
+                          <img
+                            src={
+                              src.startsWith("http") || src.startsWith("blob:")
+                                ? src
+                                : `/storage/${src}`
+                            }
+                            alt={`Preview ${index + 1}`}
+                            className="img-fluid rounded border object-fit-contain"
+                          />
+                        </figure>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+
+              <p className="lead p-3">{description}</p>
+            </article>
           </div>
+
           <div className="modal-footer">
             {onSaveDraft && (
               <button
-                className="btn btn-warning fw-bold text-white px-5 py-2"
+                className="btn btn-warning fw-bold text-white px-4"
                 onClick={onSaveDraft}
               >
-                <i className="bi bi-save"></i> Save as Draft
+                <i className="bi bi-save me-2"></i>Save as Draft
               </button>
             )}
-
             {onPublish && (
               <button
-                className="btn btn-success fw-bold text-white px-5 py-2"
+                className="btn btn-success fw-bold text-white px-4"
                 onClick={onPublish}
               >
-                <i className="bi bi-send"></i> Publish
+                <i className="bi bi-send me-2"></i>Publish
               </button>
             )}
           </div>

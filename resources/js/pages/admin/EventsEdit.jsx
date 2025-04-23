@@ -433,7 +433,11 @@ function EventsEdit() {
             {imagePreview && (
               <div className="mt-3 border rounded-3 shadow">
                 <img
-                  src={imagePreview}
+                  src={
+                    imagePreview.startsWith("http") || imagePreview.startsWith("blob:")
+                      ? imagePreview
+                      : `/storage/${imagePreview}`
+                  }
                   alt="Preview"
                   className="img-fluid rounded-3"
                   style={{ maxWidth: "100%", height: "auto" }}

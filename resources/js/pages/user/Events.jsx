@@ -4,7 +4,7 @@ import { Link, useLocation } from "react-router-dom";
 import { useAPI } from "../../component/contexts/ApiContext";
 
 const EventsCard = ({ events }) => {
-  const { id, title, description, date, image } = events;
+  const { id, title, description, date, images } = events;
 
   return (
     <div
@@ -15,9 +15,10 @@ const EventsCard = ({ events }) => {
         <div className="col-md-2">
           <img
             src={
-              image && image.startsWith("http")
-                ? image
-                : `/storage/${image || "placeholder.png"}`
+              images[0] &&
+              (images[0].startsWith("http") || images[0].startsWith("blob:")
+                ? images[0]
+                : `/storage/${images[0]}`)
             }
             className="w-100 h-100 object-fit-cover rounded-start"
             alt="Events"
@@ -112,7 +113,9 @@ function Events({ isFullPage = true }) {
   useEffect(() => {
     const handleManualFilter = () => {
       const filtered = eventsList.filter((n) => {
-        const formattedDate = n.date.substring(0, 7);
+        const formattedDate = new Date(n.date)
+          .toISOString()
+          .slice(0, 7);
         return formattedDate === filterDate;
       });
       setFilteredEvents(filtered);
@@ -161,9 +164,12 @@ function Events({ isFullPage = true }) {
 
         <div className="row g-4">
           {filteredEvents.length > 0 ? (
-            filteredEvents.map((events, index) => (
-              <EventsCard key={index} events={events} />
-            ))
+            filteredEvents
+              // .slice()
+              // .reverse()
+              .map((events, index) => (
+                <EventsCard key={index} events={events} />
+              ))
           ) : (
             <div id="noEventsMessage" className="text-center text-muted">
               <p>No events found.</p>

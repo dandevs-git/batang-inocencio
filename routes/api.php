@@ -4,13 +4,16 @@ use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CarouselController;
 use App\Http\Controllers\CommitteeMemberController;
+use App\Http\Controllers\ComputerReservationController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\EventRegistrationServiceController;
 use App\Http\Controllers\FacilityReservationServiceController;
 use App\Http\Controllers\FaqController;
+use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\MemberController;
 use App\Http\Controllers\NewsController;
 use App\Http\Controllers\ParticipantController;
+use App\Http\Controllers\PrintingServiceReservationController;
 use App\Http\Controllers\ResourceLendingServiceController;
 use App\Http\Controllers\ResourceReservationServiceController;
 use App\Http\Controllers\ServiceController;
@@ -25,6 +28,8 @@ Route::apiResource('members', MemberController::class);
 Route::apiResource('news', NewsController::class);
 Route::apiResource('announcements', AnnouncementController::class);
 Route::apiResource('transparencies', TransparencyController::class);
+Route::apiResource('printing-services', PrintingServiceReservationController::class);
+Route::apiResource('computer-services', ComputerReservationController::class);
 
 Route::apiResource('participants', ParticipantController::class);
 Route::apiResource('teams', TeamController::class);
@@ -44,9 +49,11 @@ Route::get('settings', [SettingController::class, 'index']);
 Route::get('available-resources/computer', [ResourceReservationServiceController::class, 'availableResources']);
 
 Route::post('settings/save', [SettingController::class, 'save'])->name('settings.save');
+Route::post('/feedback', [FeedbackController::class, 'store']);
 Route::post('transparencies/{categoryId}/upload', [TransparencyController::class, 'uploadFile'])->name('transparency.uploadFile');
 Route::post('/check-email', [MemberController::class, 'checkEmail']);
 Route::delete('settings/{setting}', [SettingController::class, 'destroy']);
+
 
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('logout', [AuthController::class, 'logout'])->name('auth.logout');

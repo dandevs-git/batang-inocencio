@@ -59,15 +59,27 @@ function AnnouncementDetail() {
               year: "numeric",
             })}
           </p>
-          <img
-            src={
-              announcement.image && announcement.image.startsWith("http")
-                ? announcement.image
-                : `/storage/${announcement.image || "placeholder.png"}`
-            }
-            className="rounded-4 border shadow-lg object-fit-cover w-100"
-            alt={announcement.title}
-          />
+          {announcement.images.length > 0 && (
+            <div className="row g-3 mb-3">
+              {announcement.images.map((src, index) => {
+                return (
+                  <div key={index} className="col-12 col-md-6">
+                    <figure className="mb-0">
+                      <img
+                        src={
+                          src.startsWith("http") || src.startsWith("blob:")
+                            ? src
+                            : `/storage/${src}`
+                        }
+                        alt={`Preview ${index + 1}`}
+                        className="img-fluid rounded border object-fit-contain"
+                      />
+                    </figure>
+                  </div>
+                );
+              })}
+            </div>
+          )}
           <div className="fs-3 mt-3">
             <Link
               to={"#"}

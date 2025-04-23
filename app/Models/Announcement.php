@@ -15,18 +15,14 @@ class Announcement extends Model
     protected $fillable = [
         'title',
         'description',
-        'image',
+        'images',
         'status',
         'date_published'
     ];
 
-
     protected $casts = [
-        'status' => 'string',
-    ];
-
-    protected $attributes = [
-        'status' => 'draft',
+        'images' => 'array',
+        'date_published' => 'datetime',
     ];
 
     public function getFormattedCreatedAtAttribute()

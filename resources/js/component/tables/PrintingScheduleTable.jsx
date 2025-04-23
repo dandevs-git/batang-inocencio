@@ -9,7 +9,7 @@ function PrintingScheduleTable({ title, status, hasActions }) {
   const [error, setError] = useState();
 
   useEffect(() => {
-    // getData("announcements", setAnnouncementsData, setLoading, setError);
+    getData("printing-services", setAnnouncementsData, setLoading, setError);
   }, [getData]);
 
   const filteredAnnouncementsData = status
@@ -18,7 +18,7 @@ function PrintingScheduleTable({ title, status, hasActions }) {
       )
     : announcementsData;
 
-  const actions = [
+  const actions = () => [
     {
       label: "View Details",
       href: "/member/show",
@@ -34,7 +34,7 @@ function PrintingScheduleTable({ title, status, hasActions }) {
     },
     {
       header: "Code",
-      accessorKey: "code",
+      accessorKey: "reservation_code",
     },
     {
       header: "Status",

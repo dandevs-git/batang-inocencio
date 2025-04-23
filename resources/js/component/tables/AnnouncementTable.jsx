@@ -1,24 +1,22 @@
 import React, { useEffect, useState } from "react";
 import { useAPI } from "../contexts/ApiContext";
 import TableComponent from "./TableComponent";
-import { Modal } from "bootstrap/dist/js/bootstrap.bundle.min";
 import ModalPreview from "../modals/ModalPreview";
+import { Modal } from "bootstrap/dist/js/bootstrap.bundle.min";
 
 function AnnouncementsTable({ status, hasActions }) {
-  const { getData, postData, putData, deleteData } = useAPI();
+  const { getData } = useAPI();
   const [announcementsData, setAnnouncementsData] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState();
-  const [selectedAnnouncement, setSelectedAnnouncement] = useState(null);
+  const [error, setError] = useState(null);
+  const [selectedAnnouncements, setSelectedAnnouncements] = useState(null);
 
   useEffect(() => {
     getData("announcements", setAnnouncementsData, setLoading, setError);
   }, [getData]);
 
   const filteredAnnouncementsData = status
-    ? announcementsData.filter(
-        (announcementsItem) => announcementsItem.status === status
-      )
+    ? announcementsData.filter((announcementsItem) => announcementsItem.status === status)
     : announcementsData;
 
   const actions = (id) => [
@@ -26,16 +24,10 @@ function AnnouncementsTable({ status, hasActions }) {
       label: "View",
       onClick: () => {
         const announcementsItem = announcementsData.find((item) => item.id === id);
-        setSelectedAnnouncement(announcementsItem);
-        setTimeout(() => {
-          const modalElement = document.getElementById("previewModal");
-          if (modalElement) {
-            const modal = new Modal(modalElement);
-            modal.show();
-          }
-        }, 0);
+        setSelectedAnnouncements(announcementsItem);
+        const modal = new Modal(document.getElementById("previewModal"));
+        modal.show();
       },
-      
       className: "btn btn-sm text-light btn-info text-nowrap",
       icon: "bi bi-eye",
     },
@@ -47,7 +39,7 @@ function AnnouncementsTable({ status, hasActions }) {
     },
   ];
 
-  const announcementsColumns = [
+  const announcementsColumn = [
     {
       header: "#",
       cell: ({ row }) => row.index + 1,
@@ -88,8 +80,8 @@ function AnnouncementsTable({ status, hasActions }) {
   ];
 
   const formattedDate =
-    selectedAnnouncement?.updated_at &&
-    new Date(selectedAnnouncement.updated_at).toLocaleDateString("en-US", {
+    selectedAnnouncements?.updated_at &&
+    new Date(selectedAnnouncements.updated_at).toLocaleDateString("en-US", {
       weekday: "long",
       year: "numeric",
       month: "long",
@@ -98,24 +90,21 @@ function AnnouncementsTable({ status, hasActions }) {
 
   return (
     <>
-      {/* Conditionally render the preview modal only if there is a selectedAnnouncement */}
-      {selectedAnnouncement && (
-        <ModalPreview
-          header="Preview Announcement"
-          id="previewModal"
-          title={selectedAnnouncement?.title}
-          description={selectedAnnouncement?.description}
-          imagePreview={selectedAnnouncement?.image}
-          currentDate={formattedDate}
-        />
-      )}
+      <ModalPreview
+        header="Preview News"
+        id="previewModal"
+        title={selectedAnnouncements?.title}
+        description={selectedAnnouncements?.description}
+        imagePreviews={selectedAnnouncements?.images}
+        currentDate={formattedDate}
+      />
 
       <TableComponent
-        title={"Announcements & Updates"}
-        columns={announcementsColumns}
+        title="News & Updates"
+        columns={announcementsColumn}
         data={filteredAnnouncementsData}
         loading={loading}
-        actions={hasActions ? actions : null} // Only pass actions if `hasActions` is true
+        actions={hasActions ? actions : null}
       />
     </>
   );

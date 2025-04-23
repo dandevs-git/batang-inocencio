@@ -5,20 +5,25 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration {
+    /**
+     * Run the migrations.
+     */
     public function up(): void
     {
-        Schema::create('committee_members', function (Blueprint $table) {
+        Schema::create('feedback', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('setting_id')->constrained('settings')->onDelete('cascade');
             $table->string('name');
-            $table->string('position');
-            $table->string('image')->nullable();
+            $table->string('email');
+            $table->text('message'); // or use $table->text('feedback') if you prefer
             $table->timestamps();
         });
     }
 
+    /**
+     * Reverse the migrations.
+     */
     public function down(): void
     {
-        Schema::dropIfExists('committee_members');
+        Schema::dropIfExists('feedback');
     }
 };

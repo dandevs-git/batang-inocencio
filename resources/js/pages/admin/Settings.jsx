@@ -3,7 +3,7 @@ import Breadcrumb from "../../component/ui/Breadcrumb";
 import { useAPI } from "../../component/contexts/ApiContext";
 
 function Settings() {
-  const { getData, postData, putData } = useAPI();
+  const { getData, postData } = useAPI();
 
   const [formData, setFormData] = useState({
     website_name: "",
@@ -13,6 +13,7 @@ function Settings() {
     email: "",
     mission: "",
     vision: "",
+    chairperson: { name: "", position: "Chairperson", image: null },
     committeeMembers: [{ name: "", position: "", image: null }],
   });
 
@@ -24,10 +25,8 @@ function Settings() {
     const loadSettings = async () => {
       try {
         setLoading(true);
-        const data = await getData("settings");
-        if (data) {
-          const settings = data;
-
+        const settings = await getData("settings");
+        if (settings) {
           setFormData({
             website_name: settings.website_name || "",
             logo: null,
@@ -36,9 +35,16 @@ function Settings() {
             email: settings.email || "",
             mission: settings.mission || "",
             vision: settings.vision || "",
-            committeeMembers: settings.committee_members || [
-              { name: "", position: "", image: null },
-            ],
+            chairperson: {
+              name: settings.chairperson_name || "",
+              position: settings.chairperson_position || "Chairperson",
+              image: null, // force to null (File only from file input)
+            },
+            committeeMembers: (settings.committee_members || []).map((member) => ({
+              name: member.name || "",
+              position: member.position || "",
+              image: null, // ensure no invalid image value
+            })),
           });
         }
       } catch (error) {
@@ -48,9 +54,10 @@ function Settings() {
         setLoading(false);
       }
     };
-
+  
     loadSettings();
   }, [getData]);
+  
 
   const showSuccessAlert = (message) => {
     setAlertMessage(message);
@@ -73,17 +80,14 @@ function Settings() {
   const handleAddMember = () => {
     setFormData({
       ...formData,
-      committeeMembers: [
-        ...formData.committeeMembers,
-        { name: "", position: "", image: null },
-      ],
+      committeeMembers: [...formData.committeeMembers, { name: "", position: "", image: null }],
     });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-  
+
     const form = new FormData();
     form.append("website_name", formData.website_name);
     form.append("address", formData.address);
@@ -91,11 +95,15 @@ function Settings() {
     form.append("email", formData.email);
     form.append("mission", formData.mission);
     form.append("vision", formData.vision);
-  
+    form.append("chairperson_name", formData.chairperson.name);
+    form.append("chairperson_position", formData.chairperson.position);
+    if (formData.chairperson.image) {
+      form.append("chairperson_image", formData.chairperson.image);
+    }
     if (formData.logo) {
       form.append("logo", formData.logo);
     }
-  
+
     formData.committeeMembers.forEach((member, index) => {
       form.append(`committeeMembers[${index}][name]`, member.name);
       form.append(`committeeMembers[${index}][position]`, member.position);
@@ -103,9 +111,9 @@ function Settings() {
         form.append(`committeeMembers[${index}][image]`, member.image);
       }
     });
-  
+
     try {
-      const response = await postData("/settings/save", form);
+      await postData("/settings/save", form);
       showSuccessAlert("Website Information Updated Successfully");
     } catch (error) {
       console.error("Error saving website info:", error);
@@ -114,7 +122,6 @@ function Settings() {
       setLoading(false);
     }
   };
-  
 
   return (
     <>
@@ -130,11 +137,7 @@ function Settings() {
             role="alert"
           >
             {alertMessage}
-            <button
-              type="button"
-              className="btn-close"
-              onClick={() => setShowAlert(false)}
-            ></button>
+            <button type="button" className="btn-close" onClick={() => setShowAlert(false)}></button>
           </div>
         )}
 
@@ -149,9 +152,7 @@ function Settings() {
                   type="file"
                   className="form-control"
                   accept="image/*"
-                  onChange={(e) =>
-                    setFormData({ ...formData, logo: e.target.files[0] })
-                  }
+                  onChange={(e) => setFormData({ ...formData, logo: e.target.files[0] })}
                 />
               </div>
               <div className="col-md-6">
@@ -159,11 +160,8 @@ function Settings() {
                 <input
                   type="text"
                   className="form-control"
-                  id="website_name"
                   value={formData.website_name}
-                  onChange={(e) =>
-                    setFormData({ ...formData, website_name: e.target.value })
-                  }
+                  onChange={(e) => setFormData({ ...formData, website_name: e.target.value })}
                 />
               </div>
             </div>
@@ -179,9 +177,7 @@ function Settings() {
                   type="text"
                   className="form-control"
                   value={formData.address}
-                  onChange={(e) =>
-                    setFormData({ ...formData, address: e.target.value })
-                  }
+                  onChange={(e) => setFormData({ ...formData, address: e.target.value })}
                 />
               </div>
               <div className="col-md-4">
@@ -190,9 +186,7 @@ function Settings() {
                   type="text"
                   className="form-control"
                   value={formData.phone_number}
-                  onChange={(e) =>
-                    setFormData({ ...formData, phone_number: e.target.value })
-                  }
+                  onChange={(e) => setFormData({ ...formData, phone_number: e.target.value })}
                 />
               </div>
               <div className="col-md-4">
@@ -201,9 +195,7 @@ function Settings() {
                   type="email"
                   className="form-control"
                   value={formData.email}
-                  onChange={(e) =>
-                    setFormData({ ...formData, email: e.target.value })
-                  }
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 />
               </div>
             </div>
@@ -216,31 +208,69 @@ function Settings() {
               <div className="col-md-6">
                 <label className="form-label">Mission</label>
                 <textarea
-                  rows="3"
+                  rows="5"
                   className="form-control"
                   value={formData.mission}
-                  onChange={(e) =>
-                    setFormData({ ...formData, mission: e.target.value })
-                  }
+                  onChange={(e) => setFormData({ ...formData, mission: e.target.value })}
                 />
               </div>
               <div className="col-md-6">
                 <label className="form-label">Vision</label>
                 <textarea
-                  rows="3"
+                  rows="5"
                   className="form-control"
                   value={formData.vision}
-                  onChange={(e) =>
-                    setFormData({ ...formData, vision: e.target.value })
-                  }
+                  onChange={(e) => setFormData({ ...formData, vision: e.target.value })}
                 />
               </div>
             </div>
           </div>
 
-          {/* Org Chart */}
+          {/* Org Chart - Committee Members */}
           <div className="mb-4 p-4 bg-white rounded-3 shadow-lg border">
-            <h5 className="mb-3 text-secondary">Organizational Chart</h5>
+            <h5 className="mb-3 text-secondary mb-5">Organizational Chart</h5>
+            
+            <h6 className="mb-3 text-secondary">Chairperson</h6>
+            <div className="row g-3 mb-5">
+              <div className="col-md-4">
+                <label className="form-label">Name</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  value={formData.chairperson.name}
+                  onChange={(e) => setFormData({
+                    ...formData,
+                    chairperson: { ...formData.chairperson, name: e.target.value },
+                  })}
+                />
+              </div>
+              <div className="col-md-4">
+                <label className="form-label">Position</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  value={formData.chairperson.position}
+                  onChange={(e) => setFormData({
+                    ...formData,
+                    chairperson: { ...formData.chairperson, position: e.target.value },
+                  })}
+                  disabled
+                />
+              </div>
+              <div className="col-md-4">
+                <label className="form-label">Image</label>
+                <input
+                  type="file"
+                  className="form-control"
+                  accept="image/*"
+                  onChange={(e) => setFormData({
+                    ...formData,
+                    chairperson: { ...formData.chairperson, image: e.target.files[0] },
+                  })}
+                />
+              </div>
+            </div>
+
             <h6 className="text-muted">Committee Members</h6>
 
             {formData.committeeMembers.map((member, index) => (
@@ -251,9 +281,7 @@ function Settings() {
                     type="text"
                     className="form-control"
                     value={member.name}
-                    onChange={(e) =>
-                      handleMemberChange(index, "name", e.target.value)
-                    }
+                    onChange={(e) => handleMemberChange(index, "name", e.target.value)}
                   />
                 </div>
                 <div className="col-md-4">
@@ -262,9 +290,7 @@ function Settings() {
                     type="text"
                     className="form-control"
                     value={member.position}
-                    onChange={(e) =>
-                      handleMemberChange(index, "position", e.target.value)
-                    }
+                    onChange={(e) => handleMemberChange(index, "position", e.target.value)}
                   />
                 </div>
                 <div className="col-md-4">
@@ -273,9 +299,7 @@ function Settings() {
                     type="file"
                     className="form-control"
                     accept="image/*"
-                    onChange={(e) =>
-                      handleMemberChange(index, "image", e.target.files[0])
-                    }
+                    onChange={(e) => handleMemberChange(index, "image", e.target.files[0])}
                   />
                 </div>
               </div>
@@ -291,6 +315,7 @@ function Settings() {
               </button>
             </div>
           </div>
+
           <div className="col-12">
             <button
               className="btn btn-lg btn-primary ms-auto d-flex"

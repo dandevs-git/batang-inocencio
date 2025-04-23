@@ -19,7 +19,11 @@ function Carousel({ carouselItems }) {
             className={`carousel-item ${index === 0 ? "active" : ""}`}
           >
             <img
-              src={item.image}
+              src={
+                item.image.startsWith("http") || item.image.startsWith("blob:")
+                  ? item.image
+                  : `/storage/${item.image}`
+              }
               className="d-block w-100 object-fit-cover"
               style={{ height: "500px" }}
               onError={handleImageError}

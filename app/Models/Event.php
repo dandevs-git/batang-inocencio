@@ -12,6 +12,7 @@ class Event extends Model
     protected $fillable = [
         'title',
         'date',
+        'date_published',
         'location',
         'event_organizer',
         'registration_start_date',
@@ -23,12 +24,14 @@ class Event extends Model
         'time',
         'contact_number',
         'number_of_participants',
-        'image',
+        'images',
         'status',
     ];
 
     protected $casts = [
+        'images' => 'array',
         'date' => 'date',
+        'date_published' => 'datetime',
         'registration_start_date' => 'date',
         'registration_end_date' => 'date',
     ];
