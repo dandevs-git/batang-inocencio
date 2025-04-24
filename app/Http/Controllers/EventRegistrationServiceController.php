@@ -18,8 +18,8 @@ class EventRegistrationServiceController extends Controller
     {
         $validated = $request->validate([
             'service_name' => 'required|string',
-            'date' => 'required|date',
-            'time' => 'required|time',
+            'date' => 'required|date_format:Y-m-d',
+            'time' => 'required|date_format:H:i:s',
             'location' => 'required|string',
             'event_type' => 'required|in:Sport,Seminar,Workshop,Educational Assistance,Online Tournament,Other',
             'registration_type' => 'required|in:Individual,Group',

@@ -4,17 +4,27 @@ import { useAPI } from "./contexts/ApiContext";
 
 function PrintingScheduleCalendar() {
   const [value, onChange] = useState(new Date());
-  const [todayRentals, setTodayRentals] = useState([]);
+  const [reservations, setReservations] = useState([]);
   const { getData } = useAPI();
 
   useEffect(() => {
-    const fetchTodayRentals = async () => {
-      const today = new Date();
-      const formattedDate = today.toISOString().split("T")[0];
+    const fetchReservations = async () => {
+      try {
+        const data = await getData("printing-services");
+        setReservations(data);
+      } catch (err) {
+        console.error("Fetch reservations failed", err);
+      }
     };
+    fetchReservations();
+  }, [value]);
 
-    fetchTodayRentals();
-  }, []);
+  const reservedDates = reservations.map((r) =>
+    new Date(r.reservation_date).toLocaleDateString("en-CA")
+  );
+
+  console.log(reservations);
+  
 
   return (
     <div className="mb-5" id="calendar-section">
@@ -25,7 +35,7 @@ function PrintingScheduleCalendar() {
               <h2 className="mb-0 fw-bold">Printing Schedule Calendar</h2>
             </div>
             <div className="card-body p-4">
-              <CustomCalendar onChange={onChange} value={value} />
+              <CustomCalendar onChange={onChange} value={value} eventDates={reservedDates} />
             </div>
           </div>
         </div>
@@ -44,18 +54,15 @@ function PrintingScheduleCalendar() {
             </div>
             <div className="card-body p-4">
               <ul id="today-rentals" className="list-group list-group-flush">
-                {todayRentals.length === 0 ? (
+                {reservations.length === 0 ? (
                   <li className="list-group-item text-center text-muted fst-italic">
-                    No rentals for today.
+                    No pending prints for this day.
                   </li>
                 ) : (
-                  todayRentals.map((rental, index) => (
-                    <li
-                      key={index}
-                      className="list-group-item d-flex align-items-center"
-                    >
+                  reservations.map((rental, index) => (
+                    <li key={index} className="list-group-item d-flex align-items-center">
                       <span className="badge bg-primary me-2"></span>
-                      {rental.title}
+                      {rental.title || "Untitled Rental"}
                     </li>
                   ))
                 )}

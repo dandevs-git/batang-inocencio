@@ -37,16 +37,111 @@ function ServicesManagement() {
     getData(
       "rrs",
       (newData) => {
-        const updatedServices = newData.map((service) => ({
+        const updatedRrsServices = newData.map((service) => ({
           ...service,
           path: `/resource-reservation/${service.id}`,
         }));
-        setServices(updatedServices);
+    
+        setServices((prevServices) => {
+          const allServices = [...prevServices, ...updatedRrsServices];
+          const serviceMap = new Map();
+          allServices.forEach((service) => {
+            serviceMap.set(service.service_name, service); // remove duplicates
+          });
+          return Array.from(serviceMap.values());
+        });
       },
       setLoading,
       setError
     );
+
+    getData(
+      "frs",
+      (newData) => {
+        const updatedRrsServices = newData.map((service) => ({
+          ...service,
+          path: `/facilities-reservation/${service.id}`,
+        }));
+    
+        setServices((prevServices) => {
+          const allServices = [...prevServices, ...updatedRrsServices];
+          const serviceMap = new Map();
+          allServices.forEach((service) => {
+            serviceMap.set(service.service_name, service); // remove duplicates
+          });
+          return Array.from(serviceMap.values());
+        });
+      },
+      setLoading,
+      setError
+    );
+
+    getData(
+      "ers",
+      (newData) => {
+        const updatedRrsServices = newData.map((service) => ({
+          ...service,
+          path: `/event-registration/${service.id}`,
+        }));
+    
+        setServices((prevServices) => {
+          const allServices = [...prevServices, ...updatedRrsServices];
+          const serviceMap = new Map();
+          allServices.forEach((service) => {
+            serviceMap.set(service.service_name, service); // remove duplicates
+          });
+          return Array.from(serviceMap.values());
+        });
+      },
+      setLoading,
+      setError
+    );
+
+    getData(
+      "rls",
+      (newData) => {
+        const updatedRrsServices = newData.map((service) => ({
+          ...service,
+          path: `/resource-lending/${service.id}`,
+        }));
+    
+        setServices((prevServices) => {
+          const allServices = [...prevServices, ...updatedRrsServices];
+          const serviceMap = new Map();
+          allServices.forEach((service) => {
+            serviceMap.set(service.service_name, service); // remove duplicates
+          });
+          return Array.from(serviceMap.values());
+        });
+      },
+      setLoading,
+      setError
+    );
+
+    getData(
+      "vs",
+      (newData) => {
+        const updatedRrsServices = newData.map((service) => ({
+          ...service,
+          path: `/volunteer/${service.id}`,
+        }));
+    
+        setServices((prevServices) => {
+          const allServices = [...prevServices, ...updatedRrsServices];
+          const serviceMap = new Map();
+          allServices.forEach((service) => {
+            serviceMap.set(service.service_name, service);
+          });
+          return Array.from(serviceMap.values());
+        });
+      },
+      setLoading,
+      setError
+    );
+    
   }, [getData]);
+
+
 
   return (
     <>
@@ -67,6 +162,7 @@ function ServicesManagement() {
           </button>
         </Link> */}
 
+        {console.log(services)}
         {!showServices &&
           services.length > 0 &&
           services.map((service, index) => (

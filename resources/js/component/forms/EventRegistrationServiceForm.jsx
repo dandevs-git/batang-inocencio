@@ -5,9 +5,11 @@ import { useNavigate } from "react-router-dom";
 
 function EventRegistrationServiceForm() {
   const { postData } = useAPI();
-  const [loading, setLoading] = useState(false);  
-  const [error, setError] = useState(null); 
-  const [formData, setFormData] = useState({
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const navigate = useNavigate();
+
+  const initialState = {
     service_name: "",
     date: "",
     time: "",
@@ -21,9 +23,10 @@ function EventRegistrationServiceForm() {
     description: "",
     launch_date: "",
     availability_status: "Available",
-    penaltyEnabled: false, 
-  });
-  const navigate = useNavigate()
+    penalty_enabled: false,
+  };
+
+  const [formData, setFormData] = useState(initialState);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -36,43 +39,48 @@ function EventRegistrationServiceForm() {
   const handlePenaltyChange = () => {
     setFormData((prev) => ({
       ...prev,
-      penaltyEnabled: !prev.penaltyEnabled,
+      penalty_enabled: !prev.penalty_enabled,
     }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.service_name || !formData.date || !formData.location) {
-      setError("Please fill out all required fields.");
-      navigate('/admin/EventRegistrationServiceForm')
-      return;
-    }
+
+    // if (
+    //   !formData.service_name ||
+    //   !formData.date ||
+    //   !formData.location ||
+    //   !formData.registration_start ||
+    //   !formData.registration_end ||
+    //   !formData.max_registrations ||
+    //   !formData.requirements ||
+    //   !formData.description ||
+    //   !formData.launch_date
+    // ) {
+    //   setError("Please fill out all required fields.");
+    //   return;
+    // }
 
     setLoading(true);
-    setError(null); 
+    setError(null);
 
     try {
-      console.log("Submitted Event Registration Form:", formData);
-      await postData("ers", formData);  
-      setLoading(false);  
-      setFormData({
-        service_name: "",
-        date: "",
-        time: "",
-        location: "",
-        event_type: "Sport",
-        registration_type: "Individual",
-        registration_start: "",
-        registration_end: "",
-        max_registrations: "",
-        requirements: "",
-        description: "",
-        launch_date: "",
-        availability_status: "Available",
-        penaltyEnabled: false,
-      });
+      const normalizedFormData = {
+        ...formData,
+        time:
+          formData.time.length === 5 ? `${formData.time}:00` : formData.time,
+        penalty_enabled: Boolean(formData.penalty_enabled),
+        max_registrations: parseInt(formData.max_registrations),
+      };
+
+      console.log("Submitting Event Registration Form:", normalizedFormData);
+      await postData("ers", normalizedFormData); 
+
+      setLoading(false);
+      setFormData(initialState);
+      navigate("/services/event-registration"); 
     } catch (err) {
-      setLoading(false);  
+      setLoading(false);
       setError("Failed to submit the form. Please try again later.");
     }
   };
@@ -216,12 +224,13 @@ function EventRegistrationServiceForm() {
                 <input
                   className="form-check-input"
                   type="checkbox"
-                  checked={formData.penaltyEnabled}
+                  checked={formData.penalty_enabled}
                   onChange={handlePenaltyChange}
                   id="penaltySwitch"
                 />
                 <label className="form-check-label" htmlFor="penaltySwitch">
-                  Penalty Policy: {formData.penaltyEnabled ? "Enabled" : "Disabled"}
+                  Penalty Policy:{" "}
+                  {formData.penalty_enabled ? "Enabled" : "Disabled"}
                 </label>
               </div>
 

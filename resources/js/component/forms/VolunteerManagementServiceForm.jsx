@@ -5,8 +5,11 @@ import { useAPI } from "../contexts/ApiContext";
 
 function VolunteerManagementServiceForm() {
   const { postData } = useAPI();
-  const [loading, setLoading] = useState(false);  
-  const [error, setError] = useState(null); 
+  const navigate = useNavigate();
+
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
   const [formData, setFormData] = useState({
     service_name: "",
     description: "",
@@ -18,54 +21,65 @@ function VolunteerManagementServiceForm() {
     contact_number: "",
     contact_email: "",
     volunteer_requirements: "",
+    penalty_enabled: false,
     penalty_description: "",
     launch_date: "",
     availability_status: "Available",
   });
-  const navigate = useNavigate()
-
-  const [penaltyEnabled, setPenaltyEnabled] = useState(false);
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value, type, checked } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: value,
+      [name]: type === "checkbox" ? checked : value,
     }));
   };
 
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.service_name || !formData.date || !formData.location) {
-      setError("Please fill out all required fields.");
-      navigate("/admin/ResourceLendingServiceForm");
-      return;
+
+    // Frontend Validation (based on required fields)
+    const requiredFields = [
+      "service_name", "description", "category", "location", 
+      "start_date", "end_date", "contact_person", "contact_number", 
+      "contact_email", "volunteer_requirements", "launch_date", "availability_status"
+    ];
+
+    for (let field of requiredFields) {
+      if (!formData[field]) {
+        setError("Please fill out all required fields.");
+        return;
+      }
     }
+
     setLoading(true);
     setError(null);
 
     try {
-      console.log("Submitted Event Registration Form:", formData);
-      await postData("ers", formData);
+      // Submit form data to the API
+      const response = await postData("vs", formData);
       setLoading(false);
-      setFormData({
-        service_name: "",
-        description: "",
-        available_facilities: "",
-        timeslot_duration: "30 minutes",
-        max_reservation_per_timeslot: "",
-        start_time: "",
-        end_time: "",
-        reservation_type: "Individual",
-        individuals_per_reservation: "",
-        min_group_size: "",
-        max_group_size: "",
-        booking_window: "",
-        penalty_description: "",
-        launch_date: "",
-        availability_status: "Available",
-      });
+
+      // On success, redirect to a relevant page or reset the form
+      if (response?.status === 201) {
+        setFormData({
+          service_name: "",
+          description: "",
+          category: "Community Service",
+          location: "",
+          start_date: "",
+          end_date: "",
+          contact_person: "",
+          contact_number: "",
+          contact_email: "",
+          volunteer_requirements: "",
+          penalty_enabled: false,
+          penalty_description: "",
+          launch_date: "",
+          availability_status: "Available",
+        });
+        navigate("/volunteer-services"); // Redirect to the list of volunteer services
+      }
     } catch (err) {
       setLoading(false);
       setError("Failed to submit the form. Please try again later.");
@@ -81,12 +95,13 @@ function VolunteerManagementServiceForm() {
             <h4 className="mb-0">Volunteer Management Service</h4>
           </div>
           <div className="card-body">
+            {error && <div className="alert alert-danger">{error}</div>}
             <form noValidate onSubmit={handleSubmit}>
               {/* Service Name */}
               <div className="mb-3">
                 <label className="form-label">Service Name</label>
                 <input
-                  name="serviceN\ame"
+                  name="service_name"
                   type="text"
                   className="form-control"
                   value={formData.service_name}
@@ -168,7 +183,7 @@ function VolunteerManagementServiceForm() {
                 </div>
               </div>
 
-              {/* Contact Person */}
+              {/* Contact Details */}
               <div className="mb-3">
                 <label className="form-label">Contact Person</label>
                 <input
@@ -177,12 +192,9 @@ function VolunteerManagementServiceForm() {
                   className="form-control"
                   value={formData.contact_person}
                   onChange={handleChange}
-                  placeholder="Full name"
                   required
                 />
               </div>
-
-              {/* Contact Number */}
               <div className="mb-3">
                 <label className="form-label">Contact Number</label>
                 <input
@@ -191,12 +203,9 @@ function VolunteerManagementServiceForm() {
                   className="form-control"
                   value={formData.contact_number}
                   onChange={handleChange}
-                  placeholder="Phone number"
                   required
                 />
               </div>
-
-              {/* Contact Email */}
               <div className="mb-3">
                 <label className="form-label">Contact Email</label>
                 <input
@@ -205,7 +214,6 @@ function VolunteerManagementServiceForm() {
                   className="form-control"
                   value={formData.contact_email}
                   onChange={handleChange}
-                  placeholder="Email address"
                   required
                 />
               </div>
@@ -216,39 +224,35 @@ function VolunteerManagementServiceForm() {
                 <textarea
                   name="volunteer_requirements"
                   className="form-control"
-                  rows="3"
                   value={formData.volunteer_requirements}
                   onChange={handleChange}
-                  placeholder="List any requirements for volunteers"
                   required
                 />
               </div>
 
               {/* Penalty Policy */}
-              <div className="mb-3 form-check form-switch">
+              <div className="form-check form-switch mb-3">
                 <input
                   className="form-check-input"
                   type="checkbox"
-                  checked={penaltyEnabled}
-                  onChange={() => setPenaltyEnabled(!penaltyEnabled)}
                   id="penaltySwitch"
+                  name="penalty_enabled"
+                  checked={formData.penalty_enabled}
+                  onChange={handleChange}
                 />
                 <label className="form-check-label" htmlFor="penaltySwitch">
-                  Penalty Policy: {penaltyEnabled ? "Enabled" : "Disabled"}
+                  Penalty Policy: {formData.penalty_enabled ? "Enabled" : "Disabled"}
                 </label>
               </div>
 
-              {/* Penalty Description (Only if penalty is enabled) */}
-              {penaltyEnabled && (
+              {formData.penalty_enabled && (
                 <div className="mb-3">
                   <label className="form-label">Penalty Description</label>
                   <textarea
                     name="penalty_description"
                     className="form-control"
-                    rows="3"
                     value={formData.penalty_description}
                     onChange={handleChange}
-                    placeholder="Describe penalty policy here..."
                   />
                 </div>
               )}
@@ -276,15 +280,15 @@ function VolunteerManagementServiceForm() {
                   onChange={handleChange}
                   required
                 >
-                  <option>Available</option>
-                  <option>Unavailable</option>
+                  <option value="Available">Available</option>
+                  <option value="Unavailable">Unavailable</option>
                 </select>
               </div>
 
-              {/* Submit Button */}
+              {/* Submit */}
               <div className="d-grid">
-                <button type="submit" className="btn btn-primary btn-lg">
-                  Create Volunteer Service
+                <button type="submit" className="btn btn-primary btn-lg" disabled={loading}>
+                  {loading ? "Submitting..." : "Create Volunteer Service"}
                 </button>
               </div>
             </form>

@@ -1,27 +1,28 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useAPI } from "./contexts/ApiContext";
 import CustomCalendar from "./CustomCalendar";
 import { Modal } from "bootstrap/dist/js/bootstrap.bundle.min";
+import { useNavigate } from "react-router-dom";
 
 function ComputerRentCalendar() {
   const { postData, getData } = useAPI();
-
   const [value, onChange] = useState(new Date());
   const [reservations, setReservations] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [validated, setValidate] = useState(false);
   const [error, setError] = useState(null);
   const [reservationTimes, setReservationTimes] = useState([]);
   const [selectedPC, setSelectedPC] = useState(null);
   const [allPCs, setAllPCs] = useState([]);
   const [formData, setFormData] = useState({
-    pcNumber: "",
-    timeRange: "",
+    pc_number: "",
+    time_range: "",
     name: "",
     address: "",
     email: "",
     contact: "",
+    reservation_code: "",
   });
+  const formRef = useRef(null);
 
   const timeOptions = [
     { slot: "08:00 AM - 10:00 AM" },
@@ -31,24 +32,43 @@ function ComputerRentCalendar() {
     { slot: "05:00 PM - 07:00 PM" },
   ];
 
-  // Fetch initial PC list and reservations
   useEffect(() => {
-    getData("available-resources/computer", setAllPCs, setLoading, setError);
-    getData("computer-services", setReservations, setLoading, setError);
+    if (!formRef.current) return;
+
+    const form = formRef.current;
+
+    const handleValidation = (event) => {
+      if (!form.checkValidity()) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+      form.classList.add("was-validated");
+    };
+
+    form.addEventListener("submit", handleValidation);
+
+    return () => {
+      form.removeEventListener("submit", handleValidation);
+    };
   }, []);
 
-  // Fetch reservations when date changes
   useEffect(() => {
-    const fetchReservations = async () => {
-      try {
-        const data = await getData("/computer-services");
-        setReservations(data);
-      } catch (err) {
-        console.error("Fetch reservations failed", err);
-      }
-    };
+    getData("available-resources/computer", setAllPCs, setLoading, setError);
+    fetchReservations();
+  }, []);
+
+  useEffect(() => {
     fetchReservations();
   }, [value]);
+
+  const fetchReservations = async () => {
+    try {
+      const data = await getData("computer-services");
+      setReservations(data);
+    } catch (err) {
+      console.error("Fetch reservations failed", err);
+    }
+  };
 
   useEffect(() => {
     if (selectedPC) {
@@ -65,15 +85,15 @@ function ComputerRentCalendar() {
 
   const handleCardClick = (pc) => {
     setSelectedPC(pc);
-    const modal = new Modal(
+    Modal.getOrCreateInstance(
       document.getElementById("availableReservationModal")
-    );
-    modal.show();
+    ).show();
   };
 
   const handleOpenModal = () => {
-    const modal = new Modal(document.getElementById("reservationModal"));
-    modal.show();
+    Modal.getOrCreateInstance(
+      document.getElementById("reservationModal")
+    ).show();
   };
 
   const handleInputChange = (e) => {
@@ -83,43 +103,35 @@ function ComputerRentCalendar() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setValidate(true);
     setError(null);
-
-    const { pcNumber, timeRange, name, email, contact } = formData;
-    if (!pcNumber || !timeRange || !name || !email || !contact) return;
-
     setLoading(true);
 
+    const data = new FormData();
+    Object.entries(formData).forEach(([key, value]) => {
+      if (key !== "reservation_code") data.append(key, value);
+    });
+    data.append("reservation_date", value.toLocaleDateString("en-CA"));
+
     try {
-      const payload = {
-        pc_number: pcNumber,
-        time_range: timeRange,
-        name: formData.name,
-        address: formData.address,
-        email: formData.email,
-        contact: formData.contact,
-        reservation_date: value.toLocaleDateString("en-CA"),
-      };
-
-      await postData("/computer-services", payload);
-      const updated = await getData("/computer-services");
-      setReservations(updated);
-      setFormData({
-        pcNumber: "",
-        timeRange: "",
-        name: "",
-        address: "",
-        email: "",
-        contact: "",
-      });
-      setValidate(false);
-
-      const modal = Modal.getInstance(
-        document.getElementById("reservationModal")
+      const response = await postData(
+        "computer-services",
+        data,
+        null,
+        setLoading,
+        setError
       );
-      modal?.hide();
-      setTimeout(() => window.location.reload(), 1000);
+
+      const reservationCode = response?.reservation_code || "N/A";
+
+      setFormData((prevData) => ({
+        ...prevData,
+        reservation_code: reservationCode,
+      }));
+
+      await fetchReservations();
+
+      Modal.getInstance(document.getElementById("reservationModal"))?.hide();
+      Modal.getOrCreateInstance(document.getElementById("successModal")).show();
     } catch (err) {
       setError(err?.message || "Failed to submit reservation.");
     } finally {
@@ -147,72 +159,73 @@ function ComputerRentCalendar() {
 
   return (
     <>
-      <div id="calendar-section">
-        <div className="row g-4">
-          <div className="col-lg-8">
-            <div className="card rounded-4 shadow-lg border-0 h-100">
-              <div className="card-header bg-primary text-white text-center rounded-top-4">
-                <h2 className="mb-0 fw-bold">
-                  <i className="bi bi-calendar-event me-2" />
-                  Computer Rental Calendar
-                </h2>
-              </div>
-              <div className="card-body p-4">
-                {console.log(reservedDates)}
-                <CustomCalendar
-                  onChange={onChange}
-                  value={value}
-                  eventDates={reservedDates}
-                />
-              </div>
+      {/* Calendar View */}
+      <div className="row g-4">
+        <div className="col-lg-8">
+          <div className="card rounded-4 shadow-lg border-0 h-100">
+            <div className="card-header bg-primary text-white text-center rounded-top-4">
+              <h2 className="mb-0 fw-bold">
+                <i className="bi bi-calendar-event me-2" />
+                Computer Rental Calendar
+              </h2>
+            </div>
+            <div className="card-body p-4">
+              <CustomCalendar
+                onChange={onChange}
+                value={value}
+                eventDates={reservedDates}
+              />
             </div>
           </div>
+        </div>
 
-          <div className="col-lg-4">
-            <div className="card rounded-4 shadow-lg border-0 h-100">
-              <div className="card-header bg-primary text-white text-center rounded-top-4">
-                <h4 className="mb-0 fw-semibold">
-                  {value.toLocaleDateString("en-US", {
-                    weekday: "long",
-                    year: "numeric",
-                    month: "long",
-                    day: "numeric",
-                  })}
-                </h4>
-              </div>
-              <div className="card-body p-4 d-flex flex-column justify-content-between">
-                <ul className="list-group list-group-flush flex-grow-1 mb-3">
-                  {filteredPCs.length === 0 ? (
-                    <li className="list-group-item text-center text-muted fst-italic">
-                      <i className="bi bi-info-circle me-2" />
-                      No PCs available.
-                    </li>
-                  ) : (
-                    filteredPCs.map((pc, index) => (
-                      <li
-                        key={index}
-                        className="list-group-item d-flex justify-content-between align-items-center px-3 py-2"
+        {/* PC Availability */}
+        <div className="col-lg-4">
+          <div className="card rounded-4 shadow-lg border-0 h-100">
+            <div className="card-header bg-primary text-white text-center rounded-top-4">
+              <h4 className="mb-0 fw-semibold">
+                {value.toLocaleDateString("en-US", {
+                  weekday: "long",
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                })}
+              </h4>
+            </div>
+            <div className="card-body p-4 d-flex flex-column justify-content-between">
+              <ul className="list-group list-group-flush flex-grow-1 mb-3">
+                {filteredPCs.length === 0 ? (
+                  <li className="list-group-item text-center text-muted fst-italic">
+                    <i className="bi bi-info-circle me-2" />
+                    No PCs available.
+                  </li>
+                ) : (
+                  filteredPCs.map((pc, index) => (
+                    <li
+                      key={index}
+                      className="list-group-item d-flex justify-content-between align-items-center px-3 py-2"
+                    >
+                      <span className="fw-semibold">
+                        {pc.name || `PC ${pc.id}`}
+                      </span>
+                      <span
+                        className={`badge ${
+                          pc.status === "full" ? "bg-danger" : "bg-success"
+                        }`}
                       >
-                        <span className="fw-semibold">{pc.name || pc}</span>
-                        <span
-                          className={`badge ${
-                            pc.status === "full" ? "bg-danger" : "bg-success"
-                          }`}
-                        >
-                          {pc.status === "full" ? "Full Slot" : "Available"}
-                        </span>
-                      </li>
-                    ))
-                  )}
-                </ul>
-                <button
-                  className="btn btn-outline-primary w-100 fw-bold"
-                  onClick={handleOpenModal}
-                >
-                  <i className="bi bi-check-circle me-2" />
-                  Mark Reservation
-                </button>
-              </div>
+                        {pc.status === "full" ? "Full Slot" : "Available"}
+                      </span>
+                    </li>
+                  ))
+                )}
+              </ul>
+              <button
+                className="btn btn-outline-primary w-100 fw-bold"
+                onClick={handleOpenModal}
+              >
+                <i className="bi bi-check-circle me-2" />
+                Mark Reservation
+              </button>
             </div>
           </div>
         </div>
@@ -344,9 +357,8 @@ function ComputerRentCalendar() {
                 </div>
               )}
               <form
-                className={`needs-validation ${
-                  validated ? "was-validated" : ""
-                }`}
+                className="needs-validation"
+                ref={formRef}
                 noValidate
                 onSubmit={handleSubmit}
               >
@@ -355,8 +367,8 @@ function ComputerRentCalendar() {
                     <label className="form-label">PC Number</label>
                     <select
                       className="form-select"
-                      name="pcNumber"
-                      value={formData.pcNumber}
+                      name="pc_number"
+                      value={formData.pc_number}
                       onChange={handleInputChange}
                       required
                     >
@@ -373,8 +385,8 @@ function ComputerRentCalendar() {
                     <label className="form-label">Time Range</label>
                     <select
                       className="form-select"
-                      name="timeRange"
-                      value={formData.timeRange}
+                      name="time_range"
+                      value={formData.time_range}
                       onChange={handleInputChange}
                       required
                     >
@@ -384,7 +396,7 @@ function ComputerRentCalendar() {
                       {timeOptions.map((range, index) => {
                         const isReserved = reservations.some(
                           (res) =>
-                            res.pc_number === formData.pcNumber &&
+                            res.pc_number === formData.pc_number &&
                             res.reservation_date ===
                               value.toLocaleDateString("en-CA") &&
                             res.time_range === range.slot
@@ -446,6 +458,53 @@ function ComputerRentCalendar() {
                   </button>
                 </div>
               </form>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div
+        className="modal fade"
+        tabIndex="-1"
+        role="dialog"
+        id="successModal"
+        aria-labelledby="successModalLabel"
+        aria-hidden="true"
+      >
+        <div className="modal-dialog modal-dialog-centered" role="document">
+          <div className="modal-content">
+            <div className="modal-header bg-success text-white">
+              <h5 className="modal-title" id="successModalLabel">
+                Reservation Successful
+              </h5>
+              <button
+                type="button"
+                className="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+              ></button>
+            </div>
+            <div className="modal-body">
+              <p>
+                Your reservation was successful. Please check your email for
+                confirmation.
+              </p>
+              <p>
+                <strong>Reservation Code:</strong>{" "}
+                <span className="text-primary">
+                  {formData.reservation_code}
+                </span>
+              </p>
+            </div>
+            <div className="modal-footer">
+              <button
+                type="button"
+                className="btn btn-primary"
+                data-bs-dismiss="modal"
+                onClick={() => setTimeout(() => window.location.reload(), 500)}
+              >
+                Okay
+              </button>
             </div>
           </div>
         </div>

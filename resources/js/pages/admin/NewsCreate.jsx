@@ -3,6 +3,7 @@ import Breadcrumb from "../../component/ui/Breadcrumb";
 import { Modal } from "bootstrap";
 import { useAPI } from "../../component/contexts/ApiContext";
 import ModalPreview from "../../component/modals/ModalPreview";
+import { useNavigate } from "react-router-dom";
 
 function NewsCreate() {
   const { postData } = useAPI();
@@ -130,6 +131,17 @@ function NewsCreate() {
 
       <form className="row g-4 needs-validation" noValidate>
         <div className="col-md-8">
+          <div className="d-flex align-items-center mb-3">
+            <span>Need A Registration Form?</span>
+            <button
+              type="button"
+              className="btn btn-outline-secondary btn-sm ms-3 py-0 px-3 fw-semibold"
+              data-bs-toggle="modal"
+              data-bs-target="#confirmationModal"
+            >
+              YES
+            </button>
+          </div>
           <div className="mb-3">
             <label htmlFor="title" className="form-label fw-bold text-dark">
               Title
@@ -242,81 +254,61 @@ function NewsCreate() {
 
       <ModalDiscard id="discardModal" onConfirm={discard} />
       <ModalConfirmPublish id="confirmPublishModal" onConfirm={publishNews} />
+      <ConfirmationModal />
     </>
   );
 }
 
-// function ModalPreview({
-//   id,
-//   title,
-//   description,
-//   imagePreviews,
-//   currentDate,
-//   onSaveDraft,
-//   onPublish,
-// }) {
-//   return (
-//     <div
-//       className="modal fade"
-//       id={id}
-//       tabIndex="-1"
-//       aria-labelledby={`${id}Label`}
-//     >
-//       <div className="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
-//         <div className="modal-content">
-//           <div className="modal-header">
-//             <h5 className="modal-title" id={`${id}Label`}>
-//               Preview Content
-//             </h5>
-//             <button
-//               type="button"
-//               className="btn-close"
-//               data-bs-dismiss="modal"
-//               aria-label="Close"
-//             />
-//           </div>
-//           <div className="modal-body">
-//             <h1 className="mt-3">{title}</h1>
-//             <p className="text-muted ps-2">{currentDate}</p>
-//             {imagePreviews.map((src, i) => (
-//               <img
-//                 key={i}
-//                 src={
-//                   src.startsWith("http")
-//                       ? src
-//                       : `/storage/${src}`
-//                 }
-//                 alt={`Preview ${i + 1}`}
-//                 className="img-fluid rounded-3 mb-3"
-//               />
-//             ))}
-
-//             <p
-//               className="p-3 lead"
-//               style={{ textIndent: "50px", textAlign: "justify" }}
-//             >
-//               {description}
-//             </p>
-//           </div>
-//           <div className="modal-footer">
-//             <button
-//               className="btn btn-warning fw-bold text-white px-5 py-2"
-//               onClick={onSaveDraft}
-//             >
-//               <i className="bi bi-save"></i> Save as Draft
-//             </button>
-//             <button
-//               className="btn btn-success fw-bold text-white px-5 py-2"
-//               onClick={onPublish}
-//             >
-//               <i className="bi bi-send"></i> Publish
-//             </button>
-//           </div>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// }
+function ConfirmationModal() {
+  const navigate = useNavigate();
+  return (
+    <>
+      <div
+        className="modal fade"
+        id="confirmationModal"
+        tabIndex="-1"
+        aria-labelledby="confirmationModalLabel"
+        aria-hidden="true"
+      >
+        <div className="modal-dialog modal-dialog-centered">
+          <div className="modal-content rounded-4 shadow">
+            <div className="modal-header bg-primary text-white rounded-top-4">
+              <h5 className="modal-title" id="confirmationModalLabel">
+                Are you sure you want to leave this page?
+              </h5>
+              <button
+                type="button"
+                className="btn-close btn-close-white"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+              />
+            </div>
+            <div className="modal-body">
+              <p>If you leave this page, your changes may not be saved.</p>
+            </div>
+            <div className="modal-footer">
+              <button
+                type="button"
+                className="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="btn btn-primary"
+                data-bs-dismiss="modal"
+                onClick={() => {navigate("/admin/events/manage")}}
+              >
+                Yes, Proceed
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
 
 function ModalDiscard({ id, onConfirm }) {
   return (

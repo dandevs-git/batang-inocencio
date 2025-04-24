@@ -59,38 +59,59 @@ function ModalAnnouncement() {
               ></button>
             </div>
             <div className="modal-body">
-              <div className="container mb-5">
-                <div className="row g-5">
-                  {filteredAnnouncements.map((announcement) => (
-                    <div className="col-12" key={announcement.id}>
-                      <div className="card shadow">
-                        <img
-                          src={
-                            announcement.image && (announcement.image.startsWith("http") || announcement.image.startsWith("blob:")
-                              ? announcement.image
-                              : `/storage/${announcement.image}`)
-                          }
-                          className="card-img-top object-fit-fill"
-                          alt={announcement.title}
-                        />
-                        <div className="card-body">
-                          <p className="small">{announcement.date_published}</p>
-                          <h5 className="card-title">{announcement.title}</h5>
-                          <p className="card-text">
-                            {announcement.description}
-                          </p>
-                          <button
-                            onClick={() => handleReadMore(announcement.id)}
-                            className="btn btn-primary rounded-pill px-4 py-1 read-more-btn"
-                          >
-                            Read more
-                          </button>
+              {loading ? (
+                <div
+                  className="d-flex flex-column justify-content-center align-items-center"
+                  style={{ minHeight: "200px" }}
+                >
+                  <div
+                    className="spinner-border text-primary mb-2"
+                    role="status"
+                  >
+                    <span className="visually-hidden">Loading...</span>
+                  </div>
+                  <p className="text-muted fw-semibold">
+                    Fetching data, please wait...
+                  </p>
+                </div>
+              ) : (
+                <div className="container mb-5">
+                  <div className="row g-5">
+                    {filteredAnnouncements.map((announcement) => (
+                      <div className="col-12" key={announcement.id}>
+                        <div className="card shadow">
+                          <img
+                            src={
+                              announcement.images[0] &&
+                              (announcement.images[0].startsWith("http") ||
+                              announcement.images[0].startsWith("blob:")
+                                ? announcement.images[0]
+                                : `/storage/${announcement.images[0]}`)
+                            }
+                            className="card-img-top object-fit-fill"
+                            alt={announcement.title}
+                          />
+                          <div className="card-body">
+                            <p className="small">
+                              {announcement.date_published}
+                            </p>
+                            <h5 className="card-title">{announcement.title}</h5>
+                            <p className="card-text">
+                              {announcement.description}
+                            </p>
+                            <button
+                              onClick={() => handleReadMore(announcement.id)}
+                              className="btn btn-primary rounded-pill px-4 py-1 read-more-btn"
+                            >
+                              Read more
+                            </button>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
             <div className="modal-footer">
               <button

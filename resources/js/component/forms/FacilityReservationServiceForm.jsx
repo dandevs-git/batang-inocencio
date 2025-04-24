@@ -7,6 +7,10 @@ function FacilityReservationServiceForm() {
   const { postData } = useAPI();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [timeslotEnabled, setTimeslotEnabled] = useState(true);
+  const [penaltyEnabled, setPenaltyEnabled] = useState(true);
+  const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
     service_name: "",
     description: "",
@@ -20,14 +24,11 @@ function FacilityReservationServiceForm() {
     min_group_size: "",
     max_group_size: "",
     booking_window: "",
+    penalty_enabled: true,
     penalty_description: "",
     launch_date: "",
     availability_status: "Available",
   });
-  const navigate = useNavigate();
-
-  const [timeslotEnabled, setTimeslotEnabled] = useState(true);
-  const [penaltyEnabled, setPenaltyEnabled] = useState(true);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -39,19 +40,54 @@ function FacilityReservationServiceForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.service_name || !formData.date || !formData.location) {
+
+    const requiredFields = [
+      "service_name",
+      "launch_date",
+      "available_facilities",
+    ];
+    const isValid = requiredFields.every((field) => formData[field]);
+
+    if (!isValid) {
       setError("Please fill out all required fields.");
-      navigate("/admin/FacilityReservationServiceForm");
       return;
     }
 
-    setLoading(true);
-    setError(null);
-
     try {
-      console.log("Submitted Event Registration Form:", formData);
-      await postData("ers", formData);
-      setLoading(false);
+      setError(null);
+
+      const payload = {
+        ...formData,
+        available_facilities: parseInt(formData.available_facilities) || 0,
+        max_reservation_per_timeslot: timeslotEnabled
+          ? parseInt(formData.max_reservation_per_timeslot) || 0
+          : 0,
+        start_time: timeslotEnabled ? formData.start_time : "00:00",
+        end_time: timeslotEnabled ? formData.end_time : "23:59",
+        timeslot_duration: timeslotEnabled
+          ? formData.timeslot_duration
+          : "30 minutes",
+        penalty_enabled: penaltyEnabled,
+        penalty_description: penaltyEnabled
+          ? formData.penalty_description
+          : null,
+        individuals_per_reservation:
+          formData.reservation_type === "Individual"
+            ? parseInt(formData.individuals_per_reservation) || 0
+            : null,
+        min_group_size:
+          formData.reservation_type === "Group"
+            ? parseInt(formData.min_group_size) || 0
+            : null,
+        max_group_size:
+          formData.reservation_type === "Group"
+            ? parseInt(formData.max_group_size) || 0
+            : null,
+      };
+
+      await postData("frs", payload, null, setLoading, setError);
+
+      // Reset form
       setFormData({
         service_name: "",
         description: "",
@@ -65,13 +101,15 @@ function FacilityReservationServiceForm() {
         min_group_size: "",
         max_group_size: "",
         booking_window: "",
+        penalty_enabled: true,
         penalty_description: "",
         launch_date: "",
         availability_status: "Available",
       });
+      setTimeslotEnabled(true);
+      setPenaltyEnabled(true);
     } catch (err) {
-      setLoading(false);
-      setError("Failed to submit the form. Please try again later.");
+      console.error("Submission Error:", err);
     }
   };
 
@@ -84,6 +122,8 @@ function FacilityReservationServiceForm() {
             <h4 className="mb-0">Facility Reservation Service</h4>
           </div>
           <div className="card-body">
+            {error && <div className="alert alert-danger">{error}</div>}
+
             <form noValidate onSubmit={handleSubmit}>
               <div className="mb-3">
                 <label className="form-label">Service Name</label>
@@ -118,7 +158,12 @@ function FacilityReservationServiceForm() {
                   type="number"
                   className="form-control"
                   value={formData.available_facilities}
-                  onChange={handleChange}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      available_facilities: parseInt(e.target.value) || 0,
+                    }))
+                  }
                   placeholder="e.g. 3"
                 />
               </div>
@@ -227,7 +272,6 @@ function FacilityReservationServiceForm() {
                       placeholder="e.g. 2"
                     />
                   </div>
-
                   <div className="mb-3">
                     <label className="form-label">Maximum Group Size</label>
                     <input
@@ -259,7 +303,14 @@ function FacilityReservationServiceForm() {
                   className="form-check-input"
                   type="checkbox"
                   checked={penaltyEnabled}
-                  onChange={() => setPenaltyEnabled(!penaltyEnabled)}
+                  onChange={() => {
+                    const newValue = !penaltyEnabled;
+                    setPenaltyEnabled(newValue);
+                    setFormData((prev) => ({
+                      ...prev,
+                      penalty_enabled: newValue,
+                    }));
+                  }}
                   id="penaltySwitch"
                 />
                 <label className="form-check-label" htmlFor="penaltySwitch">
@@ -307,8 +358,9 @@ function FacilityReservationServiceForm() {
                 <button
                   type="submit"
                   className="btn text-light btn-primary btn-lg"
+                  disabled={loading}
                 >
-                  Create Facility Service
+                  {loading ? "Submitting..." : "Create Facility Service"}
                 </button>
               </div>
             </form>

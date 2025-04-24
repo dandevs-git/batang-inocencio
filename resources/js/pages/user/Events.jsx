@@ -165,8 +165,6 @@ function Events({ isFullPage = true }) {
         <div className="row g-4">
           {filteredEvents.length > 0 ? (
             filteredEvents
-              // .slice()
-              // .reverse()
               .map((events, index) => (
                 <EventsCard key={index} events={events} />
               ))

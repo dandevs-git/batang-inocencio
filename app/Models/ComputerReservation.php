@@ -17,5 +17,7 @@ class ComputerReservation extends Model
         'address',
         'email',
         'contact',
+        'reservation_code',
+        // 'status'
     ];
 }

@@ -13,6 +13,7 @@ return new class extends Migration {
         Schema::create('printing_service_reservations', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->date('reservation_date');
             $table->string('address');
             $table->string('contact_number');
             $table->string('paper_size');
@@ -20,6 +21,7 @@ return new class extends Migration {
             $table->string('file_path');
             $table->text('purpose');
             $table->string('reservation_code')->unique();
+            $table->string('status');
             $table->timestamps();
         });
     }

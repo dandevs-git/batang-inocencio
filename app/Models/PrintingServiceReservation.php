@@ -11,6 +11,7 @@ class PrintingServiceReservation extends Model
 
     protected $fillable = [
         'name',
+        'reservation_date',
         'address',
         'contact_number',
         'paper_size',
@@ -18,5 +19,6 @@ class PrintingServiceReservation extends Model
         'file_path',
         'purpose',
         'reservation_code',
+        'status'
     ];
 }

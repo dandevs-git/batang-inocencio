@@ -23,6 +23,7 @@ function ResourceLendingServiceForm() {
     availability_status: "Available",
     penalty_enabled: true,
   });
+
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -35,39 +36,54 @@ function ResourceLendingServiceForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.service_name || !formData.date || !formData.location) {
-      setError("Please fill out all required fields.");
-      navigate("/admin/ResourceLendingServiceForm");
-      return;
-    }
+  
     setLoading(true);
     setError(null);
-
+  
     try {
-      console.log("Submitted Event Registration Form:", formData);
-      await postData("ers", formData);
-      setLoading(false);
-      setFormData({
-        service_name: "",
-        description: "",
-        resource_name: "",
-        available_resources: "",
-        category: "Event Materials",
-        location: "",
-        day_start: "",
-        day_end: "",
-        time_start: "",
-        time_end: "",
-        penalty_description: "",
-        launch_date: "",
-        availability_status: "Available",
-        penalty_enabled: true,
-      });
+      // Make API call to store the resource lending service
+      const response = await postData("rls", formData);
+  
+      if (response.status === 201) {
+        // Success: reset the form and navigate
+        setFormData({
+          service_name: "",
+          description: "",
+          resource_name: "",
+          available_resources: "",
+          category: "Event Materials",
+          location: "",
+          day_start: "",
+          day_end: "",
+          time_start: "",
+          time_end: "",
+          penalty_description: "",
+          launch_date: "",
+          availability_status: "Available",
+          penalty_enabled: true,
+          event_type: "", // Reset event type
+          max_registrations: "", // Reset max registrations
+          registration_end: "", // Reset registration end
+          registration_start: "", // Reset registration start
+          registration_type: "", // Reset registration type
+          requirements: "", // Reset requirements
+          time: "", // Reset time
+        });
+        navigate("/admin/services"); // redirect after success
+      }
     } catch (err) {
+      if (err.response && err.response.data) {
+        // Capture the error from the API response (e.g., validation errors)
+        setError("Failed to submit the form. Please try again later.");
+      } else {
+        // General error handling
+        setError("An unexpected error occurred. Please try again.");
+      }
+    } finally {
       setLoading(false);
-      setError("Failed to submit the form. Please try again later.");
     }
   };
+  
 
   return (
     <>
@@ -78,7 +94,9 @@ function ResourceLendingServiceForm() {
             <h4 className="mb-0">Resource Lending Management Service</h4>
           </div>
           <div className="card-body">
-            <form noValidate onSubmit={handleSubmit}>
+            {error && <div className="alert alert-danger">{error}</div>}
+            <form onSubmit={handleSubmit} noValidate className="need-validation">
+              {/* Service Name */}
               <div className="mb-3">
                 <label className="form-label">Service Name</label>
                 <input
@@ -87,11 +105,11 @@ function ResourceLendingServiceForm() {
                   className="form-control"
                   value={formData.service_name}
                   onChange={handleChange}
-                  placeholder="Enter service name"
                   required
                 />
               </div>
 
+              {/* Description */}
               <div className="mb-3">
                 <label className="form-label">Description</label>
                 <textarea
@@ -100,39 +118,34 @@ function ResourceLendingServiceForm() {
                   rows="2"
                   value={formData.description}
                   onChange={handleChange}
-                  placeholder="Enter a brief description"
-                  required
                 />
               </div>
 
+              {/* Resource Name */}
               <div className="mb-3">
-                <label className="form-label">Name of Resource</label>
+                <label className="form-label">Resource Name</label>
                 <input
                   name="resource_name"
                   type="text"
                   className="form-control"
                   value={formData.resource_name}
                   onChange={handleChange}
-                  placeholder="Enter resource name"
-                  required
                 />
               </div>
 
+              {/* Available Resources */}
               <div className="mb-3">
-                <label className="form-label">
-                  Number of Available Resources
-                </label>
+                <label className="form-label">Number of Available Resources</label>
                 <input
                   name="available_resources"
                   type="number"
                   className="form-control"
                   value={formData.available_resources}
                   onChange={handleChange}
-                  placeholder="e.g. 10"
-                  required
                 />
               </div>
 
+              {/* Category */}
               <div className="mb-3">
                 <label className="form-label">Category</label>
                 <select
@@ -140,19 +153,15 @@ function ResourceLendingServiceForm() {
                   className="form-select"
                   value={formData.category}
                   onChange={handleChange}
-                  required
                 >
                   <option value="Event Materials">Event Materials</option>
-                  <option value="Educational Resources">
-                    Educational Resources
-                  </option>
-                  <option value="Audio-Visual Equipment">
-                    Audio-Visual Equipment
-                  </option>
+                  <option value="Educational Resources">Educational Resources</option>
+                  <option value="Audio-Visual Equipment">Audio-Visual Equipment</option>
                   <option value="Other">Other</option>
                 </select>
               </div>
 
+              {/* Location */}
               <div className="mb-3">
                 <label className="form-label">Location</label>
                 <input
@@ -161,11 +170,11 @@ function ResourceLendingServiceForm() {
                   className="form-control"
                   value={formData.location}
                   onChange={handleChange}
-                  placeholder="Enter location"
                   required
                 />
               </div>
 
+              {/* Availability Dates and Times */}
               <div className="row mb-3">
                 <div className="col-md-6">
                   <label className="form-label">Available From (Day)</label>
@@ -175,7 +184,6 @@ function ResourceLendingServiceForm() {
                     className="form-control"
                     value={formData.day_start}
                     onChange={handleChange}
-                    required
                   />
                 </div>
                 <div className="col-md-6">
@@ -186,7 +194,6 @@ function ResourceLendingServiceForm() {
                     className="form-control"
                     value={formData.day_end}
                     onChange={handleChange}
-                    required
                   />
                 </div>
                 <div className="col-md-6 mt-3">
@@ -197,7 +204,6 @@ function ResourceLendingServiceForm() {
                     className="form-control"
                     value={formData.time_start}
                     onChange={handleChange}
-                    required
                   />
                 </div>
                 <div className="col-md-6 mt-3">
@@ -208,11 +214,11 @@ function ResourceLendingServiceForm() {
                     className="form-control"
                     value={formData.time_end}
                     onChange={handleChange}
-                    required
                   />
                 </div>
               </div>
 
+              {/* Penalty Switch */}
               <div className="mb-3 form-check form-switch">
                 <input
                   className="form-check-input"
@@ -223,11 +229,11 @@ function ResourceLendingServiceForm() {
                   name="penalty_enabled"
                 />
                 <label className="form-check-label" htmlFor="penaltySwitch">
-                  Penalty Policy:{" "}
-                  {formData.penalty_enabled ? "Enabled" : "Disabled"}
+                  Penalty Policy: {formData.penalty_enabled ? "Enabled" : "Disabled"}
                 </label>
               </div>
 
+              {/* Penalty Description */}
               {formData.penalty_enabled && (
                 <div className="mb-3">
                   <label className="form-label">Penalty Description</label>
@@ -237,11 +243,11 @@ function ResourceLendingServiceForm() {
                     rows="2"
                     value={formData.penalty_description}
                     onChange={handleChange}
-                    placeholder="Describe penalty policy"
                   />
                 </div>
               )}
 
+              {/* Launch Date */}
               <div className="mb-3">
                 <label className="form-label">Launch Date</label>
                 <input
@@ -254,6 +260,7 @@ function ResourceLendingServiceForm() {
                 />
               </div>
 
+              {/* Availability Status */}
               <div className="mb-4">
                 <label className="form-label">Availability Status</label>
                 <select
@@ -261,7 +268,6 @@ function ResourceLendingServiceForm() {
                   className="form-select"
                   value={formData.availability_status}
                   onChange={handleChange}
-                  required
                 >
                   <option value="Available">Available</option>
                   <option value="Unavailable">Unavailable</option>
@@ -269,8 +275,12 @@ function ResourceLendingServiceForm() {
               </div>
 
               <div className="d-grid">
-                <button type="submit" className="btn btn-primary btn-lg">
-                  Create Lending Service
+                <button
+                  type="submit"
+                  className="btn btn-primary btn-lg"
+                  disabled={loading}
+                >
+                  {loading ? "Submitting..." : "Create Lending Service"}
                 </button>
               </div>
             </form>

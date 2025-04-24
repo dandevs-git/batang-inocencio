@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 
 function PrintingServicesReservation() {
   const { postData } = useAPI();
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const formRef = useRef(null);
   const modalRef = useRef(null);
   const [loading, setLoading] = useState(false);
@@ -16,13 +16,14 @@ function PrintingServicesReservation() {
 
   const [formData, setFormData] = useState({
     name: "",
+    reservation_date: "",
     address: "",
     contact_number: "",
     paper_size: "",
     color: "",
     file: null,
     purpose: "",
-    reservation_code: "", // <-- Added
+    reservation_code: "",
   });
 
   const handleChange = (e) => {
@@ -37,7 +38,6 @@ function PrintingServicesReservation() {
     e.preventDefault();
     setLoading(true);
     setShowAlert(false);
-    console.log(formData);
 
     const data = new FormData();
     Object.keys(formData).forEach((key) => {
@@ -67,6 +67,7 @@ function PrintingServicesReservation() {
 
       setFormData((prev) => ({
         name: "",
+        reservation_date: "",
         address: "",
         contact_number: "",
         paper_size: "",
@@ -128,6 +129,17 @@ function PrintingServicesReservation() {
                 onSubmit={handleSubmit}
                 encType="multipart/form-data"
               >
+                <div className="mb-3">
+                  <label className="form-label">Reservation Date</label>
+                  <input
+                    name="reservation_date"
+                    type="date"
+                    className="form-control"
+                    value={formData.reservation_date}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
 
                 <div className="mb-3">
                   <label className="form-label">Name</label>
@@ -279,7 +291,9 @@ function PrintingServicesReservation() {
                 type="button"
                 className="btn btn-primary"
                 data-bs-dismiss="modal"
-                onClick={() => setTimeout(() => navigate("/services/printing"), 1000)}
+                onClick={() =>
+                  setTimeout(() => navigate("/services/printing"), 1000)
+                }
               >
                 Okay
               </button>

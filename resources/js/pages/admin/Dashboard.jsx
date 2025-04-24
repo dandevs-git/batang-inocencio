@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
-import EventCalendar from "../../component/EventCalendar";
 import Breadcrumb from "../../component/ui/Breadcrumb";
 import AdminDashboardWidget from "../../component/AdminDashboardWidget";
 import NewsTable from "../../component/tables/NewsTable";
 import EventsTable from "../../component/tables/EventsTable";
 import AnnouncementsTable from "../../component/tables/AnnouncementTable";
+import Calendar from "../../component/Calendar";
 
 function Dashboard() {
   return (
@@ -23,7 +23,7 @@ function Dashboard() {
       </div>
 
       <AdminDashboardWidget />
-      <EventCalendar />
+      <Calendar />
 
       <EventsTable hasActions={false}/>
       <NewsTable hasActions={false}/>

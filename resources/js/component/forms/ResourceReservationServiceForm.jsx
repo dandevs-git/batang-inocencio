@@ -2,11 +2,11 @@ import React, { useEffect, useRef, useState } from "react";
 import Breadcrumb from "../ui/Breadcrumb";
 import { useAPI } from "../contexts/ApiContext";
 
-function ResourceReservationServiceForm({serviceType}) {
+function ResourceReservationServiceForm({ serviceType }) {
   const { postData } = useAPI();
   const formRef = useRef(null);
-  const [loading, setLoading] = useState(false); 
-  const [error, setError] = useState(null); 
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
   const [alertMessage, setAlertMessage] = useState("");
   const [showAlert, setShowAlert] = useState(false);
 
@@ -30,24 +30,22 @@ function ResourceReservationServiceForm({serviceType}) {
     availability_status: "Available",
   });
 
-  const [timeslotEnabled, setTimeslotEnabled] = useState(false);
-  const [penaltyEnabled, setPenaltyEnabled] = useState(false);
+  const [timeslotEnabled, setTimeslotEnabled] = useState(true);
+  const [penaltyEnabled, setPenaltyEnabled] = useState(true);
 
   useEffect(() => {
     if (!formRef.current) return;
 
     const form = formRef.current;
-
     const handleValidation = (event) => {
       if (!form.checkValidity()) {
         event.preventDefault();
         event.stopPropagation();
+        form.classList.add("was-validated");
       }
-      form.classList.add("was-validated");
     };
 
     form.addEventListener("submit", handleValidation);
-
     return () => {
       form.removeEventListener("submit", handleValidation);
     };
@@ -57,18 +55,43 @@ function ResourceReservationServiceForm({serviceType}) {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: value === "" ? "" : value,
+      [name]: value,
     }));
+  };
+
+  const resetForm = () => {
+    setFormData({
+      service_type: "Resource Reservation System",
+      service_name: "",
+      description: "",
+      resource_name: "",
+      available_resources: "",
+      timeslot_duration: "30 minutes",
+      max_reservation_per_timeslot: "",
+      start_time: "",
+      end_time: "",
+      reservation_type: "Individual",
+      individuals_per_reservation: "",
+      min_group_size: "",
+      max_group_size: "",
+      booking_window: "",
+      penalty_description: "",
+      launch_date: "",
+      availability_status: "Available",
+    });
+    setTimeslotEnabled(false);
+    setPenaltyEnabled(false);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     const payload = {
       ...formData,
-      available_resources: parseInt(formData.available_resources) || 0,
-      max_reservation_per_timeslot:
-        parseInt(formData.max_reservation_per_timeslot) || 0,
+      // available_resources: parseInt(formData.available_resources) || 0,
+      max_reservation_per_timeslot: timeslotEnabled
+        ? parseInt(formData.max_reservation_per_timeslot) || 0
+        : null,
       individuals_per_reservation:
         formData.reservation_type === "Individual"
           ? parseInt(formData.individuals_per_reservation) || null
@@ -81,28 +104,22 @@ function ResourceReservationServiceForm({serviceType}) {
         formData.reservation_type === "Group"
           ? parseInt(formData.max_group_size) || 0
           : null,
-      timeslot_duration: parseInt(formData.timeslot_duration) || 0,
       timeslot_enabled: timeslotEnabled,
       penalty_enabled: penaltyEnabled,
+      penalty_description: penaltyEnabled ? formData.penalty_description : "",
     };
-  
-    console.log("Submitted formData:", payload);
-    setLoading(true);
-    setError(null);
-  
     try {
-      await postData("services", payload, setFormData, setLoading, setError);
+      await postData("rrs", payload, null, setLoading, setError);
+      setAlertMessage("Service has been successfully published!");
+      setShowAlert(true);
+      resetForm();
+      formRef.current.classList.remove("was-validated");
     } catch (err) {
       console.error("Submission error:", err);
       setAlertMessage("There was an error submitting the form.");
       setShowAlert(true);
-    } finally {
-      setLoading(false);
-      setAlertMessage("Service has been successfully published!");
-      setShowAlert(true);
     }
   };
-  
 
   return (
     <>
@@ -117,7 +134,7 @@ function ResourceReservationServiceForm({serviceType}) {
             {showAlert && (
               <div
                 className={`alert alert-${
-                  alertMessage.includes("successfully") ? "success" : "warning"
+                  alertMessage.includes("successfully") ? "success" : "danger"
                 } alert-dismissible fade show`}
                 role="alert"
               >
@@ -129,9 +146,12 @@ function ResourceReservationServiceForm({serviceType}) {
                 ></button>
               </div>
             )}
+
+            {console.log(error)}
+
             <form
               noValidate
-              className="need-validation"
+              className="needs-validation"
               ref={formRef}
               onSubmit={handleSubmit}
             >
@@ -211,8 +231,8 @@ function ResourceReservationServiceForm({serviceType}) {
                       onChange={handleChange}
                       required
                     >
-                      <option value={30}>30 minutes</option>
-                      <option value={60}>1 hour</option>
+                      <option value="30 minutes">30 minutes</option>
+                      <option value="1 hour">1 hour</option>
                     </select>
                   </div>
 

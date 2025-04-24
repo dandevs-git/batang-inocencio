@@ -19,6 +19,8 @@ return new class extends Migration {
             $table->string('address')->nullable();
             $table->string('email');
             $table->string('contact');
+            $table->string('reservation_code')->unique();
+            // $table->string('status');
             $table->timestamps();
         });
     }

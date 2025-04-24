@@ -4,21 +4,21 @@ import TableComponent from "./TableComponent";
 
 function PrintingScheduleTable({ title, status, hasActions }) {
   const { getData, postData, putData, deleteData } = useAPI();
-  const [announcementsData, setAnnouncementsData] = useState("");
+  const [printingScheduleData, setprintingScheduleData] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState();
 
   useEffect(() => {
-    getData("printing-services", setAnnouncementsData, setLoading, setError);
+    getData("printing-services", setprintingScheduleData, setLoading, setError);
   }, [getData]);
 
-  const filteredAnnouncementsData = status
-    ? announcementsData.filter(
-        (announcementsItem) => announcementsItem.status === status
+  const filteredprintingScheduleData = status
+    ? printingScheduleData.filter(
+        (printingScheduleItem) => printingScheduleItem.status === status
       )
-    : announcementsData;
+    : printingScheduleData;
 
-  const actions = () => [
+  const actions = (e) => [
     {
       label: "View Details",
       href: "/member/show",
@@ -27,7 +27,7 @@ function PrintingScheduleTable({ title, status, hasActions }) {
     },
   ];
 
-  const announcementsColumns = [
+  const printingScheduleColumns = [
     {
       header: "Name",
       accessorKey: "name",
@@ -41,10 +41,10 @@ function PrintingScheduleTable({ title, status, hasActions }) {
       accessorKey: "status",
       cell: ({ getValue }) => {
         const status = getValue();
-        if (status === "published") {
-          return <span className="badge bg-success">Published</span>;
-        } else if (status === "draft") {
-          return <span className="badge bg-warning">Draft</span>;
+        if (status === "pending") {
+          return <span className="badge bg-warning">Pending</span>;
+        } else if (status === "completed") {
+          return <span className="badge bg-success">Completed</span>;
         }
         return null;
       },
@@ -55,8 +55,8 @@ function PrintingScheduleTable({ title, status, hasActions }) {
     <>
       <TableComponent
         title={title}
-        columns={announcementsColumns}
-        data={filteredAnnouncementsData} 
+        columns={printingScheduleColumns}
+        data={filteredprintingScheduleData} 
         loading={loading}
         actions={hasActions && actions}
       />

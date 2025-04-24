@@ -13,7 +13,7 @@ class EventController extends Controller
         $sort = $request->query('sort', 'default');
         $date = $request->query('date');
 
-        $query = Event::with('participants', 'teams');
+        $query = Event::with(['participants', 'teams']);
 
         if ($date) {
             $query->whereDate('date', $date);
@@ -27,7 +27,7 @@ class EventController extends Controller
 
         $events = $query->get();
 
-        return response()->json($events);
+        return response()->json($events, 200);
     }
 
     public function show($id)
