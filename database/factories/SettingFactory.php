@@ -27,7 +27,7 @@ class SettingFactory extends Factory
             'mission' => $this->faker->paragraph,
             'vision' => $this->faker->paragraph,
             'chairperson_name' => $this->faker->name,
-            'chairperson_position' => 'Chairperson',
+            'chairperson_position' => 'SK Chairperson',
             'chairperson_image' => 'https://ui-avatars.com/api/?name=' . urlencode($name) . '&background=random&size=400',
         ];
     }

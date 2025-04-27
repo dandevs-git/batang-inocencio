@@ -106,6 +106,14 @@ function AnnouncementsCreate() {
   return (
     <>
       <Breadcrumb />
+      <div className="text-start mb-3">
+        <button
+          onClick={() => window.history.back()}
+          className="btn btn-outline-primary py-1"
+        >
+          <i class="bi bi-arrow-left-short"></i> Go back
+        </button>
+      </div>
       <div className="mb-4 border-bottom pb-3">
         <h4 className="fw-bold">Announcements Management</h4>
         <p className="text-muted m-0">
@@ -192,7 +200,7 @@ function AnnouncementsCreate() {
 
         <div className="col-md-4 d-flex flex-column align-items-center">
           <label
-            className="w-100 h-100 d-flex flex-column align-items-center justify-content-center border border-2 rounded-4 text-center p-4 bg-light-subtle position-relative upload-label"
+            className="w-100 h-100 d-flex flex-column align-items-center justify-content-center border rounded-4 text-center p-4 bg-light-subtle"
             style={{ cursor: "pointer" }}
           >
             <i
@@ -208,19 +216,76 @@ function AnnouncementsCreate() {
               onChange={handleImageChange}
             />
             {imagePreviews.length > 0 && (
-              <div className="mt-3 w-100">
-                {imagePreviews.map((src, i) => (
-                  <img
-                    key={i}
-                    src={
-                      src.startsWith("http") || src.startsWith("blob:")
-                        ? src
-                        : `/storage/${src}`
-                    }
-                    alt={`Preview ${i + 1}`}
-                    className="img-fluid rounded-3 mb-2"
-                  />
-                ))}
+              <div
+                id="imagePreviewAnnouncementCreateCarousel"
+                className="carousel slide mt-3 w-100"
+                data-bs-ride="carousel"
+              >
+                <div className="carousel-inner">
+                  {imagePreviews.map((src, i) => (
+                    <div
+                      key={i}
+                      className={`carousel-item ${i === 0 ? "active" : ""}`}
+                    >
+                      <img
+                        src={
+                          src.startsWith("http") || src.startsWith("blob:")
+                            ? src
+                            : `/storage/${src}`
+                        }
+                        alt={`Preview ${i + 1}`}
+                        className="d-block w-100 img-fluid rounded-3"
+                        style={{
+                          height: "400px",
+                          objectFit: "contain",
+                          objectPosition: "center",
+                        }}
+                      />
+                    </div>
+                  ))}
+                </div>
+
+                {imagePreviews.length > 1 && (
+                  <>
+                    <button
+                      className="carousel-control-prev"
+                      type="button"
+                      data-bs-target="#imagePreviewAnnouncementCreateCarousel"
+                      data-bs-slide="prev"
+                    >
+                      <span
+                        className="carousel-control-prev-icon"
+                        aria-hidden="true"
+                        style={{ filter: "invert(100%)" }}
+                      ></span>
+                      <span className="visually-hidden">Previous</span>
+                    </button>
+                    <button
+                      className="carousel-control-next"
+                      type="button"
+                      data-bs-target="#imagePreviewAnnouncementCreateCarousel"
+                      data-bs-slide="next"
+                    >
+                      <span
+                        className="carousel-control-next-icon"
+                        aria-hidden="true"
+                        style={{ filter: "invert(100%)" }}
+                      ></span>
+                      <span className="visually-hidden">Next</span>
+                    </button>
+                  </>
+                )}
+                <button
+                  type="button"
+                  className="btn btn-outline-danger btn-sm mt-2 justify-content-center d-flex w-100"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setImages([]);
+                    setImagePreviews([]);
+                  }}
+                >
+                  <i className="bi bi-trash3"></i> Clear Images
+                </button>
               </div>
             )}
           </label>

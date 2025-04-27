@@ -44,7 +44,7 @@ function AnnouncementsEdit() {
     const reader = new FileReader();
     reader.onloadend = () => {
       setImagePreviews(reader.result);
-      setImages(reader.result); 
+      setImages(reader.result);
     };
     reader.readAsDataURL(file);
   };
@@ -67,7 +67,7 @@ function AnnouncementsEdit() {
 
   const handleUpdate = async (publish) => {
     console.log("Title:", title);
-    console.log("Description:", description); 
+    console.log("Description:", description);
 
     if (!title.trim() || !description.trim()) {
       alert("Title and description are required!");
@@ -80,7 +80,7 @@ function AnnouncementsEdit() {
         description,
         images,
         status: publish ? "published" : status, // Update the status if publish is true
-      }
+      };
 
       await putData(`announcements/${id}`, payload); // PUT request with JSON payload
       showSuccessAlert("News updated successfully!");
@@ -171,20 +171,76 @@ function AnnouncementsEdit() {
               onChange={handleImageChange}
             />
             {imagePreviews.length > 0 && (
-              <div className="mt-3 w-100">
-                {imagePreviews.map((src, i) => (
-                  <img
-                    key={i}
-                    src={
-                      src.startsWith("http")
-                          ? src
-                          : `/storage/${src}`
-                    }    
-                    alt={`Preview ${i + 1}`}
-                    className="img-fluid rounded-3 mb-2"
-                    style={{ maxWidth: "100%", height: "auto" }}
-                  />
-                ))}
+              <div
+                id="imagePreviewAnnouncementEditCarousel"
+                className="carousel slide mt-3 w-100"
+                data-bs-ride="carousel"
+              >
+                <div className="carousel-inner">
+                  {imagePreviews.map((src, i) => (
+                    <div
+                      key={i}
+                      className={`carousel-item ${i === 0 ? "active" : ""}`}
+                    >
+                      <img
+                        src={
+                          src.startsWith("http") || src.startsWith("blob:")
+                            ? src
+                            : `/storage/${src}`
+                        }
+                        alt={`Preview ${i + 1}`}
+                        className="d-block w-100 img-fluid rounded-3"
+                        style={{
+                          height: "400px",
+                          objectFit: "contain",
+                          objectPosition: "center",
+                        }}
+                      />
+                    </div>
+                  ))}
+                </div>
+
+                {imagePreviews.length > 1 && (
+                  <>
+                    <button
+                      className="carousel-control-prev"
+                      type="button"
+                      data-bs-target="#imagePreviewAnnouncementEditCarousel"
+                      data-bs-slide="prev"
+                    >
+                      <span
+                        className="carousel-control-prev-icon"
+                        aria-hidden="true"
+                        style={{ filter: "invert(100%)" }}
+                      ></span>
+                      <span className="visually-hidden">Previous</span>
+                    </button>
+                    <button
+                      className="carousel-control-next"
+                      type="button"
+                      data-bs-target="#imagePreviewAnnouncementEditCarousel"
+                      data-bs-slide="next"
+                    >
+                      <span
+                        className="carousel-control-next-icon"
+                        aria-hidden="true"
+                        style={{ filter: "invert(100%)" }}
+                      ></span>
+                      <span className="visually-hidden">Next</span>
+                    </button>
+                  </>
+                )}
+                <button
+                  type="button"
+                  className="btn btn-outline-danger btn-sm mt-2 justify-content-center d-flex w-100"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setImages([]);
+                    setImagePreviews([]);
+                  }}
+                >
+                  <i className="bi bi-trash3"></i> Clear Images
+                </button>
               </div>
             )}
           </label>
@@ -200,14 +256,14 @@ function AnnouncementsEdit() {
         </button>
         <button
           className="btn btn-success fw-bold text-white px-5 py-2 mx-2"
-          onClick={() => handleUpdate(false)} 
+          onClick={() => handleUpdate(false)}
         >
           <i className="bi bi-save"></i> Update
         </button>
         {status == "draft" && (
           <button
             className="btn btn-success fw-bold text-white px-5 py-2 mx-2"
-            onClick={() => handleUpdate(true)} 
+            onClick={() => handleUpdate(true)}
           >
             <i className="bi bi-upload"></i> Publish
           </button>

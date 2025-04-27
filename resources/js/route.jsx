@@ -49,6 +49,7 @@ import ComputerServices from "./pages/user/ComputerServices";
 import PrintingServices from "./pages/user/PrintingServices";
 import OtherServices from "./pages/user/OtherServices";
 import PrintingServicesReservation from "./pages/user/PrintingServicesReservation";
+import EventsEdit from "./pages/admin/EventsEdit";
 
 function RouteConfig() {
   return (
@@ -119,6 +120,7 @@ function RouteConfig() {
         {/* Events Management Routes */}
         <Route path="/admin/events" element={<Navigate to={"manage"} />} />
         <Route path="/admin/events/manage" element={<EventsManagement />} />
+        <Route path="/admin/events/edit/:id" element={<EventsEdit />} />
         <Route path="/admin/events/create" element={<EventsCreate />} />
         <Route path="/admin/events/drafts" element={<EventsDrafts />} />
         <Route

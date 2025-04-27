@@ -114,6 +114,7 @@ const AdminHeader = () => {
                   : `/storage/${websiteInformation?.logo}`
                 : "/images/Logo.png"
             }
+            className="rounded-circle"
           />
         </div>
       </div>

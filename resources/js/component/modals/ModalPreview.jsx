@@ -39,24 +39,65 @@ function ModalPreview({
               {console.log(imagePreviews)}
 
               {imagePreviews.length > 0 && (
-                <div className="row g-3 mb-3">
-                  {imagePreviews.map((src, index) => {
-                    return (
-                      <div key={index} className="col-12 col-md-6">
-                        <figure className="mb-0">
-                          <img
-                            src={
-                              src.startsWith("http") || src.startsWith("blob:")
-                                ? src
-                                : `/storage/${src}`
-                            }
-                            alt={`Preview ${index + 1}`}
-                            className="img-fluid rounded border object-fit-contain"
-                          />
-                        </figure>
+                <div
+                  id="imagePreviewModalCarousel"
+                  className="carousel slide mt-3 w-100"
+                  data-bs-ride="carousel"
+                >
+                  <div className="carousel-inner">
+                    {imagePreviews.map((src, i) => (
+                      <div
+                        key={i}
+                        className={`carousel-item ${i === 0 ? "active" : ""}`}
+                      >
+                        <img
+                          src={
+                            src.startsWith("http") || src.startsWith("blob:")
+                              ? src
+                              : `/storage/${src}`
+                          }
+                          alt={`Preview ${i + 1}`}
+                          className="d-block w-100 img-fluid rounded-3"
+                          style={{
+                            height: "400px",
+                            objectFit: "contain", 
+                            objectPosition: "center",
+                          }}
+                        />
                       </div>
-                    );
-                  })}
+                    ))}
+                  </div>
+
+                  {imagePreviews.length > 1 && (
+                    <>
+                      <button
+                        className="carousel-control-prev"
+                        type="button"
+                        data-bs-target="#imagePreviewModalCarousel"
+                        data-bs-slide="prev"
+                      >
+                        <span
+                          className="carousel-control-prev-icon"
+                          aria-hidden="true"
+                        style={{ filter: "invert(100%)" }}
+                        ></span>
+                        <span className="visually-hidden">Previous</span>
+                      </button>
+                      <button
+                        className="carousel-control-next"
+                        type="button"
+                        data-bs-target="#imagePreviewModalCarousel"
+                        data-bs-slide="next"
+                      >
+                        <span
+                          className="carousel-control-next-icon"
+                          aria-hidden="true"
+                        style={{ filter: "invert(100%)" }}
+                        ></span>
+                        <span className="visually-hidden">Next</span>
+                      </button>
+                    </>
+                  )}
                 </div>
               )}
 

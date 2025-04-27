@@ -32,6 +32,7 @@ const TransparencyManagement = () => {
       const response = await postData(
         `/transparencies/${transparencyId}/upload`,
         formData,
+        null,
         setLoading,
         setError
       );
@@ -62,6 +63,7 @@ const TransparencyManagement = () => {
       const newCategory = await postData(
         "/transparencies",
         { category: newCategoryName },
+        null,
         setLoading,
         setError
       );

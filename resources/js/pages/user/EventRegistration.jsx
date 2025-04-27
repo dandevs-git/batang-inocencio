@@ -78,6 +78,13 @@ const EventRegistration = () => {
     });
   };
 
+  const removeMember = () => {
+    setTeamFormData((prevData) => ({
+      ...prevData,
+      members: prevData.members.slice(0, -1),
+    }));
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
     const form = e.target;
@@ -263,7 +270,15 @@ const EventRegistration = () => {
                         name="contact_number"
                         required
                         value={participantFormData.contact_number || ""}
-                        onChange={handleParticipantChange}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          if (/^\d*$/.test(value)) {
+                            if (value.length <= 11) {
+                              handleParticipantChange(e);
+                            }
+                          }
+                        }}
+                        maxLength={11}
                       />
                       <div className="invalid-feedback">
                         Please enter a valid contact number.
@@ -484,14 +499,28 @@ const EventRegistration = () => {
                       ))}
                     </div>
 
-                    <div className="col-12 d-flex">
-                      <button
-                        type="button"
-                        className="btn btn-secondary mx-auto"
-                        onClick={addMember}
-                      >
-                        Add Member
-                      </button>
+                    <div className="container d-flex justify-content-around">
+                      <div className="d-flex">
+                        <button
+                          type="button"
+                          className="btn btn-secondary mx-auto"
+                          onClick={addMember}
+                        >
+                          Add Member
+                        </button>
+                      </div>
+
+                      {teamFormData.members.length >= 1 && (
+                        <div className="d-flex">
+                          <button
+                            type="button"
+                            className="btn btn-danger mx-auto"
+                            onClick={removeMember}
+                          >
+                            Remove Member
+                          </button>
+                        </div>
+                      )}
                     </div>
 
                     <div className="col-12">

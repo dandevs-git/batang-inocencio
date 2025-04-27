@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { useAPI } from "../contexts/ApiContext";
 import TableComponent from "./TableComponent";
 import { Modal } from "bootstrap/dist/js/bootstrap.bundle.min";
 import ModalMemberPreview from "../modals/ModalMemberPreview";
 
-function MembersTable({ status, hasActions }) {
+function MembersTable({ hasActions, setFilteredMembersData }) {
   const { getData } = useAPI();
   const [membersData, setMembersData] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -16,39 +16,27 @@ function MembersTable({ status, hasActions }) {
     getData("members", setMembersData, setLoading, setError);
   }, [getData]);
 
-  const filteredMembersData = selectedArea
-    ? membersData.filter((member) => member.area === selectedArea)
-    : membersData;
+  // useMemo to compute filtered members only when necessary
+  const filteredMembers = useMemo(() => {
+    if (!selectedArea) return membersData;
+    return membersData.filter((member) => member.area === selectedArea);
+  }, [membersData, selectedArea]);
+
+  // Whenever filteredMembers changes, update parent component
+  useEffect(() => {
+    if (setFilteredMembersData) {
+      setFilteredMembersData(filteredMembers);
+    }
+  }, [filteredMembers, setFilteredMembersData]);
 
   const membersColumns = [
-    {
-      header: "#",
-      cell: ({ row }) => row.index + 1,
-    },
-    {
-      header: "First Name",
-      accessorKey: "first_name",
-    },
-    {
-      header: "Last Name",
-      accessorKey: "last_name",
-    },
-    {
-      header: "Age",
-      accessorKey: "age",
-    },
-    {
-      header: "Area",
-      accessorKey: "area",
-    },
-    {
-      header: "Email",
-      accessorKey: "masked_email",
-    },
-    {
-      header: "Contact Number",
-      accessorKey: "contact_number",
-    },
+    { header: "#", cell: ({ row }) => row.index + 1 },
+    { header: "First Name", accessorKey: "first_name" },
+    { header: "Last Name", accessorKey: "last_name" },
+    { header: "Age", accessorKey: "age" },
+    { header: "Area", accessorKey: "area" },
+    { header: "Email", accessorKey: "masked_email" },
+    { header: "Contact Number", accessorKey: "contact_number" },
   ];
 
   const actions = (id) => [
@@ -57,7 +45,7 @@ function MembersTable({ status, hasActions }) {
       onClick: () => {
         const member = membersData.find((item) => item.id === id);
         setSelectedMember(member);
-      
+
         setTimeout(() => {
           const modalElement = document.getElementById("memberPreviewModal");
           if (modalElement) {
@@ -66,7 +54,6 @@ function MembersTable({ status, hasActions }) {
           }
         }, 0);
       },
-      
       className: "btn btn-sm text-light btn-info text-nowrap",
       icon: "bi bi-eye",
     },
@@ -77,12 +64,15 @@ function MembersTable({ status, hasActions }) {
       <TableComponent
         topComponent={
           <div className="input-group mb-3" style={{ width: "300px" }}>
-            <label className="input-group-text bg-primary text-light" htmlFor="inputGroupSelect02">
+            <label
+              className="input-group-text bg-primary text-light"
+              htmlFor="inputGroupSelectArea"
+            >
               Area
             </label>
             <select
               className="form-select"
-              id="inputGroupSelect02"
+              id="inputGroupSelectArea"
               value={selectedArea}
               onChange={(e) => setSelectedArea(e.target.value)}
             >
@@ -102,7 +92,7 @@ function MembersTable({ status, hasActions }) {
         }
         title="KK Members"
         columns={membersColumns}
-        data={filteredMembersData}
+        data={filteredMembers}
         loading={loading}
         actions={hasActions ? actions : null}
       />

@@ -115,6 +115,7 @@ const AdminSidebar = ({ collapsed, setCollapsed }) => {
             alt="Logo"
             width="40"
             height="40"
+            className="rounded-circle"
           />
           {!collapsed && (
             <div className="ms-2 d-flex flex-column justify-content-center">

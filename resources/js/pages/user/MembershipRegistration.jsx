@@ -309,10 +309,7 @@ const MembershipRegistration = () => {
                     ))}
 
                     <div className="mb-3">
-                      <label
-                        className="form-label"
-                        htmlFor="suffixSelect"
-                      >
+                      <label className="form-label" htmlFor="suffixSelect">
                         Suffix
                       </label>
                       <select
@@ -386,11 +383,19 @@ const MembershipRegistration = () => {
                     <div className="mb-3">
                       <label className="form-label">Contact Number</label>
                       <input
-                        type="tel"
+                        type="number"
                         name="contact_number"
                         className="form-control"
                         value={formData.contact_number || ""}
-                        onChange={handleChange}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          if (/^\d*$/.test(value)) {
+                            if (value.length <= 11) {
+                              handleChange(e);
+                            }
+                          }
+                        }}
+                        maxLength={11}
                         required
                       />
                     </div>

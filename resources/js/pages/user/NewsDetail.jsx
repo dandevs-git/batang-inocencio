@@ -56,44 +56,85 @@ const NewsDetail = () => {
               year: "numeric",
             })}
           </p>
-
+          
           {news.images.length > 0 && (
-            <div className="row g-3 mb-3">
-              {news.images.map((src, index) => {
-                return (
-                  <div key={index} className="col-12 col-md-6">
-                    <figure className="mb-0">
+              <div
+                id="imagePreviewNewsCreateCarousel"
+                className="carousel slide mt-3 w-100"
+                data-bs-ride="carousel"
+              >
+                <div className="carousel-inner">
+                  {news.images.map((src, i) => (
+                    <div
+                      key={i}
+                      className={`carousel-item ${i === 0 ? "active" : ""}`}
+                    >
                       <img
                         src={
                           src.startsWith("http") || src.startsWith("blob:")
                             ? src
                             : `/storage/${src}`
                         }
-                        alt={`Preview ${index + 1}`}
-                        className="img-fluid rounded border object-fit-contain"
+                        alt={`Preview ${i + 1}`}
+                        className="d-block w-100 img-fluid rounded-3"
+                        style={{
+                          height: "400px",
+                          objectFit: "contain",
+                          objectPosition: "center",
+                        }}
                       />
-                    </figure>
-                  </div>
-                );
-              })}
-            </div>
-          )}
+                    </div>
+                  ))}
+                </div>
 
-          <div className="fs-3 mt-3">
+                {news.images.length > 1 && (
+                  <>
+                    <button
+                      className="carousel-control-prev"
+                      type="button"
+                      data-bs-target="#imagePreviewNewsCreateCarousel"
+                      data-bs-slide="prev"
+                    >
+                      <span
+                        className="carousel-control-prev-icon"
+                        aria-hidden="true"
+                        style={{ filter: "invert(100%)" }}
+                      ></span>
+                      <span className="visually-hidden">Previous</span>
+                    </button>
+                    <button
+                      className="carousel-control-next"
+                      type="button"
+                      data-bs-target="#imagePreviewNewsCreateCarousel"
+                      data-bs-slide="next"
+                    >
+                      <span
+                        className="carousel-control-next-icon"
+                        aria-hidden="true"
+                        style={{ filter: "invert(100%)" }}
+                      ></span>
+                      <span className="visually-hidden">Next</span>
+                    </button>
+                  </>
+                )}
+              </div>
+            )}
+
+          <div className="fs-3 mt-3 d-flex gap-2">
             <Link
-              to={"#"}
+              to={"https://www.facebook.com/profile.php?id=61553280974578"}
               className="bi bi-facebook"
               style={{ color: "#1877F2" }}
               aria-label="Share on Facebook"
             ></Link>
             <Link
-              to={"#"}
+              to={"https://www.instagram.com/"}
               className="bi bi-instagram"
               style={{ color: "#E4405F" }}
               aria-label="Share on Instagram"
             ></Link>
             <Link
-              to={"#"}
+              to={"https://x.com/"}
               className="bi bi-twitter"
               style={{ color: "#1DA1F2" }}
               aria-label="Share on Twitter"

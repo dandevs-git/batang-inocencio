@@ -77,7 +77,7 @@ function About() {
                   style={{
                     width: "150px",
                     height: "200px",
-                    objectFit: "cover",
+                    objectFit: "contain",
                   }}
                   alt={settings.name}
                 />
@@ -114,7 +114,7 @@ function About() {
                       style={{
                         width: "130px",
                         height: "160px",
-                        objectFit: "cover",
+                        objectFit: "contain",
                       }}
                       alt={member.name}
                     />

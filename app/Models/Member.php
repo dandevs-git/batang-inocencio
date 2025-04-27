@@ -40,7 +40,7 @@ class Member extends Model
     ];
 
     protected $appends = ['masked_email'];
-    protected $hidden = ['email'];
+    // protected $hidden = ['email'];
 
     public function getMaskedEmailAttribute()
     {

@@ -70,9 +70,9 @@ function Header() {
                   : "/images/Logo.png"
               }
               alt="Logo"
-              width="110"
+              width="100"
               height="100"
-              className="object-fit-contain"
+              className="object-fit-contain rounded-circle"
             />
             <div className="text-light ms-3">
               <h1 className="m-0 fw-bold">

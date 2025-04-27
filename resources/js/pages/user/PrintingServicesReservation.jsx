@@ -176,7 +176,15 @@ function PrintingServicesReservation() {
                     type="tel"
                     className="form-control"
                     value={formData.contact_number}
-                    onChange={handleChange}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      if (/^\d*$/.test(value)) {
+                        if (value.length <= 11) {
+                          handleChange(e);
+                        }
+                      }
+                    }}
+                    maxLength={11}
                     required
                   />
                 </div>

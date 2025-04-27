@@ -60,7 +60,7 @@ function Footer() {
                   : "/images/Logo.png"
               }
               alt="Logo"
-              className="img-fluid"
+              className="img-fluid rounded-circle"
             />
           </div>
 

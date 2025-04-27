@@ -1,17 +1,18 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Breadcrumb from "../../component/ui/Breadcrumb";
 import { Modal } from "bootstrap/dist/js/bootstrap.bundle.min";
 import { useAPI } from "../../component/contexts/ApiContext";
 import ModalConfirmPublish from "../../component/modals/ModalConfirmPublish";
 import ModalDiscard from "../../component/modals/ModalDiscard";
 import ModalPreview from "../../component/modals/ModalPreview";
+import { useParams } from "react-router-dom";
 
 function EventsEdit() {
-  const { postData } = useAPI();
+  const { postData, getData } = useAPI();
+  const { id } = useParams(); // Using object destructuring for id
   const [loading, setLoading] = useState(false);
   const [image, setImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
-
   const [eventDetails, setEventDetails] = useState({
     title: "",
     date: "",
@@ -27,20 +28,40 @@ function EventsEdit() {
     number_of_participants: "",
     image: "",
   });
-
   const [formValid, setFormValid] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
   const [showAlert, setShowAlert] = useState(false);
 
   const currentDate = new Date().toLocaleDateString();
 
-  const titleCount = `${eventDetails.title.length}/100 characters`;
-  const descriptionCount = `${eventDetails.description.length}/2000 characters`;
+  // Fetch event details on component mount
+  useEffect(() => {
+    const fetchEvent = async () => {
+      setLoading(true);
+      try {
+        const res = await getData(`events/${id}`);
+        setEventDetails(res);
+        setImagePreview(res.images || []);
+      } catch (error) {
+        console.error("Failed to fetch event data", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    if (id) {
+      fetchEvent();
+    }
+  }, [id, getData]);
 
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
 
+  const formatDate = (date) => {
+    return date ? date.split("T")[0] : "";
+  };
+  
+  const titleCount = eventDetails.title.length;
+  const descriptionCount = eventDetails.description.length;
+
+  const handleImageChange = (file) => {
     const maxSizeMB = 5;
     const maxSizeBytes = maxSizeMB * 1024 * 1024;
 
@@ -52,7 +73,7 @@ function EventsEdit() {
     const reader = new FileReader();
     reader.onloadend = () => {
       setImage(file);
-      setImagePreview(reader.result);
+      setImagePreview([reader.result]);
     };
     reader.readAsDataURL(file);
   };
@@ -69,27 +90,11 @@ function EventsEdit() {
     const form = document.querySelector(".needs-validation");
     const isValid =
       form.checkValidity() &&
-      eventDetails.title.trim() !== "" &&
-      eventDetails.date.trim() !== "" &&
-      eventDetails.location.trim() !== "" &&
-      eventDetails.event_organizer.trim() !== "" &&
-      eventDetails.registration_start_date.trim() !== "" &&
-      eventDetails.registration_end_date.trim() !== "" &&
-      eventDetails.event_type.trim() !== "" &&
-      eventDetails.description.trim() !== "" &&
-      eventDetails.contact_number.trim() !== "" &&
-      eventDetails.number_of_participants.trim() !== "" &&
-      image !== null;
+      Object.values(eventDetails).every((val) => val.trim() !== "") &&
+      image;
 
     setFormValid(isValid);
     form.classList.add("was-validated");
-
-    if (!image) {
-      const imageInput = document.querySelector(
-        '.upload-label input[type="file"]'
-      );
-      if (imageInput) imageInput.classList.add("is-invalid");
-    }
 
     if (isValid) {
       new Modal(document.getElementById("previewModal")).show();
@@ -117,7 +122,7 @@ function EventsEdit() {
       image: "",
     });
     setImage(null);
-    setImagePreview(null);
+    setImagePreview([]);
     setFormValid(false);
   };
 
@@ -172,9 +177,9 @@ function EventsEdit() {
     <>
       <Breadcrumb />
       <div className="mb-4 border-bottom pb-3">
-        <h4 className="fw-bold">Create New Event</h4>
+        <h4 className="fw-bold">Edit Event</h4>
         <p className="text-muted m-0">
-          Fill in the details below to create a new event.
+          Update the details below for this event.
         </p>
       </div>
 
@@ -232,7 +237,7 @@ function EventsEdit() {
               className="form-control"
               id="date"
               name="date"
-              value={eventDetails.date}
+              value={formatDate(eventDetails?.date)}
               onChange={handleInputChange}
               required
               aria-describedby="eventDateHelp"
@@ -285,7 +290,7 @@ function EventsEdit() {
                   className="form-control"
                   id="registration_start_date"
                   name="registration_start_date"
-                  value={eventDetails.registration_start_date}
+                  value={formatDate(eventDetails.registration_start_date)}
                   onChange={handleInputChange}
                   required
                 />
@@ -302,7 +307,7 @@ function EventsEdit() {
                   className="form-control"
                   id="registration_end_date"
                   name="registration_end_date"
-                  value={eventDetails.registration_end_date}
+                  value={formatDate(eventDetails.registration_end_date)}
                   onChange={handleInputChange}
                   required
                 />
@@ -385,7 +390,15 @@ function EventsEdit() {
               id="contact_number"
               name="contact_number"
               value={eventDetails.contact_number}
-              onChange={handleInputChange}
+              onChange={(e) => {
+                const value = e.target.value;
+                if (/^\d*$/.test(value)) {
+                  if (value.length <= 11) {
+                    handleInputChange(e);
+                  }
+                }
+              }}
+              maxLength={11}
               placeholder="Enter contact number"
               required
               aria-describedby="contactHelp"
@@ -425,23 +438,86 @@ function EventsEdit() {
             <input
               type="file"
               className={`d-none form-control ${
-                formValid && !imagePreview ? "is-invalid" : ""
+                formValid && !imagePreview.length ? "is-invalid" : ""
               }`}
               accept="image/*"
               onChange={handleImageChange}
+              aria-describedby="imageUploadHelp"
             />
-            {imagePreview && (
-              <div className="mt-3 border rounded-3 shadow">
-                <img
-                  src={
-                    imagePreview.startsWith("http") || imagePreview.startsWith("blob:")
-                      ? imagePreview
-                      : `/storage/${imagePreview}`
-                  }
-                  alt="Preview"
-                  className="img-fluid rounded-3"
-                  style={{ maxWidth: "100%", height: "auto" }}
-                />
+            <small id="imageUploadHelp" className="form-text text-muted">
+              Image size should be under 5MB.
+            </small>
+            {imagePreview?.length > 0 && (
+              <div
+                id="imagePreviewAnnouncementEditCarousel"
+                className="carousel slide mt-3 w-100"
+                data-bs-ride="carousel"
+              >
+                <div className="carousel-inner">
+                  {imagePreview.map((src, i) => (
+                    <div
+                      key={i}
+                      className={`carousel-item ${i === 0 ? "active" : ""}`}
+                    >
+                      <img
+                        src={
+                          src.startsWith("http") || src.startsWith("blob:")
+                            ? src
+                            : `/storage/${src}`
+                        }
+                        alt={`Preview ${i + 1}`}
+                        className="d-block w-100 img-fluid rounded-3"
+                        style={{
+                          height: "400px",
+                          objectFit: "contain",
+                          objectPosition: "center",
+                        }}
+                      />
+                    </div>
+                  ))}
+                </div>
+
+                {imagePreview.length > 1 && (
+                  <>
+                    <button
+                      className="carousel-control-prev"
+                      type="button"
+                      data-bs-target="#imagePreviewAnnouncementEditCarousel"
+                      data-bs-slide="prev"
+                    >
+                      <span
+                        className="carousel-control-prev-icon"
+                        aria-hidden="true"
+                        style={{ filter: "invert(100%)" }}
+                      ></span>
+                      <span className="visually-hidden">Previous</span>
+                    </button>
+                    <button
+                      className="carousel-control-next"
+                      type="button"
+                      data-bs-target="#imagePreviewAnnouncementEditCarousel"
+                      data-bs-slide="next"
+                    >
+                      <span
+                        className="carousel-control-next-icon"
+                        aria-hidden="true"
+                        style={{ filter: "invert(100%)" }}
+                      ></span>
+                      <span className="visually-hidden">Next</span>
+                    </button>
+                  </>
+                )}
+                <button
+                  type="button"
+                  className="btn btn-outline-danger btn-sm mt-2 justify-content-center d-flex w-100"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setImage([]);
+                    setImagePreview([]);
+                  }}
+                >
+                  <i className="bi bi-trash3"></i> Clear Images
+                </button>
               </div>
             )}
             <div className="invalid-feedback">
@@ -454,7 +530,9 @@ function EventsEdit() {
       <div className="d-flex justify-content-end mt-4">
         <button
           className="btn btn-danger fw-bold px-5 py-2"
-          onClick={handleDiscard}
+          onClick={() =>
+            new Modal(document.getElementById("discardModal")).show()
+          }
         >
           <i className="bi bi-x-circle"></i> Discard
         </button>

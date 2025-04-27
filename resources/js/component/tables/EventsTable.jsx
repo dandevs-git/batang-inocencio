@@ -2,28 +2,35 @@ import React, { useEffect, useState } from "react";
 import { useAPI } from "../contexts/ApiContext";
 import TableComponent from "./TableComponent";
 import ModalPreview from "../modals/ModalPreview";
+import { Modal } from "bootstrap/dist/js/bootstrap.bundle.min";
 
 function EventsTable({ status, hasActions }) {
   const { getData, postData, putData, deleteData } = useAPI();
   const [eventsData, setEventsData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState();
+  const [selectedEvent, setSelectedEvent] = useState(null); // For selected event
+  const [formattedDate, setFormattedDate] = useState(""); // For formatted date
 
   useEffect(() => {
     getData("events", setEventsData, setLoading, setError);
   }, [getData]);
 
-  // const filteredEventsData = status
-  // ? eventsData.filter((eventssItem) => eventssItem.status === status)
-  // : eventsData;
+  const filteredEventsData = status
+    ? eventsData.filter((event) => event.status === status)
+    : eventsData;
 
   const actions = (eventId) => [
     {
       label: "View",
-      href: `/events/show/${eventId}`,
+      onClick: () => {
+        const eventItem = eventsData.find((item) => item.id === eventId); 
+        setSelectedEvent(eventItem);
+        const modal = new Modal(document.getElementById("previewModal"));
+        modal.show();
+      },
       className: "btn btn-sm text-light btn-info text-nowrap",
       icon: "bi bi-eye",
-      "data-bs-target": "viewDetailsModal"
     },
     {
       label: "Edit",
@@ -48,7 +55,7 @@ function EventsTable({ status, hasActions }) {
       cell: ({ getValue }) => {
         const rawDate = getValue();
         const date = new Date(rawDate);
-        return date.toLocaleString("en-US", {
+        const formatted = date.toLocaleString("en-US", {
           month: "long",
           day: "numeric",
           year: "numeric",
@@ -56,6 +63,8 @@ function EventsTable({ status, hasActions }) {
           minute: "2-digit",
           hour12: true,
         });
+        setFormattedDate(formatted); // Set formatted date
+        return formatted;
       },
     },
     {
@@ -76,12 +85,17 @@ function EventsTable({ status, hasActions }) {
   return (
     <>
       <ModalPreview
-        id="viewDetailsModal"
+        header="Preview Event"
+        id="previewModal"
+        title={selectedEvent?.title}
+        description={selectedEvent?.description}
+        imagePreviews={selectedEvent?.images}
+        currentDate={formattedDate} // Pass the formatted date
       />
       <TableComponent
         title={"Events"}
         columns={eventsColumns}
-        data={eventsData}
+        data={filteredEventsData} // Use filtered data
         loading={loading}
         actions={hasActions ? actions : null}
       />

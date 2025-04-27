@@ -188,7 +188,7 @@ function VolunteerManagementServiceForm() {
                 <label className="form-label">Contact Person</label>
                 <input
                   name="contact_person"
-                  type="text"
+                  type="number"
                   className="form-control"
                   value={formData.contact_person}
                   onChange={handleChange}
