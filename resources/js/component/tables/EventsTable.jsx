@@ -9,8 +9,8 @@ function EventsTable({ status, hasActions }) {
   const [eventsData, setEventsData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState();
-  const [selectedEvent, setSelectedEvent] = useState(null); // For selected event
-  const [formattedDate, setFormattedDate] = useState(""); // For formatted date
+  const [selectedEvent, setSelectedEvent] = useState(null); 
+  const [formattedDate, setFormattedDate] = useState(""); 
 
   useEffect(() => {
     getData("events", setEventsData, setLoading, setError);
@@ -63,7 +63,7 @@ function EventsTable({ status, hasActions }) {
           minute: "2-digit",
           hour12: true,
         });
-        setFormattedDate(formatted); // Set formatted date
+        setFormattedDate(formatted); 
         return formatted;
       },
     },
@@ -90,7 +90,7 @@ function EventsTable({ status, hasActions }) {
         title={selectedEvent?.title}
         description={selectedEvent?.description}
         imagePreviews={selectedEvent?.images}
-        currentDate={formattedDate} // Pass the formatted date
+        currentDate={formattedDate} 
       />
       <TableComponent
         title={"Events"}
