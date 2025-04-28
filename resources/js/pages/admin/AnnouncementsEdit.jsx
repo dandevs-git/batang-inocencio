@@ -17,7 +17,7 @@ function AnnouncementsEdit() {
   const [formValid, setFormValid] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
   const [showAlert, setShowAlert] = useState(false);
-  const [status, setStatus] = useState(""); // add this line
+  const [status, setStatus] = useState(""); 
 
   useEffect(() => {
     const fetchNews = async () => {
@@ -26,7 +26,7 @@ function AnnouncementsEdit() {
         setTitle(res.title);
         setDescription(res.description);
         setImagePreviews(res.images);
-        setStatus(res.status); // assuming API returns 'draft' or 'published'
+        setStatus(res.status); 
       } catch (error) {
         console.error("Failed to fetch announcements data", error);
       }
@@ -79,10 +79,10 @@ function AnnouncementsEdit() {
         title,
         description,
         images,
-        status: publish ? "published" : status, // Update the status if publish is true
+        status: publish ? "published" : status, 
       };
 
-      await putData(`announcements/${id}`, payload); // PUT request with JSON payload
+      await putData(`announcements/${id}`, payload); 
       showSuccessAlert("News updated successfully!");
       setTimeout(() => navigate("/admin/announcements"), 2000);
     } catch (error) {

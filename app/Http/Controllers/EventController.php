@@ -40,7 +40,6 @@ class EventController extends Controller
 
     public function store(Request $request)
     {
-        // Validate request data
         $validated = $request->validate([
             'title' => 'required|string|max:100',
             'date' => 'required|date',
@@ -58,7 +57,6 @@ class EventController extends Controller
             'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5048',
         ]);
 
-        // Handle image uploads
         $imagePaths = [];
         if ($request->hasFile('images')) {
             foreach ($request->file('images') as $image) {

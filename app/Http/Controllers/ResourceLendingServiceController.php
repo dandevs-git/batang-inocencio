@@ -7,13 +7,11 @@ use Illuminate\Http\Request;
 
 class ResourceLendingServiceController extends Controller
 {
-    // Display a listing of resources
     public function index()
     {
         return response()->json(ResourceLendingService::all());
     }
 
-    // Store a newly created resource
     public function store(Request $request)
     {
         $request->validate([
@@ -38,14 +36,12 @@ class ResourceLendingServiceController extends Controller
         return response()->json($resourceLendingService, 201);
     }
 
-    // Display the specified resource
     public function show($id)
     {
         $resourceLendingService = ResourceLendingService::findOrFail($id);
         return response()->json($resourceLendingService);
     }
 
-    // Update the specified resource
     public function update(Request $request, $id)
     {
         $request->validate([
@@ -71,7 +67,6 @@ class ResourceLendingServiceController extends Controller
         return response()->json($resourceLendingService);
     }
 
-    // Remove the specified resource
     public function destroy($id)
     {
         $resourceLendingService = ResourceLendingService::findOrFail($id);

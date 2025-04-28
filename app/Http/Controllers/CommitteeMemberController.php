@@ -10,7 +10,6 @@ class CommitteeMemberController extends Controller
 {
     public function index()
     {
-        // Include setting data with each committee member (eager loading)
         return response()->json(CommitteeMember::with('setting')->get());
     }
 

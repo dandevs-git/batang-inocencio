@@ -13,6 +13,7 @@ function ComputerRentCalendar() {
   const [reservationTimes, setReservationTimes] = useState([]);
   const [selectedPC, setSelectedPC] = useState(null);
   const [allPCs, setAllPCs] = useState([]);
+  const [isMakingReservation, setIsMakingReservation] = useState(false);
   const [formData, setFormData] = useState({
     pc_number: "",
     time_range: "",
@@ -90,15 +91,45 @@ function ComputerRentCalendar() {
     ).show();
   };
 
-  const handleOpenModal = () => {
-    Modal.getOrCreateInstance(
-      document.getElementById("reservationModal")
-    ).show();
+  const handleMarkReservation = () => {
+    setFormData({
+      pc_number: "",
+      time_range: "",
+      name: "",
+      address: "",
+      email: "",
+      contact: "",
+      reservation_code: "",
+    });
+    setIsMakingReservation(true);
+    const reservationForm = document.getElementById("reservation-form");
+    if (reservationForm) {
+      reservationForm.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }
   };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSlotClick = (slot) => {
+    setFormData((prev) => ({
+      ...prev,
+      pc_number: selectedPC?.id || "",
+      time_range: slot.slot,
+    }));
+
+    Modal.getOrCreateInstance(
+      document.getElementById("reservationModal")
+    ).show();
+
+    Modal.getOrCreateInstance(
+      document.getElementById("availableReservationModal")
+    ).hide();
   };
 
   const handleSubmit = async (e) => {
@@ -159,7 +190,6 @@ function ComputerRentCalendar() {
 
   return (
     <>
-      {/* Calendar View */}
       <div className="row g-4">
         <div className="col-lg-8">
           <div className="card rounded-4 shadow-lg border-0 h-100">
@@ -179,9 +209,8 @@ function ComputerRentCalendar() {
           </div>
         </div>
 
-        {/* PC Availability */}
         <div className="col-lg-4">
-          <div className="card rounded-4 shadow-lg border-0 h-100">
+          <div className="card rounded-4 shadow-lg border-0">
             <div className="card-header bg-primary text-white text-center rounded-top-4">
               <h4 className="mb-0 fw-semibold">
                 {value.toLocaleDateString("en-US", {
@@ -193,35 +222,9 @@ function ComputerRentCalendar() {
               </h4>
             </div>
             <div className="card-body p-4 d-flex flex-column justify-content-between">
-              <ul className="list-group list-group-flush flex-grow-1 mb-3">
-                {filteredPCs.length === 0 ? (
-                  <li className="list-group-item text-center text-muted fst-italic">
-                    <i className="bi bi-info-circle me-2" />
-                    No PCs available.
-                  </li>
-                ) : (
-                  filteredPCs.map((pc, index) => (
-                    <li
-                      key={index}
-                      className="list-group-item d-flex justify-content-between align-items-center px-3 py-2"
-                    >
-                      <span className="fw-semibold">
-                        {pc.name || `PC ${pc.id}`}
-                      </span>
-                      <span
-                        className={`badge ${
-                          pc.status === "full" ? "bg-danger" : "bg-success"
-                        }`}
-                      >
-                        {pc.status === "full" ? "Full Slot" : "Available"}
-                      </span>
-                    </li>
-                  ))
-                )}
-              </ul>
               <button
                 className="btn btn-outline-primary w-100 fw-bold"
-                onClick={handleOpenModal}
+                onClick={handleMarkReservation}
               >
                 <i className="bi bi-check-circle me-2" />
                 Mark Reservation
@@ -232,36 +235,182 @@ function ComputerRentCalendar() {
       </div>
 
       <div className="container mt-5 pb-5">
-        <div className="row g-4 justify-content-center">
-          {filteredPCs.map((pc, index) => (
-            <div
-              key={index}
-              className="col-12 col-sm-6 col-md-4 col-lg-3"
-              onClick={() => handleCardClick(pc)}
-              style={{ cursor: "pointer" }}
-            >
-              <div className="card text-center shadow-lg border-0 rounded-4 h-100 hover-shadow">
-                <div className="card-body d-flex flex-column align-items-center justify-content-center p-4">
-                  <i
-                    className={`bi bi-pc-display display-3 mb-3 ${
-                      pc.status === "full" ? "text-danger" : "text-success"
-                    }`}
-                  ></i>
-                  <h5 className="card-title fw-semibold mb-2">{pc.name}</h5>
-                  <span
-                    className={`badge rounded-pill fs-6 px-3 py-2 ${
-                      pc.status === "full"
-                        ? "bg-danger-subtle text-danger"
-                        : "bg-success-subtle text-success"
-                    }`}
-                  >
-                    {pc.status === "full" ? "Full Slot" : "Available"}
-                  </span>
+        {!isMakingReservation && (
+          <div className="row g-4 justify-content-center">
+            {filteredPCs.map((pc, index) => (
+              <div
+                key={index}
+                className="col-12 col-sm-6 col-md-4 col-lg-3"
+                onClick={() => handleCardClick(pc)}
+                style={{ cursor: "pointer" }}
+              >
+                <div className="card text-center shadow-lg border-0 rounded-4 h-100 hover-shadow">
+                  <div className="card-body d-flex flex-column align-items-center justify-content-center p-4">
+                    <i
+                      className={`bi bi-pc-display display-3 mb-3 ${
+                        pc.status === "full" ? "text-danger" : "text-success"
+                      }`}
+                    ></i>
+                    <h5 className="card-title fw-semibold mb-2">{pc.name}</h5>
+                    <span
+                      className={`badge rounded-pill fs-6 px-3 py-2 ${
+                        pc.status === "full"
+                          ? "bg-danger-subtle text-danger"
+                          : "bg-success-subtle text-success"
+                      }`}
+                    >
+                      {pc.status === "full" ? "Full Slot" : "Available"}
+                    </span>
+                  </div>
                 </div>
               </div>
+            ))}
+          </div>
+        )}
+
+        {isMakingReservation && (
+          <div className="d-flex flex-column container w-75 border p-4 rounded-4 shadow-lg">
+            <div className="d-flex justify-content-center align-items-center">
+              <h5 className="mb-0">
+                Make Reservation for{" "}
+                {value.toLocaleDateString("en-US", {
+                  weekday: "long",
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                })}
+              </h5>
             </div>
-          ))}
-        </div>
+
+            <div className="">
+              {error && (
+                <div className="alert alert-danger">
+                  {typeof error === "string" ? error : "An error occurred."}
+                </div>
+              )}
+
+              <form
+                className="needs-validation"
+                ref={formRef}
+                noValidate
+                onSubmit={handleSubmit}
+                id="reservation-form"
+              >
+                <div className="row mb-3">
+                  <div className="col-md-12">
+                    <label className="form-label">PC Number</label>
+                    <select
+                      className="form-select"
+                      name="pc_number"
+                      value={formData.pc_number}
+                      onChange={handleInputChange}
+                      required
+                    >
+                      <option value="">-- Select PC --</option>
+                      {filteredPCs.map((pc, index) => {
+                        const isPCFullyBooked = pc.status === "full";
+
+                        return (
+                          <option
+                            key={index}
+                            value={pc.id}
+                            disabled={isPCFullyBooked}
+                          >
+                            {pc.name || `PC ${pc.id}`}{" "}
+                            {isPCFullyBooked && "(Fully Booked)"}
+                          </option>
+                        );
+                      })}
+                    </select>
+                    <div className="invalid-feedback">Please select a PC.</div>
+                  </div>
+                </div>
+                {formData.pc_number ? (
+                  <div className="row mb-3">
+                    <div className="col-md-12">
+                      <label className="form-label">Time Range</label>
+                      <select
+                        className="form-select"
+                        name="time_range"
+                        value={formData.time_range}
+                        onChange={handleInputChange}
+                        required
+                      >
+                        <option className="text-dark" value="">
+                          -- Select Time --
+                        </option>
+                        {timeOptions.map((range, index) => {
+                          const isReserved = reservations.some(
+                            (res) =>
+                              res.pc_number === formData.pc_number &&
+                              res.reservation_date ===
+                                value.toLocaleDateString("en-CA") &&
+                              res.time_range === range.slot
+                          );
+
+                          return (
+                            <option
+                              key={index}
+                              value={range.slot}
+                              disabled={isReserved}
+                            >
+                              {range.slot} {isReserved ? "(Reserved)" : ""}
+                            </option>
+                          );
+                        })}
+                      </select>
+                      <div className="invalid-feedback">
+                        Please select a time range.
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  ""
+                )}
+
+                {formData.time_range ? (
+                  <>
+                    {["name", "address", "email", "contact"].map(
+                      (field, index) => (
+                        <div className="mb-3" key={index}>
+                          <label className="form-label">
+                            {field === "contact"
+                              ? "Contact Number"
+                              : field.charAt(0).toUpperCase() + field.slice(1)}
+                          </label>
+                          <input
+                            type={field === "email" ? "email" : "text"}
+                            className="form-control"
+                            name={field}
+                            value={formData[field]}
+                            onChange={handleInputChange}
+                            required
+                          />
+                          <div className="invalid-feedback">
+                            Please enter a valid{" "}
+                            {field === "contact" ? "contact number" : field}.
+                          </div>
+                        </div>
+                      )
+                    )}
+
+                    <div className="d-flex">
+                      <button
+                        type="submit"
+                        className="btn btn-primary w-100"
+                        disabled={loading}
+                      >
+                        {loading ? "Submitting..." : "Reserve"}
+                      </button>
+                    </div>
+                  </>
+                ) : (
+                  ""
+                )}
+              </form>
+            </div>
+          </div>
+        )}
       </div>
 
       <div
@@ -301,7 +450,15 @@ function ComputerRentCalendar() {
                         slot.reserved
                           ? "list-group-item-danger"
                           : "list-group-item-success"
-                      }`}
+                      } ${!slot.reserved ? "clickable" : ""}`}
+                      style={{
+                        cursor: !slot.reserved ? "pointer" : "not-allowed",
+                      }}
+                      onClick={() => {
+                        if (!slot.reserved) {
+                          handleSlotClick(slot);
+                        }
+                      }}
                     >
                       {slot.slot}
                       <span
@@ -320,7 +477,6 @@ function ComputerRentCalendar() {
         </div>
       </div>
 
-      {/* Modal */}
       <div
         className="modal fade"
         id="reservationModal"
@@ -370,12 +526,13 @@ function ComputerRentCalendar() {
                       name="pc_number"
                       value={formData.pc_number}
                       onChange={handleInputChange}
+                      disabled
                       required
                     >
                       <option value="">-- Select PC --</option>
                       {filteredPCs.map((pc, index) => (
-                        <option key={index} value={pc?.id}>
-                          {pc.name || pc}
+                        <option key={index} value={pc.id}>
+                          {pc.name || `PC ${pc.id}`}
                         </option>
                       ))}
                     </select>
@@ -388,31 +545,20 @@ function ComputerRentCalendar() {
                       name="time_range"
                       value={formData.time_range}
                       onChange={handleInputChange}
+                      disabled
                       required
                     >
-                      <option className="text-dark" value="">
-                        -- Select Time --
-                      </option>
-                      {timeOptions.map((range, index) => {
-                        const isReserved = reservations.some(
-                          (res) =>
-                            res.pc_number === formData.pc_number &&
-                            res.reservation_date ===
-                              value.toLocaleDateString("en-CA") &&
-                            res.time_range === range.slot
-                        );
-
-                        return (
-                          <option
-                            key={index}
-                            value={range.slot}
-                            disabled={isReserved}
-                          >
-                            {range.slot} {isReserved ? "(Reserved)" : ""}
-                          </option>
-                        );
-                      })}
+                      <option value="">-- Select Time Slot --</option>
+                      {timeOptions.map((option, index) => (
+                        <option key={index} value={option.slot}>
+                          {option.slot}
+                        </option>
+                      ))}
                     </select>
+                    <div className="invalid-feedback">
+                      Please select a Time Slot.
+                    </div>
+
                     <div className="invalid-feedback">
                       Please select a time range.
                     </div>

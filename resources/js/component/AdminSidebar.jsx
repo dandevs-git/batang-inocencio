@@ -145,9 +145,10 @@ const AdminSidebar = ({ collapsed, setCollapsed }) => {
             {pages
               .filter(
                 (page) =>
-                  page.page !== "Logout" &&
-                  !page.link.includes("/admin/events") &&
-                  !page.link.includes("/admin/services")
+                  page.link.includes("/admin/dashboard") ||
+                  page.link.includes("/admin/membership") ||
+                  page.link.includes("/admin/news") ||
+                  page.link.includes("/admin/announcements")
               )
               .map((page) => (
                 <li className="nav-item text-start" key={page.link}>
@@ -260,6 +261,30 @@ const AdminSidebar = ({ collapsed, setCollapsed }) => {
                   ))}
               </ul>
             </li>
+
+            {pages
+              .filter(
+                (page) =>
+                  page.link.includes("/admin/transparency") ||
+                  page.link.includes("/admin/settings")
+              )
+              .map((page) => (
+                <li className="nav-item text-start" key={page.link}>
+                  <Link
+                    to={page.link}
+                    className={`nav-link text-light ${
+                      location.pathname.startsWith(page.link)
+                        ? "active fw-bold"
+                        : ""
+                    }`}
+                  >
+                    <i className={`${page.icon} me-3`}></i>
+                    <span className={`${collapsed ? "d-none" : "d-inline"}`}>
+                      {page.page}
+                    </span>
+                  </Link>
+                </li>
+              ))}
 
             <li className="nav-item mt-auto">
               <button

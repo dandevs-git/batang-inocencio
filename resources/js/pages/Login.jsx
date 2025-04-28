@@ -12,7 +12,7 @@ function Login() {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    setLoading(true); // Start loading
+    setLoading(true);
     setErrorMsg(null);
     try {
       const response = await api.post("login", {
@@ -26,7 +26,7 @@ function Login() {
         error?.response?.data?.message || "Login failed. Please try again."
       );
     } finally {
-      setLoading(false); // Stop loading
+      setLoading(false);
     }
   };
 

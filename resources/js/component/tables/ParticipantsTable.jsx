@@ -2,39 +2,49 @@ import React, { useEffect, useState } from "react";
 import { useAPI } from "../contexts/ApiContext";
 import TableComponent from "./TableComponent";
 import ModalPreview from "../modals/ModalPreview";
-import { Modal } from "bootstrap/dist/js/bootstrap.bundle.min";
 
-function ParticipantsTable({ eventId, status, hasActions }) {
+function ParticipantsTable({
+  eventName,
+  eventId,
+  hasActions,
+  registrationType,
+}) {
   const { getData } = useAPI();
-  const [participantsData, setParticipantsData] = useState([]);
+  const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [selectedParticipant, setSelectedParticipant] = useState(null);
-  const [showModal, setShowModal] = useState(false); // To control modal visibility
+  const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
-    // Fetch participants for the selected event
-    getData(
-      `participants${eventId}`,
-      setParticipantsData,
-      setLoading,
-      setError
-    );
-  }, [getData, eventId]);
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const endpoint =
+          registrationType === "individual" ? `participants` : `teams`;
+        await getData(endpoint, setData, setLoading, setError);
+      } catch (err) {
+        setError("Error fetching data");
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, [getData, eventId, registrationType]);
 
-  // Filter participants data if status is provided
-  const filteredParticipantsData = status
-    ? participantsData.filter((participant) => participant.status === status)
-    : participantsData;
+  const filteredData = eventId
+    ? data.filter((item) => item.event_id === eventId)
+    : data;
+  
+  console.log(filteredData);
+  
 
-  // Actions array for buttons (view, edit)
   const actions = (id) => [
     {
       label: "View",
       onClick: () => {
-        const participant = participantsData.find((item) => item.id === id);
+        const participant = data.find((item) => item.id === id);
         setSelectedParticipant(participant);
-        setShowModal(true); // Open the modal
+        setShowModal(true);
       },
       className: "btn btn-sm text-light btn-info text-nowrap",
       icon: "bi bi-eye",
@@ -47,53 +57,46 @@ function ParticipantsTable({ eventId, status, hasActions }) {
     },
   ];
 
-  // Participant columns configuration
-  const participantsColumns = [
-    {
-      header: "#",
-      cell: ({ row }) => row.index + 1,
-    },
+  const participantColumns = [
+    { header: "#", cell: ({ row }) => row.index + 1 },
     {
       header: "Name",
       accessorKey: "name",
+      cell: ({ row }) => `${row.original.first_name} ${row.original.last_name}`,
     },
+    { header: "Email", accessorKey: "email" },
+    { header: "Contact Number", accessorKey: "contact_number" }
+  ];
+
+  const teamColumns = [
+    { header: "#", cell: ({ row }) => row.index + 1 },
+    { header: "Team Name", accessorKey: "team_name" },
+    { header: "Leader Name", accessorKey: "leader.name" },
+    { header: "Leader Age", accessorKey: "leader.age" },
+    { header: "Leader Contact", accessorKey: "leader.contact" },
+    { header: "Leader Email", accessorKey: "leader.email" },
     {
-      header: "Email",
-      accessorKey: "email",
-    },
-    {
-      header: "Status",
-      accessorKey: "status",
-      cell: ({ getValue }) => {
-        const status = getValue();
-        if (status === "active") {
-          return <span className="badge bg-success">Active</span>;
-        } else if (status === "inactive") {
-          return <span className="badge bg-warning">Inactive</span>;
-        }
-        return null;
-      },
+      header: "Members Count",
+      cell: ({ row }) =>
+        row.original.members ? row.original.members.length : 0,
     },
   ];
 
-  const formattedDate =
-    selectedParticipant?.updated_at &&
-    new Date(selectedParticipant.updated_at).toLocaleDateString("en-US", {
+  const formatDate = (date) =>
+    new Date(date).toLocaleDateString("en-US", {
       weekday: "long",
       year: "numeric",
       month: "long",
       day: "numeric",
     });
 
-  // Close the modal
   const closeModal = () => {
     setShowModal(false);
-    setSelectedParticipant(null); // Reset selected participant when closing the modal
+    setSelectedParticipant(null);
   };
 
   return (
     <>
-      {/* Preview Modal */}
       {showModal && selectedParticipant && (
         <ModalPreview
           header="Preview Participant"
@@ -101,19 +104,30 @@ function ParticipantsTable({ eventId, status, hasActions }) {
           title={selectedParticipant?.name}
           description={selectedParticipant?.description}
           imagePreview={selectedParticipant?.image}
-          currentDate={formattedDate}
-          onClose={closeModal} // Close the modal on close button click
+          currentDate={
+            selectedParticipant?.updated_at &&
+            formatDate(selectedParticipant.updated_at)
+          }
+          onClose={closeModal}
         />
       )}
-
-      {/* Participants Table */}
-      <TableComponent
-        title="Participants"
-        columns={participantsColumns}
-        data={filteredParticipantsData}
-        loading={loading}
-        actions={hasActions ? actions : null} // Show actions only if hasActions is true
-      />
+      {registrationType === "individual" ? (
+        <TableComponent
+          title={`Participants in ${eventName} Event`}
+          columns={participantColumns}
+          data={filteredData}
+          loading={loading}
+          actions={hasActions ? actions : null}
+        />
+      ) : (
+        <TableComponent
+          title={`Teams in ${eventName} Event`}
+          columns={teamColumns}
+          data={filteredData}
+          loading={loading}
+          actions={hasActions ? actions : null}
+        />
+      )}
     </>
   );
 }

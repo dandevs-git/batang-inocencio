@@ -95,7 +95,7 @@ function EventsTable({ status, hasActions }) {
       <TableComponent
         title={"Events"}
         columns={eventsColumns}
-        data={filteredEventsData} // Use filtered data
+        data={filteredEventsData}
         loading={loading}
         actions={hasActions ? actions : null}
       />

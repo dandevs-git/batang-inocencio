@@ -7,13 +7,11 @@ use Illuminate\Http\Request;
 
 class EventRegistrationServiceController extends Controller
 {
-    // Fetch all event registration services
     public function index()
     {
         return EventRegistrationService::all();
     }
 
-    // Create a new event registration service
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -36,13 +34,11 @@ class EventRegistrationServiceController extends Controller
         return EventRegistrationService::create($validated);
     }
 
-    // Fetch a specific event registration service
     public function show($id)
     {
         return EventRegistrationService::findOrFail($id);
     }
 
-    // Update an existing event registration service
     public function update(Request $request, $id)
     {
         $validated = $request->validate([
@@ -68,7 +64,6 @@ class EventRegistrationServiceController extends Controller
         return $eventRegistrationService;
     }
 
-    // Delete an event registration service
     public function destroy($id)
     {
         $eventRegistrationService = EventRegistrationService::findOrFail($id);

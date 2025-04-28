@@ -74,7 +74,6 @@ class AnnouncementController extends Controller
         $existingImages = $announcement->images ?? [];
 
         if ($request->hasFile('images')) {
-            // Optionally: delete old images here if you want to replace them
             foreach ($existingImages as $oldImage) {
                 Storage::disk('public')->delete($oldImage);
             }

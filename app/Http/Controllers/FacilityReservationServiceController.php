@@ -45,7 +45,6 @@ class FacilityReservationServiceController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            // Add the same validation rules here as in the store method
         ]);
 
         $facility = FacilityReservationService::findOrFail($id);

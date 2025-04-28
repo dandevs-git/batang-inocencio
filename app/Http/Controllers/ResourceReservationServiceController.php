@@ -8,13 +8,11 @@ use Illuminate\Http\Request;
 
 class ResourceReservationServiceController extends Controller
 {
-    // GET /api/services
     public function index()
     {
         return ResourceReservationService::all();
     }
 
-    // POST /api/services
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -39,7 +37,6 @@ class ResourceReservationServiceController extends Controller
         return ResourceReservationService::create($validated);
     }
 
-    // GET /api/services/{id}
     public function show($id)
     {
         return ResourceReservationService::findOrFail($id);
@@ -66,7 +63,6 @@ class ResourceReservationServiceController extends Controller
 
 
 
-    // PUT /api/services/{id}
     public function update(Request $request, $id)
     {
         $service = ResourceReservationService::findOrFail($id);
@@ -94,7 +90,6 @@ class ResourceReservationServiceController extends Controller
         return $service;
     }
 
-    // DELETE /api/services/{id}
     public function destroy($id)
     {
         $service = ResourceReservationService::findOrFail($id);

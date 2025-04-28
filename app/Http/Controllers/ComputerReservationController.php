@@ -40,9 +40,6 @@ class ComputerReservationController extends Controller
             'contact' => 'required|string',
         ]);
 
-        // $reservation = ComputerReservation::create(array_merge($validated, [
-        //     'reservation_code' => $reservationCode
-        // ]));
 
 
         $reservationCode = strtoupper(Str::random(8));
@@ -56,7 +53,6 @@ class ComputerReservationController extends Controller
             'email' => $request->email,
             'contact' => $request->contact,
             'reservation_code' => $reservationCode,
-            // 'status' => 'pending',
         ]);
 
         return response()->json($reservation, 201);

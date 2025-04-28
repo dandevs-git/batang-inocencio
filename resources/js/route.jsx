@@ -50,6 +50,7 @@ import PrintingServices from "./pages/user/PrintingServices";
 import OtherServices from "./pages/user/OtherServices";
 import PrintingServicesReservation from "./pages/user/PrintingServicesReservation";
 import EventsEdit from "./pages/admin/EventsEdit";
+import ParticipantsTable from "./component/tables/ParticipantsTable";
 
 function RouteConfig() {
   return (
@@ -126,6 +127,10 @@ function RouteConfig() {
         <Route
           path="/admin/events/participants"
           element={<EventsParticipantsManagement />}
+        />
+        <Route
+          path="/admin/events/participants/:id"
+          element={<ParticipantsTable />}
         />
 
         {/* Services Management Routes */}

@@ -75,7 +75,6 @@ class NewsController extends Controller
         $existingImages = $news->images ?? [];
 
         if ($request->hasFile('images')) {
-            // Optionally: delete old images here if you want to replace them
             foreach ($existingImages as $oldImage) {
                 Storage::disk('public')->delete($oldImage);
             }
