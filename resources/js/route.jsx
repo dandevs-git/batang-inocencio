@@ -51,6 +51,7 @@ import OtherServices from "./pages/user/OtherServices";
 import PrintingServicesReservation from "./pages/user/PrintingServicesReservation";
 import EventsEdit from "./pages/admin/EventsEdit";
 import ParticipantsTable from "./component/tables/ParticipantsTable";
+import ServicesComputerManagementWeeklyReport from "./pages/admin/ServicesComputerManagementWeeklyReport";
 
 function RouteConfig() {
   return (
@@ -139,6 +140,10 @@ function RouteConfig() {
         <Route
           path="/admin/services/resource-reservation/1"
           element={<ServicesComputerManagement />}
+        />
+        <Route
+          path="/admin/services/resource-reservation/1/weekly-report"
+          element={<ServicesComputerManagementWeeklyReport />}
         />
         <Route
           path="/admin/services/resource-reservation/2"

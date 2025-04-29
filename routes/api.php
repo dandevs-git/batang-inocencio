@@ -47,6 +47,7 @@ Route::apiResource('faqs', FaqController::class);
 
 Route::get('settings', [SettingController::class, 'index']);
 Route::get('available-resources/computer', [ResourceReservationServiceController::class, 'availableResources']);
+Route::get('available-resources/computer-reservations-weekly', [ResourceReservationServiceController::class, 'weeklyReservations']);
 
 Route::post('settings/save', [SettingController::class, 'save'])->name('settings.save');
 Route::post('/feedback', [FeedbackController::class, 'store']);

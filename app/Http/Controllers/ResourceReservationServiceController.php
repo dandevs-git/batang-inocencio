@@ -4,7 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\ResourceReservationService;
+use Carbon\CarbonInterface;
+use DB;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 
 class ResourceReservationServiceController extends Controller
 {
@@ -97,4 +100,33 @@ class ResourceReservationServiceController extends Controller
 
         return response()->json(['message' => 'Service deleted successfully.']);
     }
+
+    public function weeklyReservations()
+    {
+        $startOfWeek = Carbon::now()->startOfWeek(CarbonInterface::SUNDAY)->startOfDay();
+        $endOfWeek = Carbon::now()->endOfWeek(CarbonInterface::SATURDAY)->endOfDay();
+
+        $reservations = DB::table('computer_reservations')
+            ->selectRaw('YEAR(reservation_date) as year, WEEK(reservation_date) as week, COUNT(*) as reservationCount')
+            ->whereBetween('reservation_date', [$startOfWeek, $endOfWeek])
+            ->groupBy(DB::raw('YEAR(reservation_date), WEEK(reservation_date)'))
+            ->orderBy('year')
+            ->orderBy('week')
+            ->get()
+            ->map(function ($reservation) use ($startOfWeek) {
+                $start = Carbon::now()->setISODate($reservation->year, $reservation->week, Carbon::SUNDAY)->startOfDay();
+                $end = $start->copy()->endOfWeek(CarbonInterface::SATURDAY)->endOfDay();
+
+                return [
+                    'start' => $start->toDateString(),
+                    'end' => $end->toDateString(),
+                    'reservationCount' => $reservation->reservationCount
+                ];
+            });
+
+        return response()->json($reservations);
+    }
+
+
+
 }

@@ -93,8 +93,15 @@ function ModalAnnouncement() {
                           />
                           <div className="card-body">
                             <p className="small">
-                              {announcement.date_published}
+                              {new Date(
+                                announcement.date_published
+                              ).toLocaleDateString("en-US", {
+                                year: "numeric",
+                                month: "long",
+                                day: "numeric",
+                              })}
                             </p>
+
                             <h5 className="card-title">{announcement.title}</h5>
                             <p className="card-text">
                               {announcement.description}

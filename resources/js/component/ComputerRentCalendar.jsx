@@ -443,33 +443,41 @@ function ComputerRentCalendar() {
                 </p>
               ) : (
                 <ul className="list-group">
-                  {reservationTimes.map((slot, index) => (
-                    <li
-                      key={index}
-                      className={`list-group-item d-flex justify-content-between align-items-center ${
-                        slot.reserved
-                          ? "list-group-item-danger"
-                          : "list-group-item-success"
-                      } ${!slot.reserved ? "clickable" : ""}`}
-                      style={{
-                        cursor: !slot.reserved ? "pointer" : "not-allowed",
-                      }}
-                      onClick={() => {
-                        if (!slot.reserved) {
-                          handleSlotClick(slot);
-                        }
-                      }}
-                    >
-                      {slot.slot}
-                      <span
-                        className={`badge bg-${
-                          slot.reserved ? "danger" : "success"
-                        }`}
+                  {reservationTimes.map((slot, index) => {
+                    const reservedRes = reservations.find(
+                      (res) =>
+                        res.pc_number == selectedPC?.id &&
+                        res.reservation_date === value &&
+                        res.time_range === slot.slot
+                    );
+                    return (
+                      <li
+                        key={index}
+                        className={`list-group-item d-flex justify-content-between align-items-center ${
+                          slot.reserved && reservedRes
+                            ? "list-group-item-danger"
+                            : "list-group-item-success"
+                        } ${!slot.reserved ? "clickable" : ""}`}
+                        style={{
+                          cursor: !slot.reservedd && reservedRes ? "pointer" : "not-allowed",
+                        }}
+                        onClick={() => {
+                          if (!slot.reservedd) {
+                            handleSlotClick(slot);
+                          }
+                        }}
                       >
-                        {slot.reserved ? "Reserved" : "Available"}
-                      </span>
-                    </li>
-                  ))}
+                        {slot.slot}
+                        <span
+                          className={`badge bg-${
+                            slot.reservedd ? "danger" : "success"
+                          }`}
+                        >
+                          {slot.reservedd ? "Reserved" : "Available"}
+                        </span>
+                      </li>
+                    );
+                  })}
                 </ul>
               )}
             </div>

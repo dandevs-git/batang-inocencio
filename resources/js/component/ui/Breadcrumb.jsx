@@ -13,7 +13,7 @@ const Breadcrumb = () => {
 
     pathSegments.forEach((segment, index) => {
       if (segment === "admin" || /^\d+$/.test(segment)) {
-        return; // Skip "admin" and numeric segments
+        return;
       }
 
       breadcrumbPath += "/" + segment;
