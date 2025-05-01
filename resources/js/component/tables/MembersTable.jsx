@@ -34,6 +34,7 @@ function MembersTable({ hasActions, setFilteredMembersData }) {
     { header: "First Name", accessorKey: "first_name" },
     { header: "Last Name", accessorKey: "last_name" },
     { header: "Age", accessorKey: "age" },
+    { header: "Sex", accessorKey: "sex" },
     { header: "Area", accessorKey: "area" },
     { header: "Email", accessorKey: "masked_email" },
     { header: "Contact Number", accessorKey: "contact_number" },
