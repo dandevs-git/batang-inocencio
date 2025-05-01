@@ -259,7 +259,6 @@ function Announcements({ isFullPage = true }) {
             </p>
           </div>
         )}
-        {console.log(filteredAnnouncements)}
         <div className="row g-4">
           {filteredAnnouncements.length > 0 ? (
             filteredAnnouncements.map((announcements, index) => (

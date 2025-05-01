@@ -29,8 +29,6 @@ function Calendar() {
         });
       }
 
-      console.log(allEvents);
-
       setSelectedDateEvents(allEvents);
       setLoading(false);
     };

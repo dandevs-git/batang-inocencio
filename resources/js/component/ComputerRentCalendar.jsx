@@ -73,7 +73,7 @@ function ComputerRentCalendar() {
 
   useEffect(() => {
     if (selectedPC) {
-      const filtered = reservations.filter(
+      const filtered = reservations?.filter(
         (res) => res.pc_number == selectedPC.id
       );
       const updated = timeOptions.map((option) => ({
@@ -173,18 +173,18 @@ function ComputerRentCalendar() {
   const localDate = value.toLocaleDateString("en-CA");
   const filteredPCs = allPCs.map((pc) => {
     const reservedSlots = reservations
-      .filter(
+      ?.filter(
         (res) => res.pc_number == pc.id && res.reservation_date === localDate
       )
       .map((res) => res.time_range);
 
     const isFull = timeOptions.every((option) =>
-      reservedSlots.includes(option.slot)
+      reservedSlots?.includes(option.slot)
     );
     return { ...pc, status: isFull ? "full" : "available" };
   });
 
-  const reservedDates = reservations.map((r) =>
+  const reservedates = reservations?.map((r) =>
     new Date(r.reservation_date).toLocaleDateString("en-CA")
   );
 
@@ -203,7 +203,7 @@ function ComputerRentCalendar() {
               <CustomCalendar
                 onChange={onChange}
                 value={value}
-                eventDates={reservedDates}
+                eventDates={reservedates}
               />
             </div>
           </div>
@@ -340,7 +340,7 @@ function ComputerRentCalendar() {
                           -- Select Time --
                         </option>
                         {timeOptions.map((range, index) => {
-                          const isReserved = reservations.some(
+                          const isReserved = reservations?.some(
                             (res) =>
                               res.pc_number === formData.pc_number &&
                               res.reservation_date ===
@@ -444,36 +444,38 @@ function ComputerRentCalendar() {
               ) : (
                 <ul className="list-group">
                   {reservationTimes.map((slot, index) => {
-                    const reservedRes = reservations.find(
+                    const reservedRes = reservations?.find(
                       (res) =>
                         res.pc_number == selectedPC?.id &&
                         res.reservation_date === value &&
                         res.time_range === slot.slot
                     );
+                    
                     return (
                       <li
                         key={index}
                         className={`list-group-item d-flex justify-content-between align-items-center ${
-                          slot.reserved && reservedRes
+                          slot.reserved && !reservedRes
                             ? "list-group-item-danger"
                             : "list-group-item-success"
                         } ${!slot.reserved ? "clickable" : ""}`}
                         style={{
-                          cursor: !slot.reservedd && reservedRes ? "pointer" : "not-allowed",
+                          cursor: !slot.reserved && reservedRes ? "pointer" : "not-allowed",
                         }}
                         onClick={() => {
-                          if (!slot.reservedd) {
+                          if (!slot.reserved) {
                             handleSlotClick(slot);
                           }
                         }}
+                        disabled={reservedRes}
                       >
                         {slot.slot}
                         <span
                           className={`badge bg-${
-                            slot.reservedd ? "danger" : "success"
+                            slot.reserved ? "danger" : "success"
                           }`}
                         >
-                          {slot.reservedd ? "Reserved" : "Available"}
+                          {slot.reserved ? "Reserved" : "Available"}
                         </span>
                       </li>
                     );

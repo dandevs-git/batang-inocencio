@@ -45,8 +45,6 @@ function EventDetail() {
             })}{" "}
             at {event.time}
           </p>
-          {console.log(event)}
-
           {event.images?.length > 0 && (
             <div
               id="imagePreviewNewsCreateCarousel"

@@ -66,9 +66,6 @@ function AnnouncementsEdit() {
   };
 
   const handleUpdate = async (publish) => {
-    console.log("Title:", title);
-    console.log("Description:", description);
-
     if (!title.trim() || !description.trim()) {
       alert("Title and description are required!");
       return;

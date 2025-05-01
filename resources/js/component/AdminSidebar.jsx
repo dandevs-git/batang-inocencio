@@ -9,6 +9,7 @@ const AdminSidebar = ({ collapsed, setCollapsed }) => {
   const navigate = useNavigate();
   const [activeEventMenu, setActiveEventMenu] = useState(false);
   const [activeServicesMenu, setActiveServicesMenu] = useState(false);
+  const [services, setServices] = useState([]);
 
   const [websiteInformation, setWebsiteInformation] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -55,13 +56,13 @@ const AdminSidebar = ({ collapsed, setCollapsed }) => {
     },
     {
       page: "Computer",
-      link: "/admin/services/resource-reservation/1",
+      link: "/admin/services/computer",
       icon: "bi bi-pc-display",
     },
     {
       page: "Printing",
-      link: "/admin/services/resource-reservation/2",
-      icon: "bi bi-printer-fill",
+      link: "/admin/services/printing",
+      icon: "bi bi-printer",
     },
     {
       page: "Transparency",
@@ -71,6 +72,7 @@ const AdminSidebar = ({ collapsed, setCollapsed }) => {
     { page: "Settings", link: "/admin/settings", icon: "bi bi-gear-fill" },
     { page: "Logout", link: "/admin/logout", icon: "bi bi-box-arrow-left" },
   ];
+  
 
   const isEventPageActive = () => location.pathname.startsWith("/admin/events");
   const isServicesPageActive = () =>
@@ -87,9 +89,42 @@ const AdminSidebar = ({ collapsed, setCollapsed }) => {
       localStorage.removeItem("auth_token");
       navigate("/login");
     } catch (error) {
-      console.log(error);
+      setError(error);
     }
   };
+
+  useEffect(() => {
+    const serviceRequests = [
+      { endpoint: "rrs", path: "/resource-reservation" },
+      { endpoint: "frs", path: "/facilities-reservation" },
+      { endpoint: "ers", path: "/event-registration" },
+      { endpoint: "rls", path: "/resource-lending" },
+      { endpoint: "vs", path: "/volunteer" },
+    ];
+
+    serviceRequests.forEach(({ endpoint, path }) => {
+      getData(
+        endpoint,
+        (newData) => {
+          const updatedServices = newData.map((service) => ({
+            ...service,
+            path: `${path}/${service.id}`,
+          }));
+
+          setServices((prevServices) => {
+            const allServices = [...prevServices, ...updatedServices];
+            const serviceMap = new Map();
+            allServices.forEach((service) => {
+              serviceMap.set(service.service_name, service); // remove duplicates
+            });
+            return Array.from(serviceMap.values());
+          });
+        },
+        setLoading,
+        setError
+      );
+    });
+  }, [getData]);
 
   return (
     <div
@@ -252,7 +287,9 @@ const AdminSidebar = ({ collapsed, setCollapsed }) => {
                       >
                         <i className={`${page.icon}`}></i>
                         <span
-                          className={`${collapsed ? "d-none" : "d-inline ms-3"}`}
+                          className={`${
+                            collapsed ? "d-none" : "d-inline ms-3"
+                          }`}
                         >
                           {page.page}
                         </span>

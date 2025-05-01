@@ -36,8 +36,6 @@ function ModalPreview({
             <article>
               <h2 className="fw-bold">{title}</h2>
               <p className="text-muted">{currentDate}</p>
-              {console.log(imagePreviews)}
-
               {imagePreviews.length > 0 && (
                 <div
                   id="imagePreviewModalCarousel"

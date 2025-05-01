@@ -11,6 +11,7 @@ class FacilityReservationService extends Model
 
     protected $fillable = [
         'service_name',
+        'service_system',
         'description',
         'available_facilities',
         'timeslot_duration',

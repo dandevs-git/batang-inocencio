@@ -1,24 +1,31 @@
-import { useEffect, useRef, useState } from "react";
-import { useAPI } from "./contexts/ApiContext";
-import CustomCalendar from "./CustomCalendar";
+import { useEffect, useState } from "react";
 import { Modal } from "bootstrap/dist/js/bootstrap.bundle.min";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useAPI } from "../../component/contexts/ApiContext";
+import Breadcrumb from "../../component/ui/Breadcrumb";
 
-function AdminComputerRentCalendar() {
+function ServicesOtherManagement() {
   const navigate = useNavigate();
-  const { postData, getData } = useAPI();
+  const location = useLocation();
+  const slug = location.pathname.split("/").pop();
+
+  const { getData } = useAPI();
+
   const [value, onChange] = useState(new Date());
   const [reservations, setReservations] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [services, setServices] = useState([]);
+  const [selectedService, setSelectedService] = useState(null);
   const [reservationTimes, setReservationTimes] = useState([]);
-  const [selectedPC, setSelectedPC] = useState(null);
-  const [allPCs, setAllPCs] = useState([]);
+  const [selectedResource, setSelectedResource] = useState(null);
+  const [allResources, setAllResources] = useState([]);
   const [selectedReservation, setSelectedReservation] = useState(null);
+  const [loadingServices, setLoadingServices] = useState(false);
+  const [loadingReservations, setLoadingReservations] = useState(false);
+  const [loadingResources, setLoadingResources] = useState(false);
+
+  const [error, setError] = useState(null);
 
   const formattedDate = value.toLocaleDateString("en-CA");
-
-  const formRef = useRef(null);
 
   const timeOptions = [
     { slot: "08:00 AM - 10:00 AM" },
@@ -28,189 +35,120 @@ function AdminComputerRentCalendar() {
     { slot: "05:00 PM - 07:00 PM" },
   ];
 
+  const slugify = (str) => str.toLowerCase().replace(/\s+/g, "-");
+
   useEffect(() => {
-    if (!formRef.current) return;
-    const form = formRef.current;
-    const handleValidation = (event) => {
-      if (!form.checkValidity()) {
-        event.preventDefault();
-        event.stopPropagation();
-      }
-      form.classList.add("was-validated");
-    };
-    form.addEventListener("submit", handleValidation);
-    return () => form.removeEventListener("submit", handleValidation);
+    getData("rrs", setServices, setLoadingServices, setError);
+    getData(
+      "other-services",
+      setReservations,
+      setLoadingReservations,
+      setError
+    );
   }, []);
 
   useEffect(() => {
-    getData("available-resources/computer", setAllPCs, setLoading, setError);
-    fetchReservations();
-  }, []);
-
-  useEffect(() => {
-    fetchReservations();
-  }, [value]);
-
-  const fetchReservations = async () => {
-    try {
-      const data = await getData("computer-services");
-      setReservations(data);
-    } catch (err) {
-      console.error("Fetch reservations failed", err);
-    }
-  };
-
-  useEffect(() => {
-    if (selectedPC) {
-      const filtered = reservations.filter(
-        (res) => res.pc_number == selectedPC.id
+    if (selectedService) {
+      getData(
+        `available-resources/rrs/${selectedService.id}`,
+        setAllResources,
+        setLoadingResources,
+        setError
       );
+    }
+  }, [selectedService]);
+
+  useEffect(() => {
+    if (services.length > 0) {
+      const matched = services.find(
+        (service) => slugify(service.service_name) === slug
+      );
+      setSelectedService(matched);
+    }
+  }, [services, slug]);
+
+  useEffect(() => {
+    if (selectedResource) {
+      const filtered = reservations.filter(
+        (res) =>
+          res.resource_number == selectedResource.id &&
+          res.reservation_date == formattedDate
+      );
+      
+
       const updated = timeOptions.map((option) => ({
         ...option,
-        reserved: filtered.some((res) => res.time_range === option.slot),
+        reserved: filtered.some((res) => res.time_range == option.slot),
       }));
       setReservationTimes(updated);
     }
-  }, [selectedPC, reservations]);
+  }, [selectedResource, reservations, formattedDate]);
 
-  const handleCardClick = (pc) => {
-    setSelectedPC(pc);
-    Modal.getOrCreateInstance(
-      document.getElementById("availableReservationModal")
-    ).show();
-  };
+  const filteredResources = allResources.map((resource) => {
+    const resourceReservations = reservations.filter((res) => {
+      return (
+        res.resource_number == resource.id &&
+        res.reservation_date === formattedDate
+      );
+    });
 
-  const filteredPCs = allPCs.map((pc) => {
-    const pcReservations = reservations.filter(
-      (res) => res.pc_number == pc.id && res.reservation_date === formattedDate
-    );
-
-    const reservedSlots = pcReservations.map((res) => res.time_range);
+    const reservedSlots = resourceReservations.map((res) => res.time_range);
 
     const isFull = timeOptions.every((option) =>
       reservedSlots.includes(option.slot)
     );
 
     return {
-      ...pc,
-      reservationCount: pcReservations.length,
+      ...resource,
+      reservationCount: resourceReservations.length,
       status: isFull ? "full" : "available",
     };
   });
 
-  const reservedDates = reservations.map((r) =>
-    new Date(r.reservation_date).toLocaleDateString("en-CA")
-  );
+  const handleCardClick = (resource) => {
+    setSelectedResource(resource);
+    Modal.getOrCreateInstance(
+      document.getElementById("availableReservationModal")
+    ).show();
+  };
 
-  const totalReservationsForSelectedDate = reservations.filter(
-    (res) => res.reservation_date === formattedDate
-  ).length;
+  if (loadingServices || loadingReservations || loadingResources) {
+    return <p className="text-center mt-5">Loading...</p>;
+  }
 
   return (
     <>
-      <div className="row g-4">
-        <div className="col-lg-8">
-          <div className="card rounded-4 shadow-lg border-0 h-100">
-            <div className="card-header bg-primary text-white text-center rounded-top-4">
-              <h2 className="mb-0 fw-bold">
-                <i className="bi bi-calendar-event me-2" />
-                Computer Rental Calendar
-              </h2>
-            </div>
-            <div className="card-body p-4">
-              <CustomCalendar
-                onChange={onChange}
-                value={value}
-                eventDates={reservedDates}
-              />
-            </div>
-          </div>
-        </div>
-
-        <div className="col-lg-4">
-          <div className="card rounded-4 shadow-lg border-0">
-            <div className="card-header bg-primary text-white text-center rounded-top-4">
-              <h4 className="mb-0 fw-semibold">
-                {value.toLocaleDateString("en-US", {
-                  weekday: "long",
-                  year: "numeric",
-                  month: "long",
-                  day: "numeric",
-                })}
-              </h4>
-            </div>
-            <div className="card-body p-4 d-flex flex-column justify-content-between">
-              <ul className="list-group list-group-flush flex-grow-1 mb-3 px-4 row text-center">
-                <li className="list-group-item text-start fw-semibold fs-5">
-                  Total Reservations: {totalReservationsForSelectedDate}
-                </li>
-
-                {filteredPCs.length === 0 ? (
-                  <li className="list-group-item text-center text-muted fst-italic">
-                    <i className="bi bi-info-circle me-2" />
-                    No PCs available.
-                  </li>
-                ) : (
-                  <>
-                    <li className="list-group-item d-flex justify-content-between align-items-center px-3 py-2 fw-bold">
-                      <span className="col-6">PC Name</span>
-                      <span className="col-6">No. of Reservations</span>
-                    </li>
-                    {filteredPCs.map((pc, index) => (
-                      <li
-                        key={index}
-                        className="list-group-item d-flex justify-content-between align-items-center px-3 py-2"
-                      >
-                        <span className="col-6">
-                          {pc.name || `PC ${pc.id}`}
-                        </span>
-                        <span className="col-6">{pc.reservationCount}</span>
-                      </li>
-                    ))}
-                  </>
-                )}
-              </ul>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="mt-5 container text-center">
-        <button
-          onClick={() => {
-            navigate("weekly-report");
-          }}
-          className="btn btn-lg fs-3 btn-primary"
-        >
-          Weekly Report
-        </button>
-      </div>
+      <Breadcrumb />
 
       <div className="container mt-5 pb-5">
         <div className="row g-4 justify-content-center">
-          {filteredPCs.map((pc, index) => (
+          {filteredResources.map((resource, index) => (
             <div
               key={index}
               className="col-12 col-sm-6 col-md-4 col-lg-3"
-              onClick={() => handleCardClick(pc)}
+              onClick={() => handleCardClick(resource)}
               style={{ cursor: "pointer" }}
             >
               <div className="card text-center shadow-lg border-0 rounded-4 h-100 hover-shadow">
                 <div className="card-body d-flex flex-column align-items-center justify-content-center p-4">
                   <i
-                    className={`bi bi-pc-display display-3 mb-3 ${
-                      pc.status === "full" ? "text-danger" : "text-success"
+                    className={`bi bi-collection-fill display-3 mb-3 ${
+                      resource.status === "full"
+                        ? "text-danger"
+                        : "text-success"
                     }`}
                   ></i>
-                  <h5 className="card-title fw-semibold mb-2">{pc.name}</h5>
+                  <h5 className="card-title fw-semibold mb-2">
+                    {resource.name}
+                  </h5>
                   <span
                     className={`badge rounded-pill fs-6 px-3 py-2 ${
-                      pc.status === "full"
+                      resource.status === "full"
                         ? "bg-danger-subtle text-danger"
                         : "bg-success-subtle text-success"
                     }`}
                   >
-                    {pc.status === "full" ? "Full Slot" : "Available"}
+                    {resource.status === "full" ? "Full Slot" : "Available"}
                   </span>
                 </div>
               </div>
@@ -229,19 +167,13 @@ function AdminComputerRentCalendar() {
         <div className="modal-dialog modal-xl modal-dialog-centered">
           <div className="modal-content rounded-4 shadow">
             <div className="modal-header bg-primary text-white rounded-top-4">
-              <h5
-                className="modal-title text-capitalize"
-                id="reservationModalLabel"
-              >
-                {selectedPC
-                  ? `${selectedPC.name} ${selectedPC.status}`
-                  : "Reservation Times"}
+              <h5 className="modal-title text-capitalize">
+                {selectedResource?.name}
               </h5>
               <button
                 type="button"
                 className="btn-close btn-close-white"
                 data-bs-dismiss="modal"
-                aria-label="Close"
               ></button>
             </div>
             <div className="modal-body">
@@ -252,23 +184,23 @@ function AdminComputerRentCalendar() {
                 </p>
               ) : (
                 <div className="table-responsive">
-                  <table className="table table-bordered text-center align-middle">
+                  <table className="table table-bordered text-center">
                     <thead
                       style={{ backgroundColor: "#3c78d8", color: "white" }}
                     >
                       <tr>
                         <th>Time</th>
                         <th>Status</th>
-                        <th>Name</th>
+                        <th>Reservation</th>
                         <th>Action</th>
                       </tr>
                     </thead>
                     <tbody>
-                    {console.log(reservationTimes)}
+                      {console.log(reservationTimes)}
                       {reservationTimes.map((slot, index) => {
                         const reservedRes = reservations.find(
                           (res) =>
-                            res.pc_number == selectedPC?.id &&
+                            res.resource_number == selectedResource?.id &&
                             res.reservation_date === formattedDate &&
                             res.time_range === slot.slot
                         );
@@ -331,6 +263,7 @@ function AdminComputerRentCalendar() {
         </div>
       </div>
 
+      {/* Reservation Detail Modal */}
       <div
         className="modal fade"
         id="reservationDetailModal"
@@ -341,56 +274,42 @@ function AdminComputerRentCalendar() {
         <div className="modal-dialog modal-lg modal-dialog-centered">
           <div className="modal-content rounded-4 shadow">
             <div className="modal-header bg-primary text-white rounded-top-4">
-              <h5
-                className="modal-title text-capitalize"
-                id="reservationModalLabel"
-              >
-                <strong>PC-{selectedReservation?.pc_number}</strong> |{" "}
+              <h5 className="modal-title">
+                {selectedReservation?.resource_name} -{" "}
+                {selectedReservation?.resource_number} |{" "}
                 {selectedReservation?.time_range}
               </h5>
               <button
                 type="button"
                 className="btn-close btn-close-white"
                 data-bs-dismiss="modal"
-                aria-label="Close"
               ></button>
             </div>
-
             <div className="modal-body">
               {selectedReservation && (
-                <div className="d-flex justify-content-between align-items-start">
-                  <div className="p-3 col-8">
+                <div className="d-flex justify-content-between">
+                  <div className="col-8 p-3">
                     <div className="border shadow rounded-4 p-4">
                       <p>
-                        <strong>Name</strong>
-                        <br />
-                        {selectedReservation.name}
+                        <strong>Name:</strong> {selectedReservation.name}
                       </p>
                       <p>
-                        <strong>Reservation Code</strong>
-                        <br />
+                        <strong>Code:</strong>{" "}
                         {selectedReservation.reservation_code}
                       </p>
                       <p>
-                        <strong>Address</strong>
-                        <br />
-                        {selectedReservation.address}
+                        <strong>Address:</strong> {selectedReservation.address}
                       </p>
                       <p>
-                        <strong>Email</strong>
-                        <br />
-                        {selectedReservation.email}
+                        <strong>Email:</strong> {selectedReservation.email}
                       </p>
                       <p>
-                        <strong>Contact Number</strong>
-                        <br />
-                        {selectedReservation.contact}
+                        <strong>Contact:</strong> {selectedReservation.contact}
                       </p>
                     </div>
                   </div>
-
-                  <div className="p-3 col-4">
-                    <div className="text-center border shadow rounded-4 p-4">
+                  <div className="col-4 p-3 text-center">
+                    <div className="border shadow rounded-4 p-4">
                       <p className="fw-bold">Status</p>
                       <div
                         className={`p-2 mb-2 text-white rounded ${
@@ -399,7 +318,7 @@ function AdminComputerRentCalendar() {
                             : "bg-secondary"
                         }`}
                       >
-                        {selectedReservation.status || "No Status"}
+                        {selectedReservation.status}
                       </div>
                       <button className="btn btn-outline-danger btn-sm">
                         Cancel Reservation
@@ -416,4 +335,4 @@ function AdminComputerRentCalendar() {
   );
 }
 
-export default AdminComputerRentCalendar;
+export default ServicesOtherManagement;

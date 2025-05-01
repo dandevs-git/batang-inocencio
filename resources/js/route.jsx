@@ -1,4 +1,8 @@
+import { useAPI } from "./component/contexts/ApiContext";
+import React from "react";
+import { useEffect, useState } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
+
 import AuthLayout from "./layout/AuthLayout";
 import MainLayout from "./layout/MainLayout";
 import AdminLayout from "./layout/AdminLayout";
@@ -8,7 +12,6 @@ import Home from "./pages/user/Home";
 import Transparency from "./pages/user/Transparency";
 import FAQs from "./pages/user/FAQs";
 import About from "./pages/user/About";
-import Services from "./pages/user/Services";
 import Events from "./pages/user/Events";
 import News from "./pages/user/News";
 import Membership from "./pages/user/Membership";
@@ -52,8 +55,47 @@ import PrintingServicesReservation from "./pages/user/PrintingServicesReservatio
 import EventsEdit from "./pages/admin/EventsEdit";
 import ParticipantsTable from "./component/tables/ParticipantsTable";
 import ServicesComputerManagementWeeklyReport from "./pages/admin/ServicesComputerManagementWeeklyReport";
+import ServicesOtherManagement from "./pages/admin/ServicesOtherManagement";
 
-function RouteConfig() {
+function route() {
+  const { getData } = useAPI();
+  const [services, setServices] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(false);
+
+  useEffect(() => {
+    const serviceRequests = [
+      { endpoint: "rrs", path: "/resource-reservation" },
+      { endpoint: "frs", path: "/facilities-reservation" },
+      { endpoint: "ers", path: "/event-registration" },
+      { endpoint: "rls", path: "/resource-lending" },
+      { endpoint: "vs", path: "/volunteer" },
+    ];
+
+    serviceRequests.forEach(({ endpoint, path }) => {
+      getData(
+        endpoint,
+        (newData) => {
+          const updatedServices = newData.map((service) => ({
+            ...service,
+            path: `${path}/${service.id}`,
+          }));
+
+          setServices((prevServices) => {
+            const allServices = [...prevServices, ...updatedServices];
+            const serviceMap = new Map();
+            allServices.forEach((service) => {
+              serviceMap.set(service.service_name, service); // remove duplicates
+            });
+            return Array.from(serviceMap.values());
+          });
+        },
+        setLoading,
+        setError
+      );
+    });
+  }, [getData]);
+
   return (
     <Routes>
       {/* Public Routes */}
@@ -65,20 +107,47 @@ function RouteConfig() {
           path="/membership/registration"
           element={<MembershipRegistration />}
         />
+
+        <Route element={<ServicesLayout />}>
+          {/* {services.map((service, index) => {
+            const slug = service.service_name
+              .replace(/\s+/g, "-")
+              .toLowerCase();
+
+            let userElement = null;
+
+            if (service.id === 1) {
+              userElement = <ComputerServices />;
+            } else if (service.id === 2) {
+              userElement = <PrintingServices />;
+            } else {
+              userElement = <OtherServices />;
+            }
+
+            return (
+              <Route
+                key={`user-${index}`}
+                path={`/services/${slug}`}
+                element={userElement}
+              />
+            );
+          })} */}
+
+          <Route path="/services/computer" element={<ComputerServices />} />
+          <Route path="/services/printing" element={<PrintingServices />} />
+          <Route path="/services/:slug" element={<OtherServices />} />
+
+          <Route
+            path="/services/printing/reservation"
+            element={<PrintingServicesReservation />}
+          />
+        </Route>
+
         <Route path="/news" element={<News />} />
         <Route path="/news/:id" element={<NewsDetail />} />
         <Route path="/events" element={<Events />} />
         <Route path="/events/:id" element={<EventDetail />} />
         <Route path="/registration/:id" element={<EventRegistration />} />
-        <Route element={<ServicesLayout />}>
-          <Route path="/services/computer" element={<ComputerServices />} />
-          <Route path="/services/printing" element={<PrintingServices />} />
-          <Route
-            path="/services/printing/reservation"
-            element={<PrintingServicesReservation />}
-          />
-          <Route path="/services/others" element={<OtherServices />} />
-        </Route>
         <Route path="/about" element={<About />} />
         <Route path="/faqs" element={<FAQs />} />
         <Route path="/transparency" element={<Transparency />} />
@@ -118,7 +187,6 @@ function RouteConfig() {
           element={<TransparencyManagement />}
         />
         <Route path="/admin/settings" element={<Settings />} />
-
         {/* Events Management Routes */}
         <Route path="/admin/events" element={<Navigate to={"manage"} />} />
         <Route path="/admin/events/manage" element={<EventsManagement />} />
@@ -133,12 +201,37 @@ function RouteConfig() {
           path="/admin/events/participants/:id"
           element={<ParticipantsTable />}
         />
-
-        {/* Services Management Routes */}
         <Route path="/admin/services" element={<Navigate to={"manage"} />} />
         <Route path="/admin/services/manage" element={<ServicesManagement />} />
-        <Route
-          path="/admin/services/resource-reservation/1"
+
+        {/* {services.map((service, index) => {
+          const slug = service.service_name.replace(/\s+/g, "-").toLowerCase();
+
+          let adminElement = null;
+
+          if (service.id === 1) {
+            adminElement = <ServicesComputerManagement />;
+          } else if (service.id === 2) {
+            adminElement = <ServicesPrintingManagement />;
+          } else {
+            adminElement = <ServicesOtherManagement />;
+          }
+
+          return (
+            <Route
+              key={`admin-${index}`}
+              path={`/admin/services/${slug}`}
+              element={adminElement}
+            />
+          );
+        })} */}
+
+          <Route path="/admin/services/computer" element={<ServicesComputerManagement />} />
+          <Route path="/admin/services/printing" element={<ServicesPrintingManagement />} />
+          <Route path="/admin/services/:slug" element={<ServicesOtherManagement />} />
+
+        {/* <Route
+          path="/admin/services/computer_"
           element={<ServicesComputerManagement />}
         />
         <Route
@@ -148,27 +241,26 @@ function RouteConfig() {
         <Route
           path="/admin/services/resource-reservation/2"
           element={<ServicesPrintingManagement />}
-        />
-
+        /> */}
         {/* Service Forms */}
         <Route
-          path="/services/resource-reservation"
+          path="/admin/services/resource-reservation"
           element={<ResourceReservationServiceForm />}
         />
         <Route
-          path="/services/facility-reservation"
+          path="/admin/services/facility-reservation"
           element={<FacilityReservationServiceForm />}
         />
         <Route
-          path="/services/event-registration"
+          path="/admin/services/event-registration"
           element={<EventRegistrationServiceForm />}
         />
         <Route
-          path="/services/resource-lending"
+          path="/admin/services/resource-lending"
           element={<ResourceLendingServiceForm />}
         />
         <Route
-          path="/services/volunteer-management"
+          path="/admin/services/volunteer-management"
           element={<VolunteerManagementServiceForm />}
         />
       </Route>
@@ -179,4 +271,4 @@ function RouteConfig() {
   );
 }
 
-export default RouteConfig;
+export default route;

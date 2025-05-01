@@ -35,7 +35,6 @@ function ParticipantsTable({
     ? data.filter((item) => item.event_id === eventId)
     : data;
   
-  console.log(filteredData);
   
 
   const actions = (id) => [

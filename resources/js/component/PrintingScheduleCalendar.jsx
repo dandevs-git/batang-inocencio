@@ -22,8 +22,6 @@ function PrintingScheduleCalendar() {
   const reservedDates = reservations.map((r) =>
     new Date(r.reservation_date).toLocaleDateString("en-CA")
   );
-
-  console.log(reservations);
   
 
   return (

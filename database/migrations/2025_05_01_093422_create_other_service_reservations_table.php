@@ -10,9 +10,10 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::create('computer_reservations', function (Blueprint $table) {
+        Schema::create('other_service_reservations', function (Blueprint $table) {
             $table->id();
-            $table->string('pc_number');
+            $table->string('service_name');
+            $table->string('resource_number');
             $table->date('reservation_date');
             $table->string('time_range');
             $table->string('name');
@@ -20,7 +21,7 @@ return new class extends Migration {
             $table->string('email');
             $table->string('contact');
             $table->string('reservation_code')->unique();
-            // $table->string('status');
+            $table->string('status')->default('Reserved');
             $table->timestamps();
         });
     }
@@ -30,6 +31,6 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::dropIfExists('computer_reservations');
+        Schema::dropIfExists('other_service_reservations');
     }
 };

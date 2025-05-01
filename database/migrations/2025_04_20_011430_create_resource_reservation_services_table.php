@@ -13,6 +13,7 @@ return new class extends Migration {
         Schema::create('resource_reservation_services', function (Blueprint $table) {
             $table->id();
             $table->string('service_name');
+            $table->string('service_system')->default('Resource Reservation Services');
             $table->text('description');
             $table->string('resource_name');
             $table->integer('available_resources');

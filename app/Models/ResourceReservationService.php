@@ -11,6 +11,7 @@ class ResourceReservationService extends Model
 
     protected $fillable = [
         'service_name',
+        'service_system',
         'description',
         'resource_name',
         'available_resources',

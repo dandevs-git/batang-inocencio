@@ -45,9 +45,9 @@ class ResourceReservationServiceController extends Controller
         return ResourceReservationService::findOrFail($id);
     }
 
-    public function availableResources()
+    public function availableComputerResources()
     {
-        $service = ResourceReservationService::where('service_name', 'Computer Rental')->first();
+        $service = ResourceReservationService::where('id', 1)->first();
         $resources = [];
 
         if ($service) {
@@ -55,8 +55,7 @@ class ResourceReservationServiceController extends Controller
             for ($i = 1; $i <= $count; $i++) {
                 $resources[] = [
                     'id' => $i,
-                    'name' => "PC-$i",
-                    'status' => rand(0, 1) ? 'available' : 'full'
+                    'name' => "$service->resource_name-$i",
                 ];
             }
         }
@@ -65,6 +64,23 @@ class ResourceReservationServiceController extends Controller
     }
 
 
+    public function availableResources($service_id)
+    {
+        $service = ResourceReservationService::where('id', $service_id)->first();
+        $resources = [];
+
+        if ($service) {
+            $count = $service->available_resources;
+            for ($i = 1; $i <= $count; $i++) {
+                $resources[] = [
+                    'id' => $i,
+                    'name' => "$service->resource_name-$i",
+                ];
+            }
+        }
+
+        return response()->json($resources);
+    }
 
     public function update(Request $request, $id)
     {

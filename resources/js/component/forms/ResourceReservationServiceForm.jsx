@@ -147,8 +147,6 @@ function ResourceReservationServiceForm({ serviceType }) {
               </div>
             )}
 
-            {console.log(error)}
-
             <form
               noValidate
               className="needs-validation"

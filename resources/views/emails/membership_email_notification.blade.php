@@ -92,13 +92,13 @@
 </head>
 
 <body>
-    <div class="container">
-        <div class="header-flex">
-            <img src="https://i.ibb.co/WvMfHxH1/Logo.png" alt="Batang Inocencio" class="logo" width="40"
+    <div className="container">
+        <div className="header-flex">
+            <img src="https://i.ibb.co/WvMfHxH1/Logo.png" alt="Batang Inocencio" className="logo" width="40"
                 height="40">
-            <div class="header-text">
-                <div class="title">'Batang Inocencio'</div>
-                <div class="sub">Brgy. Inocencio, Trece Martires</div>
+            <div className="header-text">
+                <div className="title">'Batang Inocencio'</div>
+                <div className="sub">Brgy. Inocencio, Trece Martires</div>
             </div>
         </div>
 
@@ -111,8 +111,8 @@
         <p>Your membership details are as follows:</p>
         <hr>
 
-        <div class="member-name">{{ $member->first_name }} {{ $member->last_name }}</div>
-        <div class="details">
+        <div className="member-name">{{ $member->first_name }} {{ $member->last_name }}</div>
+        <div className="details">
             <strong>Email:</strong> {{ $member->email }}<br>
             <strong>Contact Number:</strong> {{ $member->contact_number }}<br>
             <strong>Address:</strong> {{ $member->address }}<br>
@@ -122,7 +122,7 @@
         </div>
         <hr>
 
-        <a href="https://batanginocencio.com" class="btn">Visit Our Website</a>
+        <a href="https://batanginocencio.com" className="btn">Visit Our Website</a>
     </div>
 </body>
 

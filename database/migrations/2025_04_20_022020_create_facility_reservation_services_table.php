@@ -13,7 +13,9 @@ return new class extends Migration {
         Schema::create('facility_reservation_services', function (Blueprint $table) {
             $table->id();
             $table->string('service_name');
+            $table->string('service_system')->default('Facility Reservation Services');
             $table->text('description');
+            $table->string('facility_name');
             $table->integer('available_facilities');
             $table->enum('timeslot_duration', ['30 minutes', '1 hour'])->default('30 minutes');
             $table->integer('max_reservation_per_timeslot');

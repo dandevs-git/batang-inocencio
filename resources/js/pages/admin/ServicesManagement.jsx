@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import Breadcrumb from "../../component/ui/Breadcrumb";
 import { Link } from "react-router-dom";
 import { useAPI } from "../../component/contexts/ApiContext";
+import ServicesTable from "../../component/tables/ServicesTable";
 
 function ServicesManagement() {
   const { getData } = useAPI();
@@ -13,185 +14,112 @@ function ServicesManagement() {
   const servicesType = [
     {
       name: "Resource Reservation System",
-      path: "/services/resource-reservation",
+      path: "/admin/services/resource-reservation",
     },
     {
       name: "Facility Reservation System",
-      path: "/services/facility-reservation",
+      path: "/admin/services/facility-reservation",
     },
     {
       name: "Event Registration System",
-      path: "/services/event-registration",
+      path: "/admin/services/event-registration",
     },
     {
       name: "Resource Lending Management System",
-      path: "/services/resource-lending",
+      path: "/admin/services/resource-lending",
     },
     {
       name: "Volunteer Management System",
-      path: "/services/volunteer-management",
+      path: "/admin/services/volunteer-management",
     },
   ];
 
   useEffect(() => {
-    getData(
-      "rrs",
-      (newData) => {
-        const updatedRrsServices = newData.map((service) => ({
-          ...service,
-          path: `/resource-reservation/${service.id}`,
-        }));
-    
-        setServices((prevServices) => {
-          const allServices = [...prevServices, ...updatedRrsServices];
-          const serviceMap = new Map();
-          allServices.forEach((service) => {
-            serviceMap.set(service.service_name, service); // remove duplicates
-          });
-          return Array.from(serviceMap.values());
-        });
-      },
-      setLoading,
-      setError
-    );
+    const serviceRequests = [
+      { endpoint: "rrs", path: "/resource-reservation" },
+      { endpoint: "frs", path: "/facilities-reservation" },
+      { endpoint: "ers", path: "/event-registration" },
+      { endpoint: "rls", path: "/resource-lending" },
+      { endpoint: "vs", path: "/volunteer" },
+    ];
 
-    getData(
-      "frs",
-      (newData) => {
-        const updatedRrsServices = newData.map((service) => ({
-          ...service,
-          path: `/facilities-reservation/${service.id}`,
-        }));
-    
-        setServices((prevServices) => {
-          const allServices = [...prevServices, ...updatedRrsServices];
-          const serviceMap = new Map();
-          allServices.forEach((service) => {
-            serviceMap.set(service.service_name, service); // remove duplicates
-          });
-          return Array.from(serviceMap.values());
-        });
-      },
-      setLoading,
-      setError
-    );
+    serviceRequests.forEach(({ endpoint, path }) => {
+      getData(
+        endpoint,
+        (newData) => {
+          const updatedServices = newData.map((service) => ({
+            ...service,
+            path: `${path}/${service.id}`,
+          }));
 
-    getData(
-      "ers",
-      (newData) => {
-        const updatedRrsServices = newData.map((service) => ({
-          ...service,
-          path: `/event-registration/${service.id}`,
-        }));
-    
-        setServices((prevServices) => {
-          const allServices = [...prevServices, ...updatedRrsServices];
-          const serviceMap = new Map();
-          allServices.forEach((service) => {
-            serviceMap.set(service.service_name, service); // remove duplicates
+          setServices((prevServices) => {
+            const allServices = [...prevServices, ...updatedServices];
+            const serviceMap = new Map();
+            allServices.forEach((service) => {
+              serviceMap.set(service.service_name, service); // remove duplicates
+            });
+            return Array.from(serviceMap.values());
           });
-          return Array.from(serviceMap.values());
-        });
-      },
-      setLoading,
-      setError
-    );
-
-    getData(
-      "rls",
-      (newData) => {
-        const updatedRrsServices = newData.map((service) => ({
-          ...service,
-          path: `/resource-lending/${service.id}`,
-        }));
-    
-        setServices((prevServices) => {
-          const allServices = [...prevServices, ...updatedRrsServices];
-          const serviceMap = new Map();
-          allServices.forEach((service) => {
-            serviceMap.set(service.service_name, service); // remove duplicates
-          });
-          return Array.from(serviceMap.values());
-        });
-      },
-      setLoading,
-      setError
-    );
-
-    getData(
-      "vs",
-      (newData) => {
-        const updatedRrsServices = newData.map((service) => ({
-          ...service,
-          path: `/volunteer/${service.id}`,
-        }));
-    
-        setServices((prevServices) => {
-          const allServices = [...prevServices, ...updatedRrsServices];
-          const serviceMap = new Map();
-          allServices.forEach((service) => {
-            serviceMap.set(service.service_name, service);
-          });
-          return Array.from(serviceMap.values());
-        });
-      },
-      setLoading,
-      setError
-    );
-    
+        },
+        setLoading,
+        setError
+      );
+    });
   }, [getData]);
-
-
 
   return (
     <>
       <Breadcrumb />
 
-      <div className="container mt-5 text-center">
-        {loading && <p>Loading services...</p>}
-        {error && <p className="text-danger">Failed to load services.</p>}
-        {/* <Link to={`/admin/services/computer`}>
-          <button className="btn btn-primary btn-lg mb-4 px-5 py-1 mx-2">
-            Computer Service
-          </button>
-        </Link>
-        
-        <Link to={`/admin/services/printing`}>
-          <button className="btn btn-primary btn-lg mb-4 px-5 py-1 mx-2">
-            Printing Service
-          </button>
-        </Link> */}
+      <div className="my-5 text-center border rounded-4 shadow-lg d-flex justify-content-center align-items-center p-4">
+        {loading ? (
+          <p>Loading Services</p>
+        ) : (
+          <>
+            {error && <p className="text-danger">Failed to load services.</p>}
 
-        {console.log(services)}
-        {!showServices &&
-          services.length > 0 &&
-          services.map((service, index) => (
-            <Link key={index} to={`/admin/services${service.path}`}>
-              <button className="btn btn-primary btn-lg mb-4 px-5 py-1 mx-2">
-                {service.service_name}
-              </button>
-            </Link>
-          ))}
+            {!showServices && services.length > 0 && (
+              <>
+                {services.map((service, index) => (
+                  <Link
+                    key={index}
+                    to={`/admin/services/${service.service_name
+                      .replace(/\s+/g, "-")
+                      .toLowerCase()}`}
+                  >
+                    <button className="btn btn-primary btn-lg px-5 py-1 mx-2">
+                      {service.service_name}
+                    </button>
+                  </Link>
+                ))}
+              </>
+            )}
 
-        <button
-          className="btn btn-outline-primary btn-lg mb-4 px-5 py-1 mx-2"
-          onClick={() => setShowServices(!showServices)}
-        >
-          {showServices ? "Back" : "Add Service"}
-        </button>
+            {showServices && (
+              <div className="d-flex flex-wrap justify-content-center gap-3">
+                {servicesType.map((serviceType, index) => (
+                  <Link key={index} to={serviceType.path}>
+                    <button className="btn btn-secondary text-nowrap shadow-sm fs-4">
+                      {serviceType.name}
+                    </button>
+                  </Link>
+                ))}
+              </div>
+            )}
 
-        {showServices && (
-          <div className="d-flex flex-wrap justify-content-center gap-3">
-            {servicesType.map((serviceType, index) => (
-              <Link key={index} to={serviceType.path}>
-                <button className="btn btn-secondary text-nowrap shadow-sm fs-4">
-                  {serviceType.name}
-                </button>
-              </Link>
-            ))}
-          </div>
+            <button
+              className="btn btn-outline-primary btn-lg px-5 py-1 mx-2"
+              onClick={() => setShowServices(!showServices)}
+            >
+              {showServices ? "Back" : "Add Service"}
+            </button>
+          </>
         )}
       </div>
+
+      {!showServices && (
+        <ServicesTable servicesData={services} hasActions={true} />
+      )}
     </>
   );
 }

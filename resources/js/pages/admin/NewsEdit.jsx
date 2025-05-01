@@ -66,11 +66,7 @@ function NewsEdit() {
     }, 4000);
   };
 
-  // Build the payload object without FormData
   const handleUpdate = async (publish) => {
-    console.log("Title:", title); // Debugging
-    console.log("Description:", description); // Debugging
-
     if (!title.trim() || !description.trim()) {
       alert("Title and description are required!");
       return;
@@ -83,8 +79,6 @@ function NewsEdit() {
         images,
         status: publish ? "published" : status, // Update the status if publish is true
       };
-
-      console.log("Sending payload:", payload); // Debug log
 
       await putData(`news/${id}`, payload); // PUT request with JSON payload
       showSuccessAlert("News updated successfully!");

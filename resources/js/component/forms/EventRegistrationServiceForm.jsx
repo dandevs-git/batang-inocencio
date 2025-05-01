@@ -73,7 +73,6 @@ function EventRegistrationServiceForm() {
         max_registrations: parseInt(formData.max_registrations),
       };
 
-      console.log("Submitting Event Registration Form:", normalizedFormData);
       await postData("ers", normalizedFormData); 
 
       setLoading(false);

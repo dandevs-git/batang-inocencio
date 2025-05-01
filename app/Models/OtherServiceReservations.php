@@ -5,12 +5,14 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class ComputerReservation extends Model
+class OtherServiceReservations extends Model
 {
+    /** @use HasFactory<\Database\Factories\OtherServiceReservationsFactory> */
     use HasFactory;
 
     protected $fillable = [
-        'pc_number',
+        'service_name',
+        'resource_number',
         'reservation_date',
         'time_range',
         'name',
@@ -18,6 +20,6 @@ class ComputerReservation extends Model
         'email',
         'contact',
         'reservation_code',
-        // 'status'
+        'status'
     ];
 }

@@ -133,7 +133,6 @@ const TransparencyManagement = () => {
 
   return (
     <>
-      {console.log(transparencies)}
       <Breadcrumb />
       <div className="mb-4">
         <h4 className="fw-bold text-primary">Transparency Management</h4>

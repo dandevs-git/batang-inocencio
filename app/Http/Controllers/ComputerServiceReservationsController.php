@@ -2,18 +2,20 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\ComputerReservation;
+use App\Models\ComputerServiceReservations;
+use App\Http\Requests\StoreComputerServiceReservationsRequest;
+use App\Http\Requests\UpdateComputerServiceReservationsRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
-class ComputerReservationController extends Controller
+class ComputerServiceReservationsController extends Controller
 {
     public function index(Request $request)
     {
         $date = $request->query('date');
         $pcNumber = $request->query('pc_number');
 
-        $query = ComputerReservation::query();
+        $query = ComputerServiceReservations::query();
 
         if ($pcNumber) {
             $query->where('pc_number', $pcNumber);
@@ -44,7 +46,7 @@ class ComputerReservationController extends Controller
 
         $reservationCode = strtoupper(Str::random(8));
 
-        $reservation = ComputerReservation::create([
+        $reservation = ComputerServiceReservations::create([
             'pc_number' => $request->pc_number,
             'reservation_date' => $request->reservation_date,
             'time_range' => $request->time_range,
@@ -60,7 +62,7 @@ class ComputerReservationController extends Controller
 
     public function show($id)
     {
-        $reservation = ComputerReservation::findOrFail($id);
+        $reservation = ComputerServiceReservations::findOrFail($id);
         return response()->json($reservation, 200);
     }
 
@@ -76,7 +78,7 @@ class ComputerReservationController extends Controller
             'contact' => 'sometimes|string',
         ]);
 
-        $reservation = ComputerReservation::findOrFail($id);
+        $reservation = ComputerServiceReservations::findOrFail($id);
         $reservation->update($validated);
 
         return response()->json($reservation, 200);
@@ -85,7 +87,7 @@ class ComputerReservationController extends Controller
 
     public function destroy($id)
     {
-        $reservation = ComputerReservation::findOrFail($id);
+        $reservation = ComputerServiceReservations::findOrFail($id);
         $reservation->delete();
         return response()->json(null, 204);
     }

@@ -111,7 +111,7 @@ function AnnouncementsCreate() {
           onClick={() => window.history.back()}
           className="btn btn-outline-primary py-1"
         >
-          <i class="bi bi-arrow-left-short"></i> Go back
+          <i className="bi bi-arrow-left-short"></i> Go back
         </button>
       </div>
       <div className="mb-4 border-bottom pb-3">

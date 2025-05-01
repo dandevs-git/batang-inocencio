@@ -10,16 +10,15 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::create('printing_service_reservations', function (Blueprint $table) {
+        Schema::create('computer_service_reservations', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
+            $table->string('pc_number');
             $table->date('reservation_date');
-            $table->string('address');
-            $table->string('contact_number');
-            $table->string('paper_size');
-            $table->string('color');
-            $table->string('file_path');
-            $table->text('purpose');
+            $table->string('time_range');
+            $table->string('name');
+            $table->string('address')->nullable();
+            $table->string('email');
+            $table->string('contact');
             $table->string('reservation_code')->unique();
             $table->string('status')->default('Reserved');
             $table->timestamps();
@@ -31,6 +30,6 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::dropIfExists('printing_service_reservations');
+        Schema::dropIfExists('computer_service_reservations');
     }
 };

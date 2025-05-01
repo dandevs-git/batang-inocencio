@@ -36,7 +36,7 @@ class DatabaseSeeder extends Seeder
         ResourceReservationService::create([
             'service_name' => 'Computer Rental',
             'description' => 'Rent computers for projects, research or personal use.',
-            'resource_name' => 'Desktop Computer',
+            'resource_name' => 'PC',
             'available_resources' => 10,
             'timeslot_duration' => '30 minutes',
             'max_reservation_per_timeslot' => 5,
