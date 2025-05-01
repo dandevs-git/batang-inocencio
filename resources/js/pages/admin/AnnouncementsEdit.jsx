@@ -166,15 +166,16 @@ function AnnouncementsEdit() {
               className="d-none"
               accept="images/*"
               onChange={handleImageChange}
+              multiple
             />
-            {imagePreviews.length > 0 && (
+            {imagePreviews?.length > 0 && (
               <div
                 id="imagePreviewAnnouncementEditCarousel"
                 className="carousel slide mt-3 w-100"
                 data-bs-ride="carousel"
               >
                 <div className="carousel-inner">
-                  {imagePreviews.map((src, i) => (
+                  {imagePreviews?.map((src, i) => (
                     <div
                       key={i}
                       className={`carousel-item ${i === 0 ? "active" : ""}`}

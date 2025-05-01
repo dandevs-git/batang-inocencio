@@ -74,6 +74,7 @@ function EventsParticipantsManagement() {
               eventName={selectedEvent.title}
               eventId={selectedEvent.id}
               registrationType={selectedEvent.registration_type}
+              hasActions={true}
             />
           </>
         ) : (
@@ -83,6 +84,7 @@ function EventsParticipantsManagement() {
                 {eventsData.map((event, index) => (
                   <div className="col-md-6 col-lg-4" key={index}>
                     <div
+                      style={{ cursor: "pointer" }}
                       onClick={() => handleEventClick(event)}
                       className="card h-100 shadow-sm rounded-4 hover-shadow transition p-4 border-0 shadow-lg"
                     >
@@ -91,7 +93,8 @@ function EventsParticipantsManagement() {
                         <p className="text-muted mt-2">
                           Number of Participants:
                           <span className="fw-bold text-primary ms-2">
-                            {event?.participants?.length + event?.teams?.length ?? 0}
+                            {event?.participants?.length +
+                              event?.teams?.length ?? 0}
                           </span>
                         </p>
                       </div>

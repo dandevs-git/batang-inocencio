@@ -34,8 +34,6 @@ function ParticipantsTable({
   const filteredData = eventId
     ? data.filter((item) => item.event_id === eventId)
     : data;
-  
-  
 
   const actions = (id) => [
     {
@@ -48,12 +46,12 @@ function ParticipantsTable({
       className: "btn btn-sm text-light btn-info text-nowrap",
       icon: "bi bi-eye",
     },
-    {
-      label: "Edit",
-      href: `/admin/participants/edit/${id}`,
-      className: "btn btn-sm text-light btn-warning text-nowrap",
-      icon: "bi bi-pencil-square",
-    },
+    // {
+    //   label: "Edit",
+    //   href: `/admin/participants/edit/${id}`,
+    //   className: "btn btn-sm text-light btn-warning text-nowrap",
+    //   icon: "bi bi-pencil-square",
+    // },
   ];
 
   const participantColumns = [
@@ -64,7 +62,7 @@ function ParticipantsTable({
       cell: ({ row }) => `${row.original.first_name} ${row.original.last_name}`,
     },
     { header: "Email", accessorKey: "email" },
-    { header: "Contact Number", accessorKey: "contact_number" }
+    { header: "Contact Number", accessorKey: "contact_number" },
   ];
 
   const teamColumns = [
@@ -112,6 +110,16 @@ function ParticipantsTable({
       )}
       {registrationType === "individual" ? (
         <TableComponent
+          topComponent={
+            <>
+              <button
+                className="btn btn-primary d-flex align-items-center px-4 py-2"
+                // onClick={handleDownloadPDF}
+              >
+                <i className="bi bi-download me-2"></i> Download as PDF
+              </button>
+            </>
+          }
           title={`Participants in ${eventName} Event`}
           columns={participantColumns}
           data={filteredData}
@@ -120,6 +128,16 @@ function ParticipantsTable({
         />
       ) : (
         <TableComponent
+          topComponent={
+            <>
+              <button
+                className="btn btn-primary d-flex align-items-center px-4 py-2"
+                // onClick={handleDownloadPDF}
+              >
+                <i className="bi bi-download me-2"></i> Download as PDF
+              </button>
+            </>
+          }
           title={`Teams in ${eventName} Event`}
           columns={teamColumns}
           data={filteredData}
