@@ -1,31 +1,22 @@
 import { useEffect, useRef, useState } from "react";
+import { useAPI } from "./contexts/ApiContext";
+import CustomCalendar from "./CustomCalendar";
 import { Modal } from "bootstrap/dist/js/bootstrap.bundle.min";
-import { useLocation, useNavigate } from "react-router-dom";
-import { useAPI } from "../../component/contexts/ApiContext";
-import Breadcrumb from "../../component/ui/Breadcrumb";
-import CustomCalendar from "../../component/CustomCalendar";
+import { useNavigate } from "react-router-dom";
 
-function OtherServices() {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const slug = location.pathname.split("/").pop();
-  const { getData, postData } = useAPI();
+function OtherServicesCalendar() {
+  const { postData, getData } = useAPI();
   const [value, onChange] = useState(new Date());
   const [reservations, setReservations] = useState([]);
-  const [services, setServices] = useState([]);
-  const [selectedService, setSelectedService] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
   const [reservationTimes, setReservationTimes] = useState([]);
   const [selectedResource, setSelectedResource] = useState(null);
-  const [selectedReservation, setSelectedReservation] = useState(null);
-  const [loadingServices, setLoadingServices] = useState(false);
-  const [loadingReservations, setLoadingReservations] = useState(false);
-  const [loadingResources, setLoadingResources] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [allResources, setAllResources] = useState([]);
-  const formRef = useRef(null);
+  const [allResources, setallResources] = useState([]);
   const [isMakingReservation, setIsMakingReservation] = useState(false);
+  const [loadingServices, setLoadingServices] = useState(false);
+  const [services, setServices] = useState([]);
   const [formData, setFormData] = useState({
-    service_name: "",
     resource_number: "",
     time_range: "",
     name: "",
@@ -34,10 +25,7 @@ function OtherServices() {
     contact: "",
     reservation_code: "",
   });
-
-  const [error, setError] = useState(null);
-
-  const formattedDate = value.toLocaleDateString("en-CA");
+  const formRef = useRef(null);
 
   const timeOptions = [
     { slot: "08:00 AM - 10:00 AM" },
@@ -47,18 +35,38 @@ function OtherServices() {
     { slot: "05:00 PM - 07:00 PM" },
   ];
 
-  const slugify = (str) => str.toLowerCase().replace(/\s+/g, "-");
-
   useEffect(() => {
-    getData("rrs", setServices, setLoadingServices, setError);
-    getData(
-      "other-services",
-      setReservations,
-      setLoadingReservations,
-      setError
-    );
+    if (!formRef.current) return;
+
+    const form = formRef.current;
+
+    const handleValidation = (event) => {
+      if (!form.checkValidity()) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+      form.classList.add("was-validated");
+    };
+
+    form.addEventListener("submit", handleValidation);
+
+    return () => {
+      form.removeEventListener("submit", handleValidation);
+    };
   }, []);
 
+  useEffect(() => {
+    getData(
+      "available-resources/computer",
+      setallResources,
+      setLoading,
+      setError
+    );
+    getData("rrs", setServices, setLoadingServices, setError);
+    fetchReservations();
+  }, []);
+
+  
   useEffect(() => {
     if (selectedService) {
       getData(
@@ -70,35 +78,28 @@ function OtherServices() {
     }
   }, [selectedService]);
 
+  useEffect(() => {
+    fetchReservations();
+  }, [value]);
+
   const fetchReservations = async () => {
     try {
       const data = await getData("other-services");
       setReservations(data);
-      console.log(data);
     } catch (err) {
       console.error("Fetch reservations failed", err);
     }
   };
 
   useEffect(() => {
-    if (services.length > 0) {
-      const matched = services.find(
-        (service) => slugify(service.service_name) === slug
-      );
-      setSelectedService(matched);
-    }
-  }, [services, slug]);
-
-  useEffect(() => {
     if (selectedResource) {
       const filtered = reservations?.filter(
-        (res) => res.resource_number == selectedResource.id && res.resource_number == selectedResource.id
+        (res) => res.resource_number == selectedResource.id
       );
       const updated = timeOptions.map((option) => ({
         ...option,
-        reserved: filtered.some((res) => res.time_range == option.slot),
+        reserved: filtered.some((res) => res.time_range === option.slot),
       }));
-      console.log(selectedResource);
       setReservationTimes(updated);
     }
   }, [selectedResource, reservations]);
@@ -108,6 +109,26 @@ function OtherServices() {
     Modal.getOrCreateInstance(
       document.getElementById("availableReservationModal")
     ).show();
+  };
+
+  const handleMarkReservation = () => {
+    setFormData({
+      resource_number: "",
+      time_range: "",
+      name: "",
+      address: "",
+      email: "",
+      contact: "",
+      reservation_code: "",
+    });
+    setIsMakingReservation(true);
+    const reservationForm = document.getElementById("reservation-form");
+    if (reservationForm) {
+      reservationForm.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }
   };
 
   const handleInputChange = (e) => {
@@ -131,27 +152,6 @@ function OtherServices() {
     ).hide();
   };
 
-  if (loadingServices || loadingReservations || loadingResources) {
-    return <p className="text-center mt-5">Loading...</p>;
-  }
-
-  const localDate = value.toLocaleDateString("en-CA");
-
-  const filteredResources = allResources.map((resource) => {
-    const reservedSlots = reservations
-      .filter(
-        (res) =>
-          res.resource_number == resource.id &&
-          res.reservation_date === localDate
-      )
-      .map((res) => res.time_range);
-
-    const isFull = timeOptions.every((option) =>
-      reservedSlots.includes(option.slot)
-    );
-    return { ...resource, status: isFull ? "full" : "available" };
-  });
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
@@ -161,12 +161,11 @@ function OtherServices() {
     Object.entries(formData).forEach(([key, value]) => {
       if (key !== "reservation_code") data.append(key, value);
     });
-    data.append("service_name", selectedService.service_name || "");
     data.append("reservation_date", value.toLocaleDateString("en-CA"));
 
     try {
       const response = await postData(
-        "other-services",
+        "computer-services",
         data,
         null,
         setLoading,
@@ -191,25 +190,21 @@ function OtherServices() {
     }
   };
 
-  const handleMarkReservation = () => {
-    setFormData({
-      pc_number: "",
-      time_range: "",
-      name: "",
-      address: "",
-      email: "",
-      contact: "",
-      reservation_code: "",
-    });
-    setIsMakingReservation(true);
-    const reservationForm = document.getElementById("reservation-form");
-    if (reservationForm) {
-      reservationForm.scrollIntoView({
-        behavior: "smooth",
-        block: "start",
-      });
-    }
-  };
+  const localDate = value.toLocaleDateString("en-CA");
+  const filteredResources = allResources.map((resource) => {
+    const reservedSlots = reservations
+      ?.filter(
+        (res) =>
+          res.resource_number == resource.id &&
+          res.reservation_date === localDate
+      )
+      .map((res) => res.time_range);
+
+    const isFull = timeOptions.every((option) =>
+      reservedSlots?.includes(option.slot)
+    );
+    return { ...resource, status: isFull ? "full" : "available" };
+  });
 
   const reservedates = reservations?.map((r) =>
     new Date(r.reservation_date).toLocaleDateString("en-CA")
@@ -217,99 +212,236 @@ function OtherServices() {
 
   return (
     <>
-      <div className="container mt-5">
-        <div className="row g-4">
-          <div className="col-lg-8">
-            <div className="card rounded-4 shadow-lg border-0 h-100">
-              <div className="card-header bg-primary text-white text-center rounded-top-4">
-                <h2 className="mb-0 fw-bold">
-                  {/* <i className="bi bi-calendar-event me-2" /> */}
-                  {selectedService?.service_name} Calendar
-                </h2>
-              </div>
-              <div className="card-body p-4">
-                <CustomCalendar
-                  onChange={onChange}
-                  value={value}
-                  eventDates={reservedates}
-                />
-              </div>
+      <div className="row g-4">
+        <div className="col-lg-8">
+          <div className="card rounded-4 shadow-lg border-0 h-100">
+            <div className="card-header bg-primary text-white text-center rounded-top-4">
+              <h2 className="mb-0 fw-bold">
+                <i className="bi bi-calendar-event me-2" />
+                Computer Rental Calendar
+              </h2>
             </div>
-          </div>
-
-          <div className="col-lg-4">
-            <div className="card rounded-4 shadow-lg border-0">
-              <div className="card-header bg-primary text-white text-center rounded-top-4">
-                <h4 className="mb-0 fw-semibold">
-                  {value.toLocaleDateString("en-US", {
-                    weekday: "long",
-                    year: "numeric",
-                    month: "long",
-                    day: "numeric",
-                  })}
-                </h4>
-              </div>
-              <div className="card-body p-4 d-flex flex-column justify-content-between">
-                <button
-                  className="btn btn-outline-primary w-100 fw-bold"
-                  onClick={handleMarkReservation}
-                >
-                  <i className="bi bi-check-circle me-2" />
-                  Mark Reservation
-                </button>
-              </div>
+            <div className="card-body p-4">
+              <CustomCalendar
+                onChange={onChange}
+                value={value}
+                eventDates={reservedates}
+              />
             </div>
           </div>
         </div>
 
-        <div className="container mt-5 pb-5">
-          {/* <div className="card shadow-lg border-0 rounded-4">
-            <div className="card-header text-center bg-primary text-light rounded-top-4">
-              <h1 className="text-capitalized fw-semibold">
-                {selectedService?.service_name}
-              </h1>
+        <div className="col-lg-4">
+          <div className="card rounded-4 shadow-lg border-0">
+            <div className="card-header bg-primary text-white text-center rounded-top-4">
+              <h4 className="mb-0 fw-semibold">
+                {value.toLocaleDateString("en-US", {
+                  weekday: "long",
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                })}
+              </h4>
             </div>
-            <div className="card-body p-5"> */}
-              <div className="row g-4 justify-content-center">
-                {allResources.map((resource, index) => (
-                  <div
-                    key={index}
-                    className="col-12 col-sm-6 col-md-4 col-lg-3"
-                    onClick={() => handleCardClick(resource)}
-                    style={{ cursor: "pointer" }}
-                  >
-                    <div className="card text-center shadow-lg border-0 rounded-4 h-100 hover-shadow">
-                      <div className="card-body d-flex flex-column align-items-center justify-content-center p-4">
-                        <i
-                          className={`bi bi-collection-fill display-3 mb-3 ${
-                            resource.status === "full"
-                              ? "text-danger"
-                              : "text-success"
-                          }`}
-                        ></i>
-                        <h5 className="card-title fw-semibold mb-2">
-                          {resource.name}
-                        </h5>
-                        <span
-                          className={`badge rounded-pill fs-6 px-3 py-2 ${
-                            resource.status === "full"
-                              ? "bg-danger-subtle text-danger"
-                              : "bg-success-subtle text-success"
-                          }`}
-                        >
-                          {resource.status === "full"
-                            ? "Full Slot"
-                            : "Available"}
-                        </span>
+            <div className="card-body p-4 d-flex flex-column justify-content-between">
+              <button
+                className="btn btn-outline-primary w-100 fw-bold"
+                onClick={handleMarkReservation}
+              >
+                <i className="bi bi-check-circle me-2" />
+                Mark Reservation
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="container mt-5 pb-5">
+        {!isMakingReservation && (
+          <div className="row g-4 justify-content-center">
+            {filteredResources.map((resource, index) => (
+              <div
+                key={index}
+                className="col-12 col-sm-6 col-md-4 col-lg-3"
+                onClick={() => handleCardClick(resource)}
+                style={{ cursor: "pointer" }}
+              >
+                <div className="card text-center shadow-lg border-0 rounded-4 h-100 hover-shadow">
+                  <div className="card-body d-flex flex-column align-items-center justify-content-center p-4">
+                    <i
+                      className={`bi bi-resource-display display-3 mb-3 ${
+                        resource.status === "full"
+                          ? "text-danger"
+                          : "text-success"
+                      }`}
+                    ></i>
+                    <h5 className="card-title fw-semibold mb-2">
+                      {resource.name}
+                    </h5>
+                    <span
+                      className={`badge rounded-pill fs-6 px-3 py-2 ${
+                        resource.status === "full"
+                          ? "bg-danger-subtle text-danger"
+                          : "bg-success-subtle text-success"
+                      }`}
+                    >
+                      {resource.status === "full" ? "Full Slot" : "Available"}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {isMakingReservation && (
+          <div className="d-flex flex-column container w-75 border p-4 rounded-4 shadow-lg">
+            <div className="d-flex justify-content-center align-items-center">
+              <h5 className="mb-0">
+                Make Reservation for{" "}
+                {value.toLocaleDateString("en-US", {
+                  weekday: "long",
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                })}
+              </h5>
+            </div>
+
+            <div className="">
+              {error && (
+                <div className="alert alert-danger">
+                  {typeof error === "string" ? error : "An error occurred."}
+                </div>
+              )}
+
+              <form
+                className="needs-validation"
+                ref={formRef}
+                noValidate
+                onSubmit={handleSubmit}
+                id="reservation-form"
+              >
+                <div className="row mb-3">
+                  <div className="col-md-12">
+                    <label className="form-label">Resource Number</label>
+                    <select
+                      className="form-select"
+                      name="resource_number"
+                      value={formData.resource_number}
+                      onChange={handleInputChange}
+                      required
+                    >
+                      <option value="">-- Select Resource --</option>
+                      {filteredResources.map((resource, index) => {
+                        const isResourceFullyBooked =
+                          resource.status === "full";
+
+                        return (
+                          <option
+                            key={index}
+                            value={resource.id}
+                            disabled={isResourceFullyBooked}
+                          >
+                            {resource.name || `Resource ${resource.id}`}{" "}
+                            {isResourceFullyBooked && "(Fully Booked)"}
+                          </option>
+                        );
+                      })}
+                    </select>
+                    <div className="invalid-feedback">
+                      Please select a Resource.
+                    </div>
+                  </div>
+                </div>
+                {formData.resource_number ? (
+                  <div className="row mb-3">
+                    <div className="col-md-12">
+                      <label className="form-label">Time Range</label>
+                      <select
+                        className="form-select"
+                        name="time_range"
+                        value={formData.time_range}
+                        onChange={handleInputChange}
+                        required
+                      >
+                        <option className="text-dark" value="">
+                          -- Select Time --
+                        </option>
+                        {timeOptions.map((range, index) => {
+                          const isReserved = reservations?.some(
+                            (res) =>
+                              res.resource_number ===
+                                formData.resource_number &&
+                              res.reservation_date ===
+                                value.toLocaleDateString("en-CA") &&
+                              res.time_range === range.slot
+                          );
+
+                          return (
+                            <option
+                              key={index}
+                              value={range.slot}
+                              disabled={isReserved}
+                            >
+                              {range.slot} {isReserved ? "(Reserved)" : ""}
+                            </option>
+                          );
+                        })}
+                      </select>
+                      <div className="invalid-feedback">
+                        Please select a time range.
                       </div>
                     </div>
                   </div>
-                ))}
-              </div>
+                ) : (
+                  ""
+                )}
+
+                {formData.time_range ? (
+                  <>
+                    {["name", "address", "email", "contact"].map(
+                      (field, index) => (
+                        <div className="mb-3" key={index}>
+                          <label className="form-label">
+                            {field === "contact"
+                              ? "Contact Number"
+                              : field.charAt(0).toUpperCase() + field.slice(1)}
+                          </label>
+                          <input
+                            type={field === "email" ? "email" : "text"}
+                            className="form-control"
+                            name={field}
+                            value={formData[field]}
+                            onChange={handleInputChange}
+                            required
+                          />
+                          <div className="invalid-feedback">
+                            Please enter a valid{" "}
+                            {field === "contact" ? "contact number" : field}.
+                          </div>
+                        </div>
+                      )
+                    )}
+
+                    <div className="d-flex">
+                      <button
+                        type="submit"
+                        className="btn btn-primary w-100"
+                        disabled={loading}
+                      >
+                        {loading ? "Submitting..." : "Reserve"}
+                      </button>
+                    </div>
+                  </>
+                ) : (
+                  ""
+                )}
+              </form>
             </div>
           </div>
-        {/* </div>
-      </div> */}
+        )}
+      </div>
 
       <div
         className="modal fade"
@@ -342,13 +474,12 @@ function OtherServices() {
               ) : (
                 <ul className="list-group">
                   {reservationTimes.map((slot, index) => {
-                    const reservedRes = reservations?.find((res) => {
-                      return (
+                    const reservedRes = reservations?.find(
+                      (res) =>
                         res.resource_number == selectedResource?.id &&
                         res.reservation_date === value &&
                         res.time_range === slot.slot
-                      );
-                    });
+                    );
 
                     return (
                       <li
@@ -400,7 +531,7 @@ function OtherServices() {
           <div className="modal-content rounded-4">
             <div className="modal-header bg-primary text-white">
               <h5 className="modal-title" id="reservationModalLabel">
-                Reserve a Resources
+                Reserve a Computer
               </h5>
               <button
                 type="button"
@@ -573,4 +704,4 @@ function OtherServices() {
   );
 }
 
-export default OtherServices;
+export default OtherServicesCalendar;

@@ -3,6 +3,7 @@ import { Modal } from "bootstrap/dist/js/bootstrap.bundle.min";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAPI } from "../../component/contexts/ApiContext";
 import Breadcrumb from "../../component/ui/Breadcrumb";
+import CustomCalendar from "../../component/CustomCalendar";
 
 function ServicesOtherManagement() {
   const navigate = useNavigate();
@@ -74,7 +75,6 @@ function ServicesOtherManagement() {
           res.resource_number == selectedResource.id &&
           res.reservation_date == formattedDate
       );
-      
 
       const updated = timeOptions.map((option) => ({
         ...option,
@@ -112,6 +112,14 @@ function ServicesOtherManagement() {
     ).show();
   };
 
+  const reservedDates = reservations.map((r) =>
+    new Date(r.reservation_date).toLocaleDateString("en-CA")
+  );
+
+  const totalReservationsForSelectedDate = reservations.filter(
+    (res) => res.reservation_date === formattedDate
+  ).length;
+
   if (loadingServices || loadingReservations || loadingResources) {
     return <p className="text-center mt-5">Loading...</p>;
   }
@@ -121,42 +129,113 @@ function ServicesOtherManagement() {
       <Breadcrumb />
 
       <div className="container mt-5 pb-5">
-        <div className="row g-4 justify-content-center">
-          {filteredResources.map((resource, index) => (
-            <div
-              key={index}
-              className="col-12 col-sm-6 col-md-4 col-lg-3"
-              onClick={() => handleCardClick(resource)}
-              style={{ cursor: "pointer" }}
-            >
-              <div className="card text-center shadow-lg border-0 rounded-4 h-100 hover-shadow">
-                <div className="card-body d-flex flex-column align-items-center justify-content-center p-4">
-                  <i
-                    className={`bi bi-collection-fill display-3 mb-3 ${
-                      resource.status === "full"
-                        ? "text-danger"
-                        : "text-success"
-                    }`}
-                  ></i>
-                  <h5 className="card-title fw-semibold mb-2">
-                    {resource.name}
-                  </h5>
-                  <span
-                    className={`badge rounded-pill fs-6 px-3 py-2 ${
-                      resource.status === "full"
-                        ? "bg-danger-subtle text-danger"
-                        : "bg-success-subtle text-success"
-                    }`}
-                  >
-                    {resource.status === "full" ? "Full Slot" : "Available"}
-                  </span>
-                </div>
+        <div className="row g-4">
+          <div className="col-lg-8">
+            <div className="card rounded-4 shadow-lg border-0 h-100">
+              <div className="card-header bg-primary text-white text-center rounded-top-4">
+                <h2 className="mb-0 fw-bold">
+                  {/* <i className="bi bi-calendar-event me-2" /> */}
+                  {selectedService?.service_name} Calendar
+                </h2>
+              </div>
+              <div className="card-body p-4">
+                <CustomCalendar
+                  onChange={onChange}
+                  value={value}
+                  eventDates={reservedDates}
+                />
               </div>
             </div>
-          ))}
+          </div>
+
+          <div className="col-lg-4">
+            <div className="card rounded-4 shadow-lg border-0">
+              <div className="card-header bg-primary text-white text-center rounded-top-4">
+                <h4 className="mb-0 fw-semibold">
+                  {value.toLocaleDateString("en-US", {
+                    weekday: "long",
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                  })}
+                </h4>
+              </div>
+              <div className="card-body p-4 d-flex flex-column justify-content-between">
+                <ul className="list-group list-group-flush flex-grow-1 mb-3 px-4 row text-center">
+                  <li className="list-group-item text-start fw-semibold fs-5">
+                    Total Reservations: {totalReservationsForSelectedDate}
+                  </li>
+
+                  {filteredResources.length === 0 ? (
+                    <li className="list-group-item text-center text-muted fst-italic">
+                      <i className="bi bi-info-circle me-2" />
+                      No Resources available.
+                    </li>
+                  ) : (
+                    <>
+                      <li className="list-group-item d-flex justify-content-between align-items-center px-3 py-2 fw-bold">
+                        <span className="col-6">Resource Name</span>
+                        <span className="col-6">No. of Reservations</span>
+                      </li>
+                      {filteredResources.map((resource, index) => (
+                        <li
+                          key={index}
+                          className="list-group-item d-flex justify-content-between align-items-center px-3 py-2"
+                        >
+                          <span className="col-6">
+                            {resource.name || `Resource ${resource.id}`}
+                          </span>
+                          <span className="col-6">
+                            {resource.reservationCount}
+                          </span>
+                        </li>
+                      ))}
+                    </>
+                  )}
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="container mt-5 pb-5">
+          <div className="row g-4 justify-content-center">
+            {filteredResources.map((resource, index) => (
+              <div
+                key={index}
+                className="col-12 col-sm-6 col-md-4 col-lg-3"
+                onClick={() => handleCardClick(resource)}
+                style={{ cursor: "pointer" }}
+              >
+                <div className="card text-center shadow-lg border-0 rounded-4 h-100 hover-shadow">
+                  <div className="card-body d-flex flex-column align-items-center justify-content-center p-4">
+                    <i
+                      className={`bi bi-collection-fill display-3 mb-3 ${
+                        resource.status === "full"
+                          ? "text-danger"
+                          : "text-success"
+                      }`}
+                    ></i>
+                    <h5 className="card-title fw-semibold mb-2">
+                      {resource.name}
+                    </h5>
+                    <span
+                      className={`badge rounded-pill fs-6 px-3 py-2 ${
+                        resource.status === "full"
+                          ? "bg-danger-subtle text-danger"
+                          : "bg-success-subtle text-success"
+                      }`}
+                    >
+                      {resource.status === "full" ? "Full Slot" : "Available"}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
-
+      
       <div
         className="modal fade"
         id="availableReservationModal"

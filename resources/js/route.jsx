@@ -204,45 +204,19 @@ function route() {
         <Route path="/admin/services" element={<Navigate to={"manage"} />} />
         <Route path="/admin/services/manage" element={<ServicesManagement />} />
 
-        {/* {services.map((service, index) => {
-          const slug = service.service_name.replace(/\s+/g, "-").toLowerCase();
-
-          let adminElement = null;
-
-          if (service.id === 1) {
-            adminElement = <ServicesComputerManagement />;
-          } else if (service.id === 2) {
-            adminElement = <ServicesPrintingManagement />;
-          } else {
-            adminElement = <ServicesOtherManagement />;
-          }
-
-          return (
-            <Route
-              key={`admin-${index}`}
-              path={`/admin/services/${slug}`}
-              element={adminElement}
-            />
-          );
-        })} */}
-
-          <Route path="/admin/services/computer" element={<ServicesComputerManagement />} />
-          <Route path="/admin/services/printing" element={<ServicesPrintingManagement />} />
-          <Route path="/admin/services/:slug" element={<ServicesOtherManagement />} />
-
-        {/* <Route
-          path="/admin/services/computer_"
+        <Route
+          path="/admin/services/computer"
           element={<ServicesComputerManagement />}
         />
         <Route
-          path="/admin/services/resource-reservation/1/weekly-report"
-          element={<ServicesComputerManagementWeeklyReport />}
+          path="/admin/services/printing"
+          element={<ServicesPrintingManagement />}
         />
         <Route
-          path="/admin/services/resource-reservation/2"
-          element={<ServicesPrintingManagement />}
-        /> */}
-        {/* Service Forms */}
+          path="/admin/services/:slug"
+          element={<ServicesOtherManagement />}
+        />
+
         <Route
           path="/admin/services/resource-reservation"
           element={<ResourceReservationServiceForm />}
