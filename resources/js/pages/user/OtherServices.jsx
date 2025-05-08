@@ -74,7 +74,6 @@ function OtherServices() {
     try {
       const data = await getData("other-services");
       setReservations(data);
-      console.log(data);
     } catch (err) {
       console.error("Fetch reservations failed", err);
     }
@@ -98,7 +97,6 @@ function OtherServices() {
         ...option,
         reserved: filtered.some((res) => res.time_range == option.slot),
       }));
-      console.log(selectedResource);
       setReservationTimes(updated);
     }
   }, [selectedResource, reservations]);

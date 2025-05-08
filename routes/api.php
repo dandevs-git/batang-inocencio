@@ -3,6 +3,7 @@
 use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CarouselController;
+use App\Http\Controllers\CollectedBottleController;
 use App\Http\Controllers\CommitteeMemberController;
 use App\Http\Controllers\ComputerServiceReservationsController;
 use App\Http\Controllers\EventController;
@@ -51,6 +52,8 @@ Route::get('settings', [SettingController::class, 'index']);
 Route::get('available-resources/computer', [ResourceReservationServiceController::class, 'availableComputerResources']);
 Route::get('available-resources/rrs/{service_name}', [ResourceReservationServiceController::class, 'availableResources']);
 Route::get('available-resources/computer-reservations-weekly', [ResourceReservationServiceController::class, 'weeklyReservations']);
+Route::get('/collected-bottles', [CollectedBottleController::class, 'getCollectedBottles']);
+Route::put('/collected-bottles', [CollectedBottleController::class, 'updateCollectedBottles']);
 
 Route::post('settings/save', [SettingController::class, 'save'])->name('settings.save');
 Route::post('/feedback', [FeedbackController::class, 'store']);

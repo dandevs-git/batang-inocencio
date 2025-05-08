@@ -20,11 +20,11 @@ function AdminDashboardWidget() {
   }, [getData]);
 
   useEffect(() => {
-    getData("events", setEventsData, setLoading, setError);
+    getData("collected-bottles", setCollectedBottles, setLoading, setError);
   }, [getData]);
 
   useEffect(() => {
-    getData("events", setEventsData, setLoading, setError);
+    getData("printing-services", setPrintsData, setLoading, setError);
   }, [getData]);
 
   return (
@@ -66,7 +66,7 @@ function AdminDashboardWidget() {
               <i className="bi bi-recycle"></i>
             </div>
             <h4 className="fw-bold">
-              {collectedBottles.length}
+              {collectedBottles?.total_count}
               <span className="fs-5"> kg</span>
             </h4>
             <p className="card-text fs-5">Collected Bottles</p>
@@ -77,6 +77,7 @@ function AdminDashboardWidget() {
         </div>
       </div>
 
+      {console.log(printsData)}
       <div className="col-md-6 col-lg-3">
         <div className="card dashboard-card shadow-lg">
           <div className="card-body text-center">

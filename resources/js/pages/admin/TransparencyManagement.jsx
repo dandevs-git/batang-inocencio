@@ -4,12 +4,14 @@ import { useAPI } from "../../component/contexts/ApiContext";
 import TableComponent from "../../component/tables/TableComponent";
 
 const TransparencyManagement = () => {
-  const { getData, postData } = useAPI();
+  const { getData, postData, deleteData } = useAPI();
   const [showModal, setShowModal] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState("");
   const [transparencies, setTransparencies] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [selectedTransparencyId, setSelectedTransparencyId] = useState(null);
 
   useEffect(() => {
     getData("transparencies", setTransparencies, setLoading, setError);
@@ -129,7 +131,43 @@ const TransparencyManagement = () => {
         );
       },
     },
+    {
+      header: "Action",
+      cell: ({ row }) => {
+        const file = row.original;
+        return (
+          <button
+            className="btn btn-danger btn-sm"
+            data-bs-toggle="modal"
+            data-bs-target="#confirmRemove"
+            onClick={() => {
+              setSelectedFile(file.file_url);
+              setSelectedTransparencyId(file.id);
+            }}
+          >
+            Remove
+          </button>
+        );
+      },
+    },
   ];
+
+  const handleRemove = async () => {
+    if (!selectedFile || !selectedTransparencyId) return;
+    try {
+      const response = await deleteData(
+        `/transparencies/${selectedTransparencyId}`,
+        setLoading,
+        setError
+      );
+
+      if (response)
+        getData("transparencies", setTransparencies, setLoading, setError);
+    } catch (err) {
+      console.error("Error removing file:", err);
+      alert("Failed to remove file.");
+    }
+  };
 
   return (
     <>
@@ -187,6 +225,48 @@ const TransparencyManagement = () => {
           </div>
         ))
       )}
+
+      <div
+        className="modal fade"
+        tabIndex="-1"
+        style={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}
+        id="confirmRemove"
+      >
+        <div className="modal-dialog modal-dialog-centered">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h5 className="modal-title">Confirm Changes</h5>
+              <button
+                type="button"
+                className="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+              ></button>
+            </div>
+            <div className="modal-body">
+              <p>Are you sure you want to remove this file?</p>
+            </div>
+            <div className="modal-footer">
+              <button
+                type="button"
+                className="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="btn btn-danger"
+                onClick={handleRemove}
+                disabled={loading}
+                data-bs-dismiss="modal"
+              >
+                {loading ? "Removing..." : "Remove"}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <AddCategoryModal
         showModal={showModal}

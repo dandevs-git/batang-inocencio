@@ -264,7 +264,6 @@ function AdminComputerRentCalendar() {
                       </tr>
                     </thead>
                     <tbody>
-                    {console.log(reservationTimes)}
                       {reservationTimes.map((slot, index) => {
                         const reservedRes = reservations.find(
                           (res) =>
