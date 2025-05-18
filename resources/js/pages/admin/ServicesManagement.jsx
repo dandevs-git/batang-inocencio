@@ -16,22 +16,22 @@ function ServicesManagement() {
       name: "Resource Reservation System",
       path: "/admin/services/resource-reservation",
     },
-    {
-      name: "Facility Reservation System",
-      path: "/admin/services/facility-reservation",
-    },
-    {
-      name: "Event Registration System",
-      path: "/admin/services/event-registration",
-    },
-    {
-      name: "Resource Lending Management System",
-      path: "/admin/services/resource-lending",
-    },
-    {
-      name: "Volunteer Management System",
-      path: "/admin/services/volunteer-management",
-    },
+    // {
+    //   name: "Facility Reservation System",
+    //   path: "/admin/services/facility-reservation",
+    // },
+    // {
+    //   name: "Event Registration System",
+    //   path: "/admin/services/event-registration",
+    // },
+    // {
+    //   name: "Resource Lending Management System",
+    //   path: "/admin/services/resource-lending",
+    // },
+    // {
+    //   name: "Volunteer Management System",
+    //   path: "/admin/services/volunteer-management",
+    // },
   ];
 
   useEffect(() => {

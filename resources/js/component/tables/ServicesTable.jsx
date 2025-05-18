@@ -14,14 +14,14 @@ function ServicesTable({ servicesData, status='', hasActions }) {
   
   const actions = (id) => [
     {
-      label: "Edit",
+      label: "View",
       onClick: () => {
         const servicesItem = servicesData.find((item) => item.id === id);
         setSelectedServices(servicesItem);
         const modal = new Modal(document.getElementById("previewModal"));
         modal.show();
       },
-      className: "btn btn-sm text-light btn-warning text-nowrap",
+      className: "btn btn-sm text-light btn-info text-nowrap",
       icon: "bi bi-eye",
     }
   ];
