@@ -17,7 +17,8 @@ function NewsEdit() {
   const [formValid, setFormValid] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
   const [showAlert, setShowAlert] = useState(false);
-  const [status, setStatus] = useState(""); // add this line
+  const [status, setStatus] = useState("");
+  const [alertType, setAlertType] = useState("success");
 
   useEffect(() => {
     const fetchNews = async () => {
@@ -41,9 +42,6 @@ function NewsEdit() {
     fetchNews();
   }, [id, getData]);
 
-
-  console.log(title);
-  
   const titleCount = `${title.length}/700 characters`;
   const descriptionCount = `${description.length}/2000 characters`;
 
@@ -69,11 +67,26 @@ function NewsEdit() {
   };
 
   const showSuccessAlert = (message) => {
+    setAlertType("success");
     setAlertMessage(message);
     setShowAlert(true);
-    setTimeout(() => {
-      setShowAlert(false);
-    }, 4000);
+    setTimeout(() => setShowAlert(false), 4000);
+  };
+
+  const showFailedAlert = (message) => {
+    setAlertType("danger");
+    setAlertMessage(message);
+    setShowAlert(true);
+    setTimeout(() => setShowAlert(false), 4000);
+  };
+
+  const buildFormData = (publish) => {
+    const formData = new FormData();
+    formData.append("title", title);
+    formData.append("description", description);
+    formData.append("status", publish ? "published" : status);
+    images.forEach((img) => formData.append("images[]", img));
+    return formData;
   };
 
   const handleUpdate = async (publish) => {
@@ -83,21 +96,15 @@ function NewsEdit() {
     }
 
     try {
-      const formData = new FormData();
-      formData.append("title", title);
-      formData.append("description", description);
-      formData.append("status", publish ? "published" : status);
-
-      images.forEach((file, index) => {
-        formData.append(`images[${index}]`, file);
-      });
-
-      await putData(`news/${id}`, formData);
-      showSuccessAlert("News updated successfully!");
-      setTimeout(() => navigate("/admin/news"), 2000);
+      const response = await putData(`news/${id}`, buildFormData(publish));
+      if (response) {
+        showSuccessAlert("News updated successfully!");
+        setTimeout(() => navigate("/admin/news"), 2000);
+      } else {
+        showFailedAlert("Failed to updated News!");
+      }
     } catch (error) {
       console.error("Update failed", error);
-      alert("Failed to update news.");
     }
   };
 
@@ -111,7 +118,7 @@ function NewsEdit() {
 
       {showAlert && (
         <div
-          className="alert alert-success alert-dismissible fade show"
+          className={`alert alert-${alertType} alert-dismissible fade show`}
           role="alert"
         >
           {alertMessage}

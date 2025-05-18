@@ -12,7 +12,7 @@ function EventsEdit() {
   const { id } = useParams(); // Using object destructuring for id
   const [loading, setLoading] = useState(false);
   const [image, setImage] = useState(null);
-  const [imagePreview, setImagePreview] = useState(null);
+  const [imagePreview, setImagePreview] = useState([]);
   const [eventDetails, setEventDetails] = useState({
     title: "",
     date: "",

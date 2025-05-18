@@ -29,7 +29,7 @@ function TableComponent({
             {
               header: "Actions",
               id: "actions",
-            cell: ({ row }) => (
+              cell: ({ row }) => (
                 <div className="d-flex gap-2 justify-content-center">
                   {actions(row.original.id).map((action, index) => (
                     <a
@@ -55,6 +55,14 @@ function TableComponent({
     onGlobalFilterChange: setGlobalFilter,
     onColumnFiltersChange: setColumnFilters,
     onSortingChange: setSorting,
+    globalFilterFn: (row, columnId, filterValue) => {
+      const value = row.getValue(columnId);
+      if (typeof value !== "string") return false;
+    
+      const regex = new RegExp(`\\b${filterValue.trim()}\\b`, 'i');
+      return regex.test(value);
+    },
+    
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getSortedRowModel: getSortedRowModel(),

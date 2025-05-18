@@ -38,15 +38,16 @@ function AnnouncementsEdit() {
   const descriptionCount = `${description.length}/2000 characters`;
 
   const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
+    const files = Array.from(e.target.files);
+    const maxSize = 5 * 1024 * 1024;
 
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setImagePreviews(reader.result);
-      setImages(reader.result);
-    };
-    reader.readAsDataURL(file);
+    const validFiles = files.filter((file) => file.size <= maxSize);
+    if (validFiles.length !== files.length) {
+      alert("Some images exceeded 5MB and were not added.");
+    }
+
+    setImages(validFiles);
+    setImagePreviews(validFiles.map((file) => URL.createObjectURL(file)));
   };
 
   const handlePreview = () => {

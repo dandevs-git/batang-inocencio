@@ -68,7 +68,7 @@ function AnnouncementsCreate() {
     formData.append("title", title);
     formData.append("description", description);
     formData.append("status", status);
-    images.forEach((img, i) => formData.append(`images[${i}]`, img));
+    images.forEach(img => formData.append("images[]", img));
     return formData;
   };
 

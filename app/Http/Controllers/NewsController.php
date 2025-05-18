@@ -69,24 +69,24 @@ class NewsController extends Controller
             'title' => 'required|string|max:255',
             'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5048',
             'description' => 'required|string',
-            'status' => 'nullable|in:draft,published',
+            'status' => 'nullable|in:draft,published,archived',
         ]);
 
-        $existingImages = $news->images ?? [];
-
         if ($request->hasFile('images')) {
-            foreach ($existingImages as $oldImage) {
+            foreach ($news->images ?? [] as $oldImage) {
                 Storage::disk('public')->delete($oldImage);
             }
 
+            $newImages = [];
             foreach ($request->file('images') as $image) {
-                $existingImages[] = $image->store('news_images', 'public');
+                $newImages[] = $image->store('news_images', 'public');
             }
+
+            $news->images = $newImages;
         }
 
         $news->title = $validated['title'];
         $news->description = $validated['description'];
-        $news->images = $existingImages;
         $news->status = $validated['status'] ?? $news->status;
 
         if ($news->status === 'published' && !$news->date_published) {

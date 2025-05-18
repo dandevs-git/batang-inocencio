@@ -36,8 +36,16 @@ function PrintingServicesReservation() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
+
     setShowAlert(false);
+    
+    if (!formRef.current.checkValidity()) {
+      formRef.current.classList.add("was-validated");
+      return;
+    }
+    
+    setLoading(true);
+
 
     const data = new FormData();
     Object.keys(formData).forEach((key) => {
@@ -123,11 +131,7 @@ function PrintingServicesReservation() {
                 </div>
               )}
 
-              <form
-                noValidate
-                ref={formRef}
-                onSubmit={handleSubmit}
-              >
+              <form noValidate ref={formRef} onSubmit={handleSubmit}>
                 <div className="mb-3">
                   <label className="form-label">Reservation Date</label>
                   <input

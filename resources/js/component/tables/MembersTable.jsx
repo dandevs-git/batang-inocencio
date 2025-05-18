@@ -16,13 +16,11 @@ function MembersTable({ hasActions, setFilteredMembersData }) {
     getData("members", setMembersData, setLoading, setError);
   }, [getData]);
 
-  // useMemo to compute filtered members only when necessary
   const filteredMembers = useMemo(() => {
     if (!selectedArea) return membersData;
     return membersData.filter((member) => member.area === selectedArea);
   }, [membersData, selectedArea]);
 
-  // Whenever filteredMembers changes, update parent component
   useEffect(() => {
     if (setFilteredMembersData) {
       setFilteredMembersData(filteredMembers);

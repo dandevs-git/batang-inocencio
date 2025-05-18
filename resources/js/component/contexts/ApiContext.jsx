@@ -22,9 +22,15 @@ export const APIProvider = ({ children }) => {
   ) => {
     try {
       if (setLoading) setLoading(true);
-      const config = data ? { data } : {};
+  
+      const isFormData = data instanceof FormData;
+  
+      const config = isFormData
+        ? {}
+        : { headers: { "Content-Type": "application/json" } };
+  
       const response = await api[method](endpoint, data, config);
-
+  
       if (setData) setData(response.data);
       return response.data;
     } catch (error) {
@@ -37,6 +43,8 @@ export const APIProvider = ({ children }) => {
       if (setLoading) setLoading(false);
     }
   };
+  
+  
 
   const getData = async (endpoint, setData, setLoading, setError) => {
     return makeRequest("get", endpoint, null, setLoading, setData, setError);
