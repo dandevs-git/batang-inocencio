@@ -91,7 +91,9 @@ function OtherServices() {
   useEffect(() => {
     if (selectedResource) {
       const filtered = reservations?.filter(
-        (res) => res.resource_number == selectedResource.id && res.resource_number == selectedResource.id
+        (res) =>
+          res.resource_number == selectedResource.id &&
+          res.resource_number == selectedResource.id
       );
       const updated = timeOptions.map((option) => ({
         ...option,
@@ -153,7 +155,11 @@ function OtherServices() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
-    setLoading(true);
+
+    if (!formRef.current.checkValidity()) {
+      formRef.current.classList.add("was-validated");
+      return;
+    }
 
     const data = new FormData();
     Object.entries(formData).forEach(([key, value]) => {
@@ -184,14 +190,12 @@ function OtherServices() {
       Modal.getOrCreateInstance(document.getElementById("successModal")).show();
     } catch (err) {
       setError(err?.message || "Failed to submit reservation.");
-    } finally {
-      setLoading(false);
     }
   };
 
   const handleMarkReservation = () => {
     setFormData({
-      pc_number: "",
+      resource_number: "",
       time_range: "",
       name: "",
       address: "",
@@ -230,6 +234,7 @@ function OtherServices() {
                   onChange={onChange}
                   value={value}
                   eventDates={reservedates}
+                  hasPastDates={false}
                 />
               </div>
             </div>
@@ -261,53 +266,185 @@ function OtherServices() {
         </div>
 
         <div className="container mt-5 pb-5">
-          {/* <div className="card shadow-lg border-0 rounded-4">
-            <div className="card-header text-center bg-primary text-light rounded-top-4">
-              <h1 className="text-capitalized fw-semibold">
-                {selectedService?.service_name}
-              </h1>
+          {!isMakingReservation && (
+            <div className="row g-4 justify-content-center">
+              {allResources.map((pc, index) => (
+                <div
+                  key={index}
+                  className="col-12 col-sm-6 col-md-4 col-lg-3"
+                  onClick={() => handleCardClick(pc)}
+                  style={{ cursor: "pointer" }}
+                >
+                  <div className="card text-center shadow-lg border-0 rounded-4 h-100 hover-shadow">
+                    <div className="card-body d-flex flex-column align-items-center justify-content-center p-4">
+                      <i
+                        className={`bi bi-pc-display display-3 mb-3 ${
+                          pc.status === "full" ? "text-danger" : "text-success"
+                        }`}
+                      ></i>
+                      <h5 className="card-title fw-semibold mb-2">{pc.name}</h5>
+                      <span
+                        className={`badge rounded-pill fs-6 px-3 py-2 ${
+                          pc.status === "full"
+                            ? "bg-danger-subtle text-danger"
+                            : "bg-success-subtle text-success"
+                        }`}
+                      >
+                        {pc.status === "full" ? "Full Slot" : "Available"}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
-            <div className="card-body p-5"> */}
-              <div className="row g-4 justify-content-center">
-                {allResources.map((resource, index) => (
-                  <div
-                    key={index}
-                    className="col-12 col-sm-6 col-md-4 col-lg-3"
-                    onClick={() => handleCardClick(resource)}
-                    style={{ cursor: "pointer" }}
-                  >
-                    <div className="card text-center shadow-lg border-0 rounded-4 h-100 hover-shadow">
-                      <div className="card-body d-flex flex-column align-items-center justify-content-center p-4">
-                        <i
-                          className={`bi bi-collection-fill display-3 mb-3 ${
-                            resource.status === "full"
-                              ? "text-danger"
-                              : "text-success"
-                          }`}
-                        ></i>
-                        <h5 className="card-title fw-semibold mb-2">
-                          {resource.name}
-                        </h5>
-                        <span
-                          className={`badge rounded-pill fs-6 px-3 py-2 ${
-                            resource.status === "full"
-                              ? "bg-danger-subtle text-danger"
-                              : "bg-success-subtle text-success"
-                          }`}
-                        >
-                          {resource.status === "full"
-                            ? "Full Slot"
-                            : "Available"}
-                        </span>
+          )}
+
+          {isMakingReservation && (
+            <div className="d-flex flex-column container w-75 border p-4 rounded-4 shadow-lg">
+              <div className="d-flex justify-content-center align-items-center">
+                <h5 className="mb-0">
+                  Make Reservation for{" "}
+                  {value.toLocaleDateString("en-US", {
+                    weekday: "long",
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                  })}
+                </h5>
+              </div>
+
+              <div className="">
+                {error && (
+                  <div className="alert alert-danger">
+                    {typeof error === "string" ? error : "An error occurred."}
+                  </div>
+                )}
+
+                {console.log(formData)}
+
+                <form
+                  className="needs-validation"
+                  ref={formRef}
+                  noValidate
+                  onSubmit={handleSubmit}
+                  id="reservation-form"
+                >
+                  <div className="row mb-3">
+                    <div className="col-md-12">
+                      <label className="form-label">Resource Number</label>
+                      <select
+                        className="form-select"
+                        name="resource_number"
+                        value={formData.resource_number}
+                        onChange={handleInputChange}
+                        required
+                      >
+                        <option value="">-- Select PC --</option>
+                        {allResources.map((pc, index) => {
+                          const isPCFullyBooked = pc.status === "full";
+
+                          return (
+                            <option
+                              key={index}
+                              value={pc.id}
+                              disabled={isPCFullyBooked}
+                            >
+                              {pc.name || `PC ${pc.id}`}{" "}
+                              {isPCFullyBooked && "(Fully Booked)"}
+                            </option>
+                          );
+                        })}
+                      </select>
+                      <div className="invalid-feedback">
+                        Please select a PC.
                       </div>
                     </div>
                   </div>
-                ))}
+                  {formData.resource_number ? (
+                    <div className="row mb-3">
+                      <div className="col-md-12">
+                        <label className="form-label">Time Range</label>
+                        <select
+                          className="form-select"
+                          name="time_range"
+                          value={formData.time_range}
+                          onChange={handleInputChange}
+                          required
+                        >
+                          <option value="">-- Select Time Slot --</option>
+                          {timeOptions.map((slot, index) => {
+                            const isSlotReserved = reservations.some(
+                              (res) =>
+                                res.resource_number == formData.resource_number &&
+                                res.reservation_date === localDate &&
+                                res.time_range === slot.slot
+                            );
+                            return (
+                              <option
+                                key={index}
+                                value={slot.slot}
+                                disabled={isSlotReserved}
+                              >
+                                {slot.slot} {isSlotReserved ? "(Reserved)" : ""}
+                              </option>
+                            );
+                          })}
+                        </select>
+                        <div className="invalid-feedback">
+                          Please select a time slot.
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    ""
+                  )}
+
+                  {formData.time_range ? (
+                    <>
+                      {["name", "address", "email", "contact"].map(
+                        (field, index) => (
+                          <div className="mb-3" key={index}>
+                            <label className="form-label">
+                              {field === "contact"
+                                ? "Contact Number"
+                                : field.charAt(0).toUpperCase() +
+                                  field.slice(1)}
+                            </label>
+                            <input
+                              type={field === "email" ? "email" : "text"}
+                              className="form-control"
+                              name={field}
+                              value={formData[field]}
+                              onChange={handleInputChange}
+                              required
+                            />
+                            <div className="invalid-feedback">
+                              Please enter a valid{" "}
+                              {field === "contact" ? "contact number" : field}.
+                            </div>
+                          </div>
+                        )
+                      )}
+
+                      <div className="d-flex">
+                        <button
+                          type="submit"
+                          className="btn btn-primary w-100"
+                          disabled={loading}
+                        >
+                          {loading ? "Submitting..." : "Reserve"}
+                        </button>
+                      </div>
+                    </>
+                  ) : (
+                    ""
+                  )}
+                </form>
               </div>
             </div>
-          </div>
-        {/* </div>
-      </div> */}
+          )}
+        </div>
+      </div>
 
       <div
         className="modal fade"

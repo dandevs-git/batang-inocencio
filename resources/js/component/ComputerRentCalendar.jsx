@@ -204,6 +204,7 @@ function ComputerRentCalendar() {
                 onChange={onChange}
                 value={value}
                 eventDates={reservedates}
+                hasPastDates={false}
               />
             </div>
           </div>

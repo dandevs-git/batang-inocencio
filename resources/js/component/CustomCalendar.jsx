@@ -3,7 +3,12 @@ import "react-calendar/dist/Calendar.css";
 import Calendar from "react-calendar";
 import "../../css/react_calendar.css";
 
-function CustomCalendar({ onChange, value, eventDates = [] }) {
+function CustomCalendar({
+  hasPastDates = true,
+  onChange,
+  value,
+  eventDates = [],
+}) {
   const formatDate = (date) => date.toLocaleDateString("en-CA");
 
   const renderTileContent = ({ date, view }) => {
@@ -38,11 +43,19 @@ function CustomCalendar({ onChange, value, eventDates = [] }) {
     ) : null;
   };
 
+  const disablePastDates = ({ date, view }) => {
+    if (view !== "month") return false;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return date < today;
+  };
+
   return (
     <Calendar
       onChange={onChange}
       value={value}
       tileContent={renderTileContent}
+      tileDisabled={hasPastDates ? undefined : disablePastDates}
       className="react-calendar border-0 rounded-4 shadow-sm"
     />
   );
