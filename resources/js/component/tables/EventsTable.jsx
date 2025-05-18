@@ -55,7 +55,7 @@ function EventsTable({ status, hasActions }) {
       cell: ({ getValue }) => {
         const rawDate = getValue();
         const date = new Date(rawDate);
-        const formatted = date.toLocaleString("en-US", {
+        return date.toLocaleString("en-US", {
           month: "long",
           day: "numeric",
           year: "numeric",
@@ -63,10 +63,9 @@ function EventsTable({ status, hasActions }) {
           minute: "2-digit",
           hour12: true,
         });
-        setFormattedDate(formatted); 
-        return formatted;
       },
-    },
+    }
+    ,
     {
       header: "Status",
       accessorKey: "status",

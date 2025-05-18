@@ -24,19 +24,17 @@ function ServicesComputerManagementWeeklyReport() {
   const handleDownloadPDF = async () => {
     const doc = new jsPDF();
 
-    // Check if data is available
     if (!data || data.length === 0) {
       alert("No data available to export.");
       return;
     }
 
-    // Add the header image
     const headerImageUrl = `${window.location.origin}/images/MembersPdfHeader.png`;
     const img = new Image();
     img.src = headerImageUrl;
 
     img.onload = () => {
-      doc.addImage(img, "PNG", 10, 0, 190, 40); // Add the header image to the PDF
+      doc.addImage(img, "PNG", 10, 0, 190, 40); 
 
       doc.setFontSize(14);
       doc.text(
@@ -48,10 +46,9 @@ function ServicesComputerManagementWeeklyReport() {
       doc.setFontSize(12);
       doc.text(`Total Reservations: ${total}`, 14, 60);
 
-      // Create the table with autoTable
       autoTable(doc, {
         head: [
-          ["Week", "Number of Reservations"], // Table header
+          ["Week", "Number of Reservations"], 
         ],
         body: data.map((entry) => [
           `${new Date(entry.start).toLocaleDateString("en-US", {
@@ -65,7 +62,7 @@ function ServicesComputerManagementWeeklyReport() {
           })}`,
           entry.reservationCount,
         ]),
-        startY: 70, // Start the table below the title and other text
+        startY: 70, 
         styles: { fontSize: 10 },
         headStyles: { fillColor: [41, 128, 185] },
       });

@@ -460,7 +460,7 @@ function ComputerRentCalendar() {
                             : "list-group-item-success"
                         } ${!slot.reserved ? "clickable" : ""}`}
                         style={{
-                          cursor: !slot.reserved && reservedRes ? "pointer" : "not-allowed",
+                          cursor: !slot.reserved && !reservedRes ? "pointer" : "not-allowed",
                         }}
                         onClick={() => {
                           if (!slot.reserved) {

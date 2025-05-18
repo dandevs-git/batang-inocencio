@@ -128,7 +128,7 @@ function EventDetail() {
               aria-label="Share on Twitter"
             ></Link>
           </div>
-          
+
           <p
             className="p-3 lead"
             style={{ textIndent: "50px", textAlign: "justify" }}
@@ -186,14 +186,15 @@ function EventDetail() {
                     <strong>Requirements:</strong>
                   </h6>
                   <ul className="list-unstyled px-2">
-                    {event.requirements.split("\n").map((req, index) => (
+                    {event.requirements.split(",").map((req, index) => (
                       <li key={index} className="mb-1">
-                        <i className="bi bi-check-lg text-success"></i> {req}
+                        <i className="bi bi-check-lg text-success"></i>{" "}
+                        {req.trim()}
                       </li>
                     ))}
                   </ul>
                 </div>
-              )}
+              )}              
 
               <Link
                 to={`/registration/${event.id}`}

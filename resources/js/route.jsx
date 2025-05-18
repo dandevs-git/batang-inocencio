@@ -85,7 +85,7 @@ function route() {
             const allServices = [...prevServices, ...updatedServices];
             const serviceMap = new Map();
             allServices.forEach((service) => {
-              serviceMap.set(service.service_name, service); // remove duplicates
+              serviceMap.set(service.service_name, service);
             });
             return Array.from(serviceMap.values());
           });
@@ -207,6 +207,10 @@ function route() {
         <Route
           path="/admin/services/computer"
           element={<ServicesComputerManagement />}
+        />
+        <Route
+          path="/admin/services/computer/weekly-report"
+          element={<ServicesComputerManagementWeeklyReport />}
         />
         <Route
           path="/admin/services/printing"

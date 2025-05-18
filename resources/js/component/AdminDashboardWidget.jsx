@@ -77,7 +77,6 @@ function AdminDashboardWidget() {
         </div>
       </div>
 
-      {console.log(printsData)}
       <div className="col-md-6 col-lg-3">
         <div className="card dashboard-card shadow-lg">
           <div className="card-body text-center">

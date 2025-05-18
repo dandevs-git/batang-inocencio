@@ -127,7 +127,6 @@ function PrintingServicesReservation() {
                 noValidate
                 ref={formRef}
                 onSubmit={handleSubmit}
-                encType="multipart/form-data"
               >
                 <div className="mb-3">
                   <label className="form-label">Reservation Date</label>

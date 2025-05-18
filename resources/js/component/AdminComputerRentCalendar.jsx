@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 
 function AdminComputerRentCalendar() {
   const navigate = useNavigate();
-  const { postData, getData } = useAPI();
+  const { deleteData, getData } = useAPI();
   const [value, onChange] = useState(new Date());
   const [reservations, setReservations] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -105,6 +105,20 @@ function AdminComputerRentCalendar() {
   const totalReservationsForSelectedDate = reservations.filter(
     (res) => res.reservation_date === formattedDate
   ).length;
+
+  const handleCancelReservation = async () => {
+    if (!selectedReservation) return;
+
+    try {
+      await deleteData(`computer-services/${selectedReservation.id}`);
+      fetchReservations();
+      Modal.getInstance(
+        document.getElementById("reservationDetailModal")
+      ).hide();
+    } catch (error) {
+      console.error("Failed to cancel reservation:", error);
+    }
+  };
 
   return (
     <>
@@ -400,13 +414,65 @@ function AdminComputerRentCalendar() {
                       >
                         {selectedReservation.status || "No Status"}
                       </div>
-                      <button className="btn btn-outline-danger btn-sm">
+                      <button
+                        className="btn btn-danger"
+                        onClick={() => {
+                          const modal = new Modal(
+                            document.getElementById("cancelConfirmationModal")
+                          );
+                          modal.show();
+                        }}
+                      >
                         Cancel Reservation
                       </button>
                     </div>
                   </div>
                 </div>
               )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div
+        className="modal fade"
+        id="cancelConfirmationModal"
+        tabIndex="-1"
+        aria-labelledby="cancelConfirmationModalLabel"
+        aria-hidden="true"
+      >
+        <div className="modal-dialog modal-dialog-centered">
+          <div className="modal-content shadow">
+            <div className="modal-header rounded-top-4">
+              <h5 className="modal-title" id="cancelConfirmationModalLabel">
+                Confirm Cancellation
+              </h5>
+              <button
+                type="button"
+                className="btn-close btn-close-white"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+              ></button>
+            </div>
+            <div className="modal-body text-center">
+              <p>Are you sure you want to cancel this reservation?</p>
+            </div>
+            <div className="modal-footer">
+              <button
+                type="button"
+                className="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                No, Keep It
+              </button>
+              <button
+                type="button"
+                className="btn btn-danger"
+                onClick={handleCancelReservation}
+                data-bs-dismiss="modal"
+              >
+                Yes, Cancel It
+              </button>
             </div>
           </div>
         </div>

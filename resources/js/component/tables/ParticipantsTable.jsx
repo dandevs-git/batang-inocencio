@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useAPI } from "../contexts/ApiContext";
 import TableComponent from "./TableComponent";
-import ModalPreview from "../modals/ModalPreview";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 function ParticipantsTable({
   eventName,
@@ -46,12 +47,6 @@ function ParticipantsTable({
       className: "btn btn-sm text-light btn-info text-nowrap",
       icon: "bi bi-eye",
     },
-    // {
-    //   label: "Edit",
-    //   href: `/admin/participants/edit/${id}`,
-    //   className: "btn btn-sm text-light btn-warning text-nowrap",
-    //   icon: "bi bi-pencil-square",
-    // },
   ];
 
   const participantColumns = [
@@ -92,29 +87,210 @@ function ParticipantsTable({
     setSelectedParticipant(null);
   };
 
+  const handleDownloadPDF = async () => {
+    const doc = new jsPDF("p", "mm", "a4");
+
+    if (!filteredData || filteredData.length === 0) {
+      alert("No data available to export.");
+      return;
+    }
+
+    const headerImageUrl = `${window.location.origin}/images/MembersPdfHeader.png`;
+    const img = new Image();
+    img.src = headerImageUrl;
+
+    img.onload = () => {
+      doc.addImage(img, "PNG", 10, 10, 190, 30);
+
+      const eventTitle = `${
+        registrationType === "individual" ? "Participants" : "Teams"
+      } of ${eventName}`;
+      const today = new Date().toLocaleDateString("en-US");
+
+      doc.setFontSize(16);
+      doc.text(eventTitle, 14, 50);
+      doc.setFontSize(12);
+      doc.text(`Generated on: ${today}`, 14, 58);
+      doc.text(`Total: ${filteredData.length}`, 14, 65);
+
+      // Generate table based on registrationType
+      if (registrationType === "individual") {
+        autoTable(doc, {
+          startY: 75,
+          head: [["#", "Name", "Email", "Contact Number"]],
+          body: filteredData.map((participant, index) => [
+            index + 1,
+            `${participant.first_name} ${participant.last_name}`,
+            participant.email,
+            participant.contact_number,
+          ]),
+          styles: { fontSize: 10 },
+          headStyles: { fillColor: [41, 128, 185] },
+        });
+      } else {
+        autoTable(doc, {
+          startY: 75,
+          head: [
+            [
+              "#",
+              "Team Name",
+              "Leader Name",
+              "Leader Age",
+              "Leader Contact",
+              "Leader Email",
+              "Members Count",
+            ],
+          ],
+          body: filteredData.map((team, index) => [
+            index + 1,
+            team.team_name,
+            team.leader?.name || "",
+            team.leader?.age || "",
+            team.leader?.contact || "",
+            team.leader?.email || "",
+            team.members?.length || 0,
+          ]),
+          styles: { fontSize: 9 },
+          headStyles: { fillColor: [41, 128, 185] },
+        });
+      }
+
+      doc.save(`${eventName}_${registrationType}_report.pdf`);
+    };
+
+    img.onerror = () => {
+      console.error("Failed to load header image.");
+      alert("Failed to load header image. Cannot generate PDF.");
+    };
+  };
+
   return (
     <>
       {showModal && selectedParticipant && (
-        <ModalPreview
-          header="Preview Participant"
-          id="previewModal"
-          title={selectedParticipant?.name}
-          description={selectedParticipant?.description}
-          imagePreview={selectedParticipant?.image}
-          currentDate={
-            selectedParticipant?.updated_at &&
-            formatDate(selectedParticipant.updated_at)
-          }
-          onClose={closeModal}
-        />
+        <div
+          className="modal fade show d-block"
+          tabIndex="-1"
+          role="dialog"
+          style={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}
+        >
+          <div
+            className="modal-dialog modal-lg modal-dialog-centered"
+            role="document"
+          >
+            <div className="modal-content border-0 shadow">
+              <div className="modal-header bg-primary text-white">
+                <h5 className="modal-title">Participant Details</h5>
+                <button
+                  type="button"
+                  className="btn-close btn-close-white"
+                  aria-label="Close"
+                  onClick={closeModal}
+                ></button>
+              </div>
+
+              <div className="modal-body p-5">
+                {registrationType === "individual" ? (
+                  <>
+                    <div className="mb-2">
+                      <strong>Name:</strong> {selectedParticipant.first_name}{" "}
+                      {selectedParticipant.last_name}
+                    </div>
+                    <div className="mb-2">
+                      <strong>Email:</strong> {selectedParticipant.email}
+                    </div>
+                    <div className="mb-2">
+                      <strong>Contact Number:</strong>{" "}
+                      {selectedParticipant.contact_number}
+                    </div>
+                    <div className="mb-2">
+                      <strong>Registered At:</strong>{" "}
+                      {formatDate(selectedParticipant.created_at)}
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="mb-2">
+                      <strong>Team Name:</strong>
+                      <div className="border rounded-3 p-2">
+                        {selectedParticipant.team_name}
+                      </div>
+                    </div>
+                    <div className="mb-2">
+                      <strong>Leader Name:</strong>
+                      <div className="border rounded-3 p-2">
+                        {selectedParticipant.leader?.name}
+                      </div>
+                    </div>
+                    <div className="mb-2">
+                      <strong>Leader Age:</strong>
+                      <div className="border rounded-3 p-2">
+                        {selectedParticipant.leader?.age}
+                      </div>
+                    </div>
+                    <div className="mb-2">
+                      <strong>Leader Contact:</strong>
+                      <div className="border rounded-3 p-2">
+                        {selectedParticipant.leader?.contact}
+                      </div>
+                    </div>
+                    <div className="mb-5">
+                      <strong>Leader Email:</strong>
+                      <div className="border rounded-3 p-2">
+                        {selectedParticipant.leader?.email}
+                      </div>
+                    </div>
+
+                    {selectedParticipant.members?.length > 0 && (
+                      <div className="table-responsive">
+                        <table className="table table-bordered table-hover">
+                          <thead className="table-light">
+                            <tr>
+                              <th>#</th>
+                              <th>Name</th>
+                              <th>Age</th>
+                              <th>Contact</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {selectedParticipant.members.map(
+                              (member, index) => (
+                                <tr key={index}>
+                                  <td>{index + 1}</td>
+                                  <td>{member.name}</td>
+                                  <td>{member.age}</td>
+                                  <td>{member.contact}</td>
+                                </tr>
+                              )
+                            )}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
+
+              <div className="modal-footer">
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={closeModal}
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
+
       {registrationType === "individual" ? (
         <TableComponent
           topComponent={
             <>
               <button
                 className="btn btn-primary d-flex align-items-center px-4 py-2"
-                // onClick={handleDownloadPDF}
+                onClick={handleDownloadPDF}
               >
                 <i className="bi bi-download me-2"></i> Download as PDF
               </button>
@@ -132,7 +308,7 @@ function ParticipantsTable({
             <>
               <button
                 className="btn btn-primary d-flex align-items-center px-4 py-2"
-                // onClick={handleDownloadPDF}
+                onClick={handleDownloadPDF}
               >
                 <i className="bi bi-download me-2"></i> Download as PDF
               </button>

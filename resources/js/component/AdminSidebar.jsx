@@ -263,7 +263,7 @@ const AdminSidebar = ({ collapsed, setCollapsed }) => {
                 </span>
                 <i
                   className={`bi ${
-                    activeEventMenu ? "bi-chevron-up" : "bi-chevron-down"
+                    activeServicesMenu ? "bi-chevron-up" : "bi-chevron-down"
                   } ${collapsed ? "ms-3" : "ms-auto"}`}
                 ></i>
               </button>

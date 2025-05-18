@@ -122,7 +122,7 @@ class ResourceReservationServiceController extends Controller
         $startOfWeek = Carbon::now()->startOfWeek(CarbonInterface::SUNDAY)->startOfDay();
         $endOfWeek = Carbon::now()->endOfWeek(CarbonInterface::SATURDAY)->endOfDay();
 
-        $reservations = DB::table('computer_reservations')
+        $reservations = DB::table('computer_service_reservations')
             ->selectRaw('YEAR(reservation_date) as year, WEEK(reservation_date) as week, COUNT(*) as reservationCount')
             ->whereBetween('reservation_date', [$startOfWeek, $endOfWeek])
             ->groupBy(DB::raw('YEAR(reservation_date), WEEK(reservation_date)'))
@@ -142,7 +142,4 @@ class ResourceReservationServiceController extends Controller
 
         return response()->json($reservations);
     }
-
-
-
 }

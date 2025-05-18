@@ -8,10 +8,6 @@ function ComputerRentTable({ title, status, hasActions }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState();
 
-  useEffect(() => {
-    // getData("announcements", setAnnouncementsData, setLoading, setError);
-  }, [getData]);
-
   const filteredAnnouncementsData = status
     ? announcementsData.filter(
         (announcementsItem) => announcementsItem.status === status

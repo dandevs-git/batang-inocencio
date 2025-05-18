@@ -25,8 +25,15 @@ function NewsEdit() {
         const res = await getData(`news/${id}`);
         setTitle(res.title);
         setDescription(res.description);
-        setImagePreviews(res.images);
-        setStatus(res.status); // assuming API returns 'draft' or 'published'
+        setStatus(res.status);
+
+        const imgs = Array.isArray(res.images)
+          ? res.images
+          : res.images
+          ? [res.images]
+          : [];
+
+        setImagePreviews(imgs);
       } catch (error) {
         console.error("Failed to fetch news data", error);
       }
@@ -34,20 +41,23 @@ function NewsEdit() {
     fetchNews();
   }, [id, getData]);
 
+
+  console.log(title);
+  
   const titleCount = `${title.length}/700 characters`;
   const descriptionCount = `${description.length}/2000 characters`;
 
-  // Handle images change and convert it to base64 string
   const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
+    const files = Array.from(e.target.files);
+    const maxSize = 5 * 1024 * 1024;
 
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setImagePreviews(reader.result); // base64 images string
-      setImages(reader.result); // store base64 string
-    };
-    reader.readAsDataURL(file);
+    const validFiles = files.filter((file) => file.size <= maxSize);
+    if (validFiles.length !== files.length) {
+      alert("Some images exceeded 5MB and were not added.");
+    }
+
+    setImages(validFiles);
+    setImagePreviews(validFiles.map((file) => URL.createObjectURL(file)));
   };
 
   const handlePreview = () => {
@@ -73,14 +83,16 @@ function NewsEdit() {
     }
 
     try {
-      const payload = {
-        title,
-        description,
-        images,
-        status: publish ? "published" : status, // Update the status if publish is true
-      };
+      const formData = new FormData();
+      formData.append("title", title);
+      formData.append("description", description);
+      formData.append("status", publish ? "published" : status);
 
-      await putData(`news/${id}`, payload); // PUT request with JSON payload
+      images.forEach((file, index) => {
+        formData.append(`images[${index}]`, file);
+      });
+
+      await putData(`news/${id}`, formData);
       showSuccessAlert("News updated successfully!");
       setTimeout(() => navigate("/admin/news"), 2000);
     } catch (error) {
@@ -165,8 +177,9 @@ function NewsEdit() {
             <input
               type="file"
               className="d-none"
-              accept="images/*"
+              accept="image/*"
               onChange={handleImageChange}
+              multiple
             />
             {imagePreviews.length > 0 && (
               <div

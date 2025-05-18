@@ -41,7 +41,6 @@ class PrintingServiceReservationController extends Controller
         $filePath = $request->file('file')->store('printing_files', 'public');
         $reservationCode = strtoupper(Str::random(8));
 
-
         $reservation = PrintingServiceReservation::create([
             'name' => $request->name,
             'reservation_date' => $request->reservation_date,
