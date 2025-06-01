@@ -16,7 +16,6 @@
             padding: 20px !important;
         }
 
-        /* Container */
         .container {
             background: white !important;
             padding: 30px !important;
@@ -101,12 +100,13 @@
             </div>
         </div>
 
-        <h3>Membership Confirmation</h3>
+        <h3>Event Participant Confirmation</h3>
 
         <p>Hi, {{ $member->first_name }}!</p>
-        <p>Thank you for joining KK Membership! We’re excited to have you as part of our community.</p>
+        <p>Thank you for registering for our event! We’re excited to have you participate and look forward to your
+            involvement.</p>
 
-        <p>Your membership details are as follows:</p>
+        <p>Your event registration details are as follows:</p>
         <hr>
 
         <div class="member-name">{{ $member->first_name }} {{ $member->last_name }}</div>
@@ -116,7 +116,7 @@
             <strong>Address:</strong> {{ $member->address }}<br>
             <strong>Age:</strong> {{ $member->age }}<br>
             <strong>Area:</strong> {{ $member->area }}<br>
-            <strong>Membership Date:</strong> {{ \Carbon\Carbon::parse($member->created_at)->format('F d, Y') }}
+            <strong>Registration Date:</strong> {{ \Carbon\Carbon::parse($member->created_at)->format('F d, Y') }}
         </div>
         <hr>
 

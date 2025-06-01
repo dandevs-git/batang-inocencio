@@ -138,18 +138,43 @@ function ParticipantsTable({
               "Leader Age",
               "Leader Contact",
               "Leader Email",
-              "Members Count",
+              "Member Name",
+              "Member Age",
+              "Member Contact",
             ],
           ],
-          body: filteredData.map((team, index) => [
-            index + 1,
-            team.team_name,
-            team.leader?.name || "",
-            team.leader?.age || "",
-            team.leader?.contact || "",
-            team.leader?.email || "",
-            team.members?.length || 0,
-          ]),
+          body: filteredData.flatMap((team, teamIndex) => {
+            const baseRow = [
+              teamIndex + 1,
+              team.team_name,
+              team.leader?.name || "",
+              team.leader?.age || "",
+              team.leader?.contact || "",
+              team.leader?.email || "",
+            ];
+
+            if (!team.members || team.members.length === 0) {
+              return [[...baseRow, "-", "-", "-"]];
+            }
+
+            return team.members.map((member, memberIndex) => {
+              if (memberIndex === 0) {
+                return [...baseRow, member.name, member.age, member.contact];
+              } else {
+                return [
+                  "",
+                  "",
+                  "",
+                  "",
+                  "",
+                  "",
+                  member.name,
+                  member.age,
+                  member.contact,
+                ];
+              }
+            });
+          }),
           styles: { fontSize: 9 },
           headStyles: { fillColor: [41, 128, 185] },
         });

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import CustomCalendar from "./CustomCalendar";
 import { useAPI } from "./contexts/ApiContext";
 
-function PrintingScheduleCalendar() {
+function AdminPrintingScheduleCalendar() {
   const [value, setValue] = useState(new Date());
   const [reservations, setReservations] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -141,4 +141,4 @@ function PrintingScheduleCalendar() {
   );
 }
 
-export default PrintingScheduleCalendar;
+export default AdminPrintingScheduleCalendar;

@@ -84,6 +84,20 @@ class ComputerServiceReservationsController extends Controller
         return response()->json($reservation, 200);
     }
 
+    public function markAsDone($id)
+    {
+        $reservation = ComputerServiceReservations::find($id);
+
+        if (!$reservation) {
+            return response()->json(['message' => 'Reservation not found.'], 404);
+        }
+
+        $reservation->status = 'completed';
+        $reservation->save();
+
+        return response()->json(['message' => 'Reservation marked as completed.']);
+    }
+
 
     public function destroy($id)
     {

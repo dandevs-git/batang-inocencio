@@ -17,11 +17,12 @@ function Settings() {
     committeeMembers: [{ name: "", position: "", image: null }],
   });
 
+  const [faqItems, setFaqItems] = useState([]);
   const [alertMessage, setAlertMessage] = useState("");
   const [showAlert, setShowAlert] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const [showConfirmModal, setShowConfirmModal] = useState(false);
-  const [pendingSubmit, setPendingSubmit] = useState(false);
 
   useEffect(() => {
     const loadSettings = async () => {
@@ -60,6 +61,10 @@ function Settings() {
     };
 
     loadSettings();
+  }, [getData]);
+
+  useEffect(() => {
+    getData("faqs", setFaqItems, setLoading, setError);
   }, [getData]);
 
   const showSuccessAlert = (message) => {
@@ -122,13 +127,20 @@ function Settings() {
         form.append(`committeeMembers[${index}][image]`, member.image);
       }
     });
-
+    
+    faqItems.forEach((faq, index) => {
+      form.append(`faqs[${index}][question]`, faq.question);
+      form.append(`faqs[${index}][answer]`, faq.answer);
+    });
+  
     try {
       await postData("/settings/save", form, null, setLoading);
       showSuccessAlert("Website Information Updated Successfully");
+      window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (error) {
       console.error("Error saving website info:", error);
       showErrorAlert("Error updating settings.");
+      window.scrollTo({ top: 0, behavior: "smooth" });
     } finally {
       setLoading(false);
     }
@@ -157,7 +169,6 @@ function Settings() {
         )}
 
         <form onSubmit={handleSubmit}>
-          {/* Website Info */}
           <div className="mb-4 p-4 bg-white rounded-3 shadow-lg border">
             <h5 className="mb-3 text-secondary">Website Information</h5>
             <div className="row g-3">
@@ -366,6 +377,120 @@ function Settings() {
             </div>
           </div>
 
+          {/* <p class="d-inline-flex gap-1">
+            <a
+              class="btn btn-primary"
+              data-bs-toggle="collapse"
+              href="#collapseExample"
+              role="button"
+              aria-expanded="false"
+              aria-controls="collapseExample"
+            >
+              Link with href
+            </a>
+            <button
+              class="btn btn-primary"
+              type="button"
+              data-bs-toggle="collapse"
+              data-bs-target="#collapseExample"
+              aria-expanded="false"
+              aria-controls="collapseExample"
+            >
+              Button with data-bs-target
+            </button>
+          </p>
+          <div class="collapse" id="collapseExample">
+            <div class="card card-body">
+              Some placeholder content for the collapse component. This panel is
+              hidden by default but revealed when the user activates the
+              relevant trigger.
+            </div>
+          </div> */}
+
+          <div className="mb-4 p-4 bg-white rounded-3 shadow-lg border">
+            <h5 className="mb-3 text-secondary">Frequently Asked Questions</h5>
+            <div className="accordion" id="faqAccordion">
+              {faqItems.map((item, index) => {
+                const collapseId = `collapseAnswer${index}`;
+                const headingId = `heading${index}`;
+                return (
+                  <div className="accordion-item" key={index}>
+                    <h2 className="accordion-header" id={headingId}>
+                      <button
+                        className="accordion-button collapsed"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target={`#${collapseId}`}
+                        aria-expanded="false"
+                        aria-controls={collapseId}
+                      >
+                        {item.question || `Question ${index + 1}`}
+                      </button>
+                    </h2>
+                    <div
+                      id={collapseId}
+                      className="accordion-collapse collapse"
+                      aria-labelledby={headingId}
+                      // Removed data-bs-parent here to allow toggle close
+                    >
+                      <div className="accordion-body">
+                        <div className="mb-3">
+                          <label className="form-label">Question</label>
+                          <input
+                            type="text"
+                            className="form-control"
+                            value={item.question}
+                            onChange={(e) => {
+                              const updatedFaqs = [...faqItems];
+                              updatedFaqs[index].question = e.target.value;
+                              setFaqItems(updatedFaqs);
+                            }}
+                            placeholder="Enter your question here"
+                          />
+                        </div>
+                        <div className="mb-3">
+                          <label className="form-label">Answer</label>
+                          <textarea
+                            className="form-control"
+                            rows="3"
+                            value={item.answer}
+                            onChange={(e) => {
+                              const updatedFaqs = [...faqItems];
+                              updatedFaqs[index].answer = e.target.value;
+                              setFaqItems(updatedFaqs);
+                            }}
+                            placeholder="Enter the answer here"
+                          />
+                        </div>
+                        <button
+                          type="button"
+                          className="btn btn-sm btn-danger"
+                          onClick={() => {
+                            const updatedFaqs = faqItems.filter(
+                              (_, i) => i !== index
+                            );
+                            setFaqItems(updatedFaqs);
+                          }}
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            <button
+              type="button"
+              className="btn btn-sm btn-primary mt-3"
+              onClick={() =>
+                setFaqItems([...faqItems, { question: "", answer: "" }])
+              }
+            >
+              Add FAQ
+            </button>
+          </div>
+
           <div className="col-12">
             <button
               className="btn btn-lg btn-primary ms-auto d-flex"
@@ -377,7 +502,6 @@ function Settings() {
         </form>
       </div>
 
-      {/* Confirmation Modal */}
       <div
         className={`modal fade ${showConfirmModal ? "show d-block" : ""}`}
         tabIndex="-1"

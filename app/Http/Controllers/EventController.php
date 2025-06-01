@@ -55,7 +55,8 @@ class EventController extends Controller
             'contact_number' => 'required|string',
             'number_of_participants' => 'required|integer',
             'status' => 'nullable|in:draft,published',
-            'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5048',
+            'images.*' => 'image|mimes:jpeg,png,jpg,gif,svg|max:10240',
+
         ]);
 
         $imagePaths = [];
@@ -115,7 +116,7 @@ class EventController extends Controller
             'contact_number' => 'required|string',
             'number_of_participants' => 'required|integer',
             'status' => 'nullable|in:draft,published',
-            'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5048',
+            'images.*' => 'image|mimes:jpeg,png,jpg,gif,svg|max:10240',
         ]);
 
         $existingImages = $event->images ?? [];

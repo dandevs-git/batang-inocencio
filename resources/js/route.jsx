@@ -56,6 +56,7 @@ import EventsEdit from "./pages/admin/EventsEdit";
 import ParticipantsTable from "./component/tables/ParticipantsTable";
 import ServicesComputerManagementWeeklyReport from "./pages/admin/ServicesComputerManagementWeeklyReport";
 import ServicesOtherManagement from "./pages/admin/ServicesOtherManagement";
+import ServicesPrintingManagementWeeklyReport from "./pages/admin/ServicesPrintingManagementWeeklyReport";
 
 function route() {
   const { getData } = useAPI();
@@ -215,6 +216,10 @@ function route() {
         <Route
           path="/admin/services/printing"
           element={<ServicesPrintingManagement />}
+        />
+        <Route
+          path="/admin/services/printing/weekly-report"
+          element={<ServicesPrintingManagementWeeklyReport />}
         />
         <Route
           path="/admin/services/:slug"

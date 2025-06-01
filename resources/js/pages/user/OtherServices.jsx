@@ -1,12 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import { Modal } from "bootstrap/dist/js/bootstrap.bundle.min";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { useAPI } from "../../component/contexts/ApiContext";
 import Breadcrumb from "../../component/ui/Breadcrumb";
 import CustomCalendar from "../../component/CustomCalendar";
 
 function OtherServices() {
-  const navigate = useNavigate();
   const location = useLocation();
   const slug = location.pathname.split("/").pop();
   const { getData, postData } = useAPI();
@@ -22,6 +21,7 @@ function OtherServices() {
   const [loadingResources, setLoadingResources] = useState(false);
   const [loading, setLoading] = useState(false);
   const [allResources, setAllResources] = useState([]);
+  const [launched, setLaunched] = useState(false);
   const formRef = useRef(null);
   const [isMakingReservation, setIsMakingReservation] = useState(false);
   const [formData, setFormData] = useState({
@@ -67,6 +67,19 @@ function OtherServices() {
         setLoadingResources,
         setError
       );
+    }
+  }, [selectedService]);
+
+  useEffect(() => {
+    if (selectedService?.launch_date) {
+      const launch = new Date(selectedService.launch_date);
+      const today = new Date();
+
+      if (launch <= today) {
+        setLaunched(true);
+      } else {
+        setLaunched(false);
+      }
     }
   }, [selectedService]);
 
@@ -219,232 +232,276 @@ function OtherServices() {
 
   return (
     <>
-      <div className="container mt-5">
-        <div className="row g-4">
-          <div className="col-lg-8">
-            <div className="card rounded-4 shadow-lg border-0 h-100">
-              <div className="card-header bg-primary text-white text-center rounded-top-4">
-                <h2 className="mb-0 fw-bold">
-                  {/* <i className="bi bi-calendar-event me-2" /> */}
-                  {selectedService?.service_name} Calendar
-                </h2>
-              </div>
-              <div className="card-body p-4">
-                <CustomCalendar
-                  onChange={onChange}
-                  value={value}
-                  eventDates={reservedates}
-                  hasPastDates={false}
-                />
-              </div>
-            </div>
-          </div>
-
-          <div className="col-lg-4">
-            <div className="card rounded-4 shadow-lg border-0">
-              <div className="card-header bg-primary text-white text-center rounded-top-4">
-                <h4 className="mb-0 fw-semibold">
-                  {value.toLocaleDateString("en-US", {
-                    weekday: "long",
-                    year: "numeric",
-                    month: "long",
-                    day: "numeric",
-                  })}
-                </h4>
-              </div>
-              <div className="card-body p-4 d-flex flex-column justify-content-between">
-                <button
-                  className="btn btn-outline-primary w-100 fw-bold"
-                  onClick={handleMarkReservation}
-                >
-                  <i className="bi bi-check-circle me-2" />
-                  Mark Reservation
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="container mt-5 pb-5">
-          {!isMakingReservation && (
-            <div className="row g-4 justify-content-center">
-              {allResources.map((pc, index) => (
-                <div
-                  key={index}
-                  className="col-12 col-sm-6 col-md-4 col-lg-3"
-                  onClick={() => handleCardClick(pc)}
-                  style={{ cursor: "pointer" }}
-                >
-                  <div className="card text-center shadow-lg border-0 rounded-4 h-100 hover-shadow">
-                    <div className="card-body d-flex flex-column align-items-center justify-content-center p-4">
-                      <i
-                        className={`bi bi-pc-display display-3 mb-3 ${
-                          pc.status === "full" ? "text-danger" : "text-success"
-                        }`}
-                      ></i>
-                      <h5 className="card-title fw-semibold mb-2">{pc.name}</h5>
-                      <span
-                        className={`badge rounded-pill fs-6 px-3 py-2 ${
-                          pc.status === "full"
-                            ? "bg-danger-subtle text-danger"
-                            : "bg-success-subtle text-success"
-                        }`}
-                      >
-                        {pc.status === "full" ? "Full Slot" : "Available"}
-                      </span>
-                    </div>
+      {launched ? (
+        <>
+          <div className="container mt-5">
+            <div className="row g-4">
+              <div className="col-lg-8">
+                <div className="card rounded-4 shadow-lg border-0 h-100">
+                  <div className="card-header bg-primary text-white text-center rounded-top-4">
+                    <h2 className="mb-0 fw-bold">
+                      {/* <i className="bi bi-calendar-event me-2" /> */}
+                      {selectedService?.service_name} Calendar
+                    </h2>
+                  </div>
+                  <div className="card-body p-4">
+                    <CustomCalendar
+                      onChange={onChange}
+                      value={value}
+                      eventDates={reservedates}
+                      hasPastDates={false}
+                    />
                   </div>
                 </div>
-              ))}
-            </div>
-          )}
-
-          {isMakingReservation && (
-            <div className="d-flex flex-column container w-75 border p-4 rounded-4 shadow-lg">
-              <div className="d-flex justify-content-center align-items-center">
-                <h5 className="mb-0">
-                  Make Reservation for{" "}
-                  {value.toLocaleDateString("en-US", {
-                    weekday: "long",
-                    year: "numeric",
-                    month: "long",
-                    day: "numeric",
-                  })}
-                </h5>
               </div>
 
-              <div className="">
-                {error && (
-                  <div className="alert alert-danger">
-                    {typeof error === "string" ? error : "An error occurred."}
+              <div className="col-lg-4">
+                <div className="card rounded-4 shadow-lg border-0">
+                  <div className="card-header bg-primary text-white text-center rounded-top-4">
+                    <h4 className="mb-0 fw-semibold">
+                      {value.toLocaleDateString("en-US", {
+                        weekday: "long",
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                      })}
+                    </h4>
                   </div>
-                )}
-
-                {console.log(formData)}
-
-                <form
-                  className="needs-validation"
-                  ref={formRef}
-                  noValidate
-                  onSubmit={handleSubmit}
-                  id="reservation-form"
-                >
-                  <div className="row mb-3">
-                    <div className="col-md-12">
-                      <label className="form-label">Resource Number</label>
-                      <select
-                        className="form-select"
-                        name="resource_number"
-                        value={formData.resource_number}
-                        onChange={handleInputChange}
-                        required
-                      >
-                        <option value="">-- Select PC --</option>
-                        {allResources.map((pc, index) => {
-                          const isPCFullyBooked = pc.status === "full";
-
-                          return (
-                            <option
-                              key={index}
-                              value={pc.id}
-                              disabled={isPCFullyBooked}
-                            >
-                              {pc.name || `PC ${pc.id}`}{" "}
-                              {isPCFullyBooked && "(Fully Booked)"}
-                            </option>
-                          );
-                        })}
-                      </select>
-                      <div className="invalid-feedback">
-                        Please select a PC.
-                      </div>
-                    </div>
+                  <div className="card-body p-4 d-flex flex-column justify-content-between">
+                    <button
+                      className="btn btn-outline-primary w-100 fw-bold"
+                      onClick={handleMarkReservation}
+                    >
+                      <i className="bi bi-check-circle me-2" />
+                      Mark Reservation
+                    </button>
                   </div>
-                  {formData.resource_number ? (
-                    <div className="row mb-3">
-                      <div className="col-md-12">
-                        <label className="form-label">Time Range</label>
-                        <select
-                          className="form-select"
-                          name="time_range"
-                          value={formData.time_range}
-                          onChange={handleInputChange}
-                          required
-                        >
-                          <option value="">-- Select Time Slot --</option>
-                          {timeOptions.map((slot, index) => {
-                            const isSlotReserved = reservations.some(
-                              (res) =>
-                                res.resource_number == formData.resource_number &&
-                                res.reservation_date === localDate &&
-                                res.time_range === slot.slot
-                            );
-                            return (
-                              <option
-                                key={index}
-                                value={slot.slot}
-                                disabled={isSlotReserved}
-                              >
-                                {slot.slot} {isSlotReserved ? "(Reserved)" : ""}
-                              </option>
-                            );
-                          })}
-                        </select>
-                        <div className="invalid-feedback">
-                          Please select a time slot.
+                </div>
+              </div>
+            </div>
+
+            <div className="container mt-5 pb-5">
+              {!isMakingReservation && (
+                <div className="row g-4 justify-content-center">
+                  {allResources.map((pc, index) => (
+                    <div
+                      key={index}
+                      className="col-12 col-sm-6 col-md-4 col-lg-3"
+                      onClick={() => handleCardClick(pc)}
+                      style={{ cursor: "pointer" }}
+                    >
+                      <div className="card text-center shadow-lg border-0 rounded-4 h-100 hover-shadow">
+                        <div className="card-body d-flex flex-column align-items-center justify-content-center p-4">
+                          <i
+                            className={`bi bi-pc-display display-3 mb-3 ${
+                              pc.status === "full"
+                                ? "text-danger"
+                                : "text-success"
+                            }`}
+                          ></i>
+                          <h5 className="card-title fw-semibold mb-2">
+                            {pc.name}
+                          </h5>
+                          <span
+                            className={`badge rounded-pill fs-6 px-3 py-2 ${
+                              pc.status === "full"
+                                ? "bg-danger-subtle text-danger"
+                                : "bg-success-subtle text-success"
+                            }`}
+                          >
+                            {pc.status === "full" ? "Full Slot" : "Available"}
+                          </span>
                         </div>
                       </div>
                     </div>
-                  ) : (
-                    ""
-                  )}
+                  ))}
+                </div>
+              )}
 
-                  {formData.time_range ? (
-                    <>
-                      {["name", "address", "email", "contact"].map(
-                        (field, index) => (
-                          <div className="mb-3" key={index}>
-                            <label className="form-label">
-                              {field === "contact"
-                                ? "Contact Number"
-                                : field.charAt(0).toUpperCase() +
-                                  field.slice(1)}
-                            </label>
-                            <input
-                              type={field === "email" ? "email" : "text"}
-                              className="form-control"
-                              name={field}
-                              value={formData[field]}
+              {isMakingReservation && (
+                <div className="d-flex flex-column container w-75 border p-4 rounded-4 shadow-lg">
+                  <div className="d-flex justify-content-center align-items-center">
+                    <h5 className="mb-0">
+                      Make Reservation for{" "}
+                      {value.toLocaleDateString("en-US", {
+                        weekday: "long",
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                      })}
+                    </h5>
+                  </div>
+
+                  <div className="">
+                    {error && (
+                      <div className="alert alert-danger">
+                        {typeof error === "string"
+                          ? error
+                          : "An error occurred."}
+                      </div>
+                    )}
+
+                    {console.log(formData)}
+
+                    <form
+                      className="needs-validation"
+                      ref={formRef}
+                      noValidate
+                      onSubmit={handleSubmit}
+                      id="reservation-form"
+                    >
+                      <div className="row mb-3">
+                        <div className="col-md-12">
+                          <label className="form-label">Resource Number</label>
+                          <select
+                            className="form-select"
+                            name="resource_number"
+                            value={formData.resource_number}
+                            onChange={handleInputChange}
+                            required
+                          >
+                            <option value="">-- Select PC --</option>
+                            {allResources.map((pc, index) => {
+                              const isPCFullyBooked = pc.status === "full";
+
+                              return (
+                                <option
+                                  key={index}
+                                  value={pc.id}
+                                  disabled={isPCFullyBooked}
+                                >
+                                  {pc.name || `PC ${pc.id}`}{" "}
+                                  {isPCFullyBooked && "(Fully Booked)"}
+                                </option>
+                              );
+                            })}
+                          </select>
+                          <div className="invalid-feedback">
+                            Please select a PC.
+                          </div>
+                        </div>
+                      </div>
+                      {formData.resource_number ? (
+                        <div className="row mb-3">
+                          <div className="col-md-12">
+                            <label className="form-label">Time Range</label>
+                            <select
+                              className="form-select"
+                              name="time_range"
+                              value={formData.time_range}
                               onChange={handleInputChange}
                               required
-                            />
+                            >
+                              <option value="">-- Select Time Slot --</option>
+                              {timeOptions.map((slot, index) => {
+                                const isSlotReserved = reservations.some(
+                                  (res) =>
+                                    res.resource_number ==
+                                      formData.resource_number &&
+                                    res.reservation_date === localDate &&
+                                    res.time_range === slot.slot
+                                );
+                                return (
+                                  <option
+                                    key={index}
+                                    value={slot.slot}
+                                    disabled={isSlotReserved}
+                                  >
+                                    {slot.slot}{" "}
+                                    {isSlotReserved ? "(Reserved)" : ""}
+                                  </option>
+                                );
+                              })}
+                            </select>
                             <div className="invalid-feedback">
-                              Please enter a valid{" "}
-                              {field === "contact" ? "contact number" : field}.
+                              Please select a time slot.
                             </div>
                           </div>
-                        )
+                        </div>
+                      ) : (
+                        ""
                       )}
 
-                      <div className="d-flex">
-                        <button
-                          type="submit"
-                          className="btn btn-primary w-100"
-                          disabled={loading}
-                        >
-                          {loading ? "Submitting..." : "Reserve"}
-                        </button>
-                      </div>
-                    </>
-                  ) : (
-                    ""
+                      {formData.time_range ? (
+                        <>
+                          {["name", "address", "email", "contact"].map(
+                            (field, index) => (
+                              <div className="mb-3" key={index}>
+                                <label className="form-label">
+                                  {field === "contact"
+                                    ? "Contact Number"
+                                    : field.charAt(0).toUpperCase() +
+                                      field.slice(1)}
+                                </label>
+                                <input
+                                  type={field === "email" ? "email" : "text"}
+                                  className="form-control"
+                                  name={field}
+                                  value={formData[field]}
+                                  onChange={handleInputChange}
+                                  required
+                                />
+                                <div className="invalid-feedback">
+                                  Please enter a valid{" "}
+                                  {field === "contact"
+                                    ? "contact number"
+                                    : field}
+                                  .
+                                </div>
+                              </div>
+                            )
+                          )}
+
+                          <div className="d-flex">
+                            <button
+                              type="submit"
+                              className="btn btn-primary w-100"
+                              disabled={loading}
+                            >
+                              {loading ? "Submitting..." : "Reserve"}
+                            </button>
+                          </div>
+                        </>
+                      ) : (
+                        ""
+                      )}
+                    </form>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </>
+      ) : (
+        <div className="d-flex justify-content-center align-items-center bg-light my-5">
+          <div
+            className="card shadow-lg border-0 rounded-4 p-5 text-center"
+          >
+            <div className="card-body">
+              <h1 className="display-4 fw-bold text-primary mb-4">
+                Coming Soon
+              </h1>
+              <p className="lead">
+                This service will be available on{" "}
+                <span className="fw-semibold text-dark">
+                  {new Date(selectedService?.launch_date).toLocaleDateString(
+                    "en-US",
+                    {
+                      weekday: "long",
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                    }
                   )}
-                </form>
+                </span>
+              </p>
+              <div className="mt-4">
+                <i className="bi bi-hourglass-split display-1 text-warning" />
               </div>
             </div>
-          )}
+          </div>
         </div>
-      </div>
+      )}
 
       <div
         className="modal fade"

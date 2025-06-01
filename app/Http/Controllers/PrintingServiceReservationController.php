@@ -112,6 +112,21 @@ class PrintingServiceReservationController extends Controller
         ]);
     }
 
+    public function markAsDone($id)
+    {
+        $reservation = PrintingServiceReservation::find($id);
+
+        if (!$reservation) {
+            return response()->json(['message' => 'Reservation not found.'], 404);
+        }
+
+        $reservation->status = 'completed';
+        $reservation->save();
+
+        return response()->json(['message' => 'Reservation marked as completed.']);
+    }
+
+
     public function destroy($id)
     {
         $reservation = PrintingServiceReservation::find($id);

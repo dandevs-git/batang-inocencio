@@ -94,14 +94,20 @@ function NewsEdit() {
       alert("Title and description are required!");
       return;
     }
+    
+    const formData = buildFormData(publish);
+
+    for (let pair of formData.entries()) {
+      console.log(pair[0], pair[1]);
+    }
 
     try {
-      const response = await putData(`news/${id}`, buildFormData(publish));
+      const response = await putData(`news/${id}`, formData);
       if (response) {
         showSuccessAlert("News updated successfully!");
         setTimeout(() => navigate("/admin/news"), 2000);
       } else {
-        showFailedAlert("Failed to updated News!");
+        showFailedAlert("Failed to update News!");
       }
     } catch (error) {
       console.error("Update failed", error);

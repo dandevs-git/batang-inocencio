@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 
 function AdminComputerRentCalendar() {
   const navigate = useNavigate();
-  const { deleteData, getData } = useAPI();
+  const { deleteData, getData, putData } = useAPI();
   const [value, onChange] = useState(new Date());
   const [reservations, setReservations] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -15,6 +15,7 @@ function AdminComputerRentCalendar() {
   const [selectedPC, setSelectedPC] = useState(null);
   const [allPCs, setAllPCs] = useState([]);
   const [selectedReservation, setSelectedReservation] = useState(null);
+  const [modalAction, setModalAction] = useState(null);
 
   const formattedDate = value.toLocaleDateString("en-CA");
 
@@ -111,12 +112,22 @@ function AdminComputerRentCalendar() {
 
     try {
       await deleteData(`computer-services/${selectedReservation.id}`);
-      fetchReservations();
-      Modal.getInstance(
-        document.getElementById("reservationDetailModal")
-      ).hide();
+      Modal.getInstance(document.getElementById("previewModal")).hide();
     } catch (error) {
       console.error("Failed to cancel reservation:", error);
+    }
+  };
+
+  const handleMarkAsDone = async () => {
+    if (!selectedReservation) return;
+
+    try {
+      await putData(
+        `computer-services/${selectedReservation.id}/mark-as-done`
+      );
+      Modal.getInstance(document.getElementById("previewModal")).hide();
+    } catch (error) {
+      console.error("Failed to mark reservation as done:", error);
     }
   };
 
@@ -321,7 +332,7 @@ function AdminComputerRentCalendar() {
                                     setSelectedReservation(reservedRes);
                                     const modal = new Modal(
                                       document.getElementById(
-                                        "reservationDetailModal"
+                                        "previewModal"
                                       )
                                     );
                                     modal.show();
@@ -346,8 +357,8 @@ function AdminComputerRentCalendar() {
 
       <div
         className="modal fade"
-        id="reservationDetailModal"
-        tabIndex="-1"
+        id="previewModal"
+        tabIndex="-2"
         aria-labelledby="reservationDetailModalLabel"
         aria-hidden="true"
       >
@@ -407,16 +418,33 @@ function AdminComputerRentCalendar() {
                       <p className="fw-bold">Status</p>
                       <div
                         className={`p-2 mb-2 text-white rounded ${
-                          selectedReservation.status === "Completed"
+                          selectedReservation.status === "completed"
                             ? "bg-success"
-                            : "bg-secondary"
+                            : "bg-warning"
                         }`}
                       >
-                        {selectedReservation.status || "No Status"}
+                        {selectedReservation.status === "completed"
+                          ? "Completed"
+                          : "Pending"}
                       </div>
-                      <button
-                        className="btn btn-danger"
+
+                      {/* <button
+                        className="btn btn-success text-light btn-sm mb-2"
                         onClick={() => {
+                          setModalAction("done");
+                          const modal = new Modal(
+                            document.getElementById("cancelConfirmationModal")
+                          );
+                          modal.show();
+                        }}
+                      >
+                        Mark as Done
+                      </button> */}
+
+                      <button
+                        className="btn btn-danger btn-sm"
+                        onClick={() => {
+                          setModalAction("cancel");
                           const modal = new Modal(
                             document.getElementById("cancelConfirmationModal")
                           );
@@ -467,11 +495,23 @@ function AdminComputerRentCalendar() {
               </button>
               <button
                 type="button"
-                className="btn btn-danger"
-                onClick={handleCancelReservation}
+                className={`btn ${
+                  modalAction === "done"
+                    ? "btn-success text-light"
+                    : "btn-danger"
+                }`}
+                onClick={() => {
+                  if (modalAction === "cancel") {
+                    handleCancelReservation();
+                  } else if (modalAction === "done") {
+                    handleMarkAsDone();
+                  }
+                }}
                 data-bs-dismiss="modal"
               >
-                Yes, Cancel It
+                {modalAction === "done"
+                  ? "Yes, Mark as Done"
+                  : "Yes, Cancel It"}
               </button>
             </div>
           </div>

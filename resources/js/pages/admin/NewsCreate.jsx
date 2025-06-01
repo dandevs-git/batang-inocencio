@@ -24,11 +24,12 @@ function NewsCreate() {
 
   const handleImageChange = (e) => {
     const files = Array.from(e.target.files);
-    const maxSize = 5 * 1024 * 1024;
+    const maxSize = 2 * 1024 * 1024;
 
     const validFiles = files.filter((file) => file.size <= maxSize);
+    
     if (validFiles.length !== files.length) {
-      alert("Some images exceeded 5MB and were not added.");
+      alert("Some images exceeded 2MB and were not added.");
     }
 
     setImages(validFiles);

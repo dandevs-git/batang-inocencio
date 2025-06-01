@@ -1,9 +1,11 @@
 import React, { useEffect, useRef, useState } from "react";
 import Breadcrumb from "../ui/Breadcrumb";
 import { useAPI } from "../contexts/ApiContext";
+import { useNavigate } from "react-router-dom";
 
 function ResourceReservationServiceForm({ serviceType }) {
   const { postData } = useAPI();
+  const  navigate  = useNavigate();
   const formRef = useRef(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -114,6 +116,11 @@ function ResourceReservationServiceForm({ serviceType }) {
       setShowAlert(true);
       resetForm();
       formRef.current.classList.remove("was-validated");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+
+      setTimeout(() => {
+        navigate("/admin/services/manage"); 
+      }, 2000);
     } catch (err) {
       console.error("Submission error:", err);
       setAlertMessage("There was an error submitting the form.");

@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import Breadcrumb from "../../component/ui/Breadcrumb";
-import AdminPrintingScheduleCalendar from "../../component/AdminPrintingScheduleCalendar";
 import PrinterScheduleTable from "../../component/tables/PrintingScheduleTable";
+import PrintingScheduleCalendar from "../../component/AdminPrintingScheduleCalendar2";
 import axios from "axios";
 import { useAPI } from "../../component/contexts/ApiContext";
 import { useNavigate } from "react-router-dom";
@@ -31,6 +31,7 @@ function ServicesPrintingManagement() {
     plastic: 0,
     glass: 0,
   });
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -80,8 +81,18 @@ function ServicesPrintingManagement() {
   return (
     <>
       <Breadcrumb />
-      <AdminPrintingScheduleCalendar />
+      <PrintingScheduleCalendar />
 
+      <div className="mt-5 container text-center">
+        <button
+          onClick={() => {
+            navigate("weekly-report");
+          }}
+          className="btn btn-lg fs-3 btn-primary"
+        >
+          Weekly Report
+        </button>
+      </div>
 
       <div className="py-5">
         <h2 className="text-center fw-bold mb-4">TOTAL COLLECTED BOTTLES</h2>

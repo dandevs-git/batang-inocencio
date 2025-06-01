@@ -16,22 +16,22 @@ function ServicesManagement() {
       name: "Resource Reservation System",
       path: "/admin/services/resource-reservation",
     },
-    // {
-    //   name: "Facility Reservation System",
-    //   path: "/admin/services/facility-reservation",
-    // },
-    // {
-    //   name: "Event Registration System",
-    //   path: "/admin/services/event-registration",
-    // },
-    // {
-    //   name: "Resource Lending Management System",
-    //   path: "/admin/services/resource-lending",
-    // },
-    // {
-    //   name: "Volunteer Management System",
-    //   path: "/admin/services/volunteer-management",
-    // },
+    {
+      name: "Facility Reservation System",
+      path: "/admin/services/facility-reservation",
+    },
+    {
+      name: "Event Registration System",
+      path: "/admin/services/event-registration",
+    },
+    {
+      name: "Resource Lending Management System",
+      path: "/admin/services/resource-lending",
+    },
+    {
+      name: "Volunteer Management System",
+      path: "/admin/services/volunteer-management",
+    },
   ];
 
   useEffect(() => {
@@ -56,7 +56,7 @@ function ServicesManagement() {
             const allServices = [...prevServices, ...updatedServices];
             const serviceMap = new Map();
             allServices.forEach((service) => {
-              serviceMap.set(service.service_name, service); // remove duplicates
+              serviceMap.set(service.service_name, service);
             });
             return Array.from(serviceMap.values());
           });
@@ -80,18 +80,35 @@ function ServicesManagement() {
 
             {!showServices && services.length > 0 && (
               <>
-                {services.map((service, index) => (
-                  <Link
-                    key={index}
-                    to={`/admin/services/${service.service_name
-                      .replace(/\s+/g, "-")
-                      .toLowerCase()}`}
-                  >
-                    <button className="btn btn-primary btn-lg px-5 py-1 mx-2">
-                      {service.service_name}
-                    </button>
-                  </Link>
-                ))}
+                <Link to="/admin/services/computer">
+                  <button className="btn btn-primary btn-lg px-5 py-1 mx-2">
+                    Computer Rental
+                  </button>
+                </Link>
+                <Link to="/admin/services/printing">
+                  <button className="btn btn-primary btn-lg px-5 py-1 mx-2">
+                    Printing Service
+                  </button>
+                </Link>
+                {services.map((service, index) => {
+                  const name = service.service_name.toLowerCase();
+                  if (
+                    name === "printing services" ||
+                    name === "computer rental"
+                  )
+                    return null;
+
+                  return (
+                    <Link
+                      key={index}
+                      to={`/admin/services/${name.replace(/\s+/g, "-")}`}
+                    >
+                      <button className="btn btn-primary btn-lg px-5 py-1 mx-2">
+                        {service.service_name}
+                      </button>
+                    </Link>
+                  );
+                })}
               </>
             )}
 

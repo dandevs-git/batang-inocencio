@@ -4,7 +4,7 @@ import { useAPI } from "../../component/contexts/ApiContext";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 
-function ServicesComputerManagementWeeklyReport() {
+function ServicesPrintingManagementWeeklyReport() {
   const { postData, getData } = useAPI();
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -12,16 +12,18 @@ function ServicesComputerManagementWeeklyReport() {
 
   useEffect(() => {
     getData(
-      "available-resources/computer-reservations-weekly",
+      "available-resources/printing-reservations-weekly",
       setData,
       setLoading,
       setError
     );
   }, []);
 
+  console.log(data);
+
   const total = data.reduce((sum, item) => sum + item.reservationCount, 0);
 
-  const handleDownloadPDF = async () => {
+  const handleDownloadPDF = () => {
     const doc = new jsPDF();
 
     if (!data || data.length === 0) {
@@ -38,9 +40,9 @@ function ServicesComputerManagementWeeklyReport() {
 
       doc.setFontSize(14);
       doc.text(
-        "Computer Reservations Weekly Report (" +
-          new Date().toISOString().split("T")[0] +
-          ")",
+        `Computer Reservations Weekly Report (${
+          new Date().toISOString().split("T")[0]
+        })`,
         14,
         50
       );
@@ -87,6 +89,7 @@ function ServicesComputerManagementWeeklyReport() {
           <i className="bi bi-arrow-left-short"></i> Go back
         </button>
       </div>
+
       <div className="container mt-5">
         <div className="card shadow-sm mx-auto" style={{ maxWidth: "600px" }}>
           <div className="card-body">
@@ -122,7 +125,7 @@ function ServicesComputerManagementWeeklyReport() {
                 <div className="d-flex justify-content-center mb-4">
                   <button
                     className="btn btn-success text-light rounded-pill px-4"
-                    onClick={handleDownloadPDF} // Link the download button to the PDF function
+                    onClick={handleDownloadPDF}
                   >
                     Download PDF
                   </button>
@@ -173,4 +176,4 @@ function ServicesComputerManagementWeeklyReport() {
   );
 }
 
-export default ServicesComputerManagementWeeklyReport;
+export default ServicesPrintingManagementWeeklyReport;

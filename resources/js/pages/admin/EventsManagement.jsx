@@ -5,13 +5,6 @@ import EventTable from "../../component/tables/EventsTable";
 import { Link } from "react-router-dom";
 
 const EventsManagement = () => {
-  const handleAddNewEvent = () => {
-    window.location.href = "/admin/events/create";
-  };
-
-  const handleDrafts = () => {
-    window.location.href = "/admin/events/drafts";
-  };
 
   return (
     <>
