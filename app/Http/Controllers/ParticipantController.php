@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Event;
 use App\Models\Participant;
+use App\Notifications\ParticipantNotification;
 use Illuminate\Http\Request;
 
 class ParticipantController extends Controller
@@ -28,11 +30,15 @@ class ParticipantController extends Controller
             'last_name' => 'required|string',
             'first_name' => 'required|string',
             'address' => 'required|string',
-            'email' => 'required|email|unique:participants,email',
+            'email' => 'required|email',
             'contact_number' => 'required|string',
         ]);
 
         $participant = Participant::create($request->all());
+
+        $event = Event::findOrFail($request->event_id);
+
+        $participant->notify(new ParticipantNotification($participant, $event));
 
         return response()->json($participant, 201);
     }

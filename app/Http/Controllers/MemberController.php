@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Member;
+use App\Notifications\MemberNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
@@ -14,7 +15,7 @@ class MemberController extends Controller
      */
     public function index()
     {
-        $members = Member::orderByDesc('created_at')->get(); // or 'id', or another column
+        $members = Member::orderByDesc('created_at')->get();
         return response()->json($members, 200);
     }
 
@@ -41,8 +42,7 @@ class MemberController extends Controller
 
         $member = Member::create($data);
 
-        $member->notify(new \App\Notifications\MemberNotification($member));
-
+        $member->notify(new MemberNotification($member));
 
         return response()->json([
             'status' => 'success',

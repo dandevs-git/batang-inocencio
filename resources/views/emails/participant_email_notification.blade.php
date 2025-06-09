@@ -37,7 +37,7 @@
             margin-bottom: 20px !important;
         }
 
-        .member-name {
+        .participant-name {
             color: #333 !important;
             font-size: 22px !important;
             font-weight: bold !important;
@@ -100,23 +100,23 @@
             </div>
         </div>
 
-        <h3>Event Participant Confirmation</h3>
+        <h3>Event Registration Confirmation</h3>
 
-        <p>Hi, {{ $member->first_name }}!</p>
-        <p>Thank you for registering for our event! We’re excited to have you participate and look forward to your
-            involvement.</p>
+        <p>Hi, {{ $participant->first_name }}!</p>
+        <p>You’ve successfully registered for <strong>{{ $event->title }}</strong>! We’re thrilled to have you on board
+            and can’t wait for you to join us at the event.</p>
 
-        <p>Your event registration details are as follows:</p>
+        <p>Here are the details you provided during registration:</p>
         <hr>
 
-        <div class="member-name">{{ $member->first_name }} {{ $member->last_name }}</div>
+        <div class="participant-name">{{ $participant->first_name }} {{ $participant->last_name }}</div>
         <div class="details">
-            <strong>Email:</strong> {{ $member->email }}<br>
-            <strong>Contact Number:</strong> {{ $member->contact_number }}<br>
-            <strong>Address:</strong> {{ $member->address }}<br>
-            <strong>Age:</strong> {{ $member->age }}<br>
-            <strong>Area:</strong> {{ $member->area }}<br>
-            <strong>Registration Date:</strong> {{ \Carbon\Carbon::parse($member->created_at)->format('F d, Y') }}
+            <strong>Email:</strong> {{ $participant->email }}<br>
+            <strong>Contact Number:</strong> {{ $participant->contact_number }}<br>
+            <strong>Address:</strong> {{ $participant->address }}<br>
+            <strong>Age:</strong> {{ $participant->age }}<br>
+            <strong>Area:</strong> {{ $participant->area }}<br>
+            <strong>Registration Date:</strong> {{ \Carbon\Carbon::parse($participant->created_at)->format('F d, Y') }}
         </div>
         <hr>
 
