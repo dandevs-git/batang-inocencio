@@ -22,13 +22,7 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: {
-          vendor: [
-            "react",
-            "react-dom",
-            "react-router-dom",
-            "axios",
-            // Add more large dependencies if needed
-          ],
+          vendor: ["react", "react-dom", "react-router-dom", "axios"],
         },
       },
     },
