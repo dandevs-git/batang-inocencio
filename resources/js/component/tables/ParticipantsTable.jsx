@@ -174,6 +174,7 @@ function ParticipantsTable({
                 ];
               }
             });
+            
           }),
           styles: { fontSize: 9 },
           headStyles: { fillColor: [41, 128, 185] },
