@@ -10,14 +10,23 @@ export default defineConfig({
     }),
     react(),
   ],
-
   build: {
     manifest: true,
-    rollupOptions: {
-      input: "resources/js/main.js",
-    },
-    assetsDir: "assets",
     outDir: "public/build",
     emptyOutDir: true,
+    assetsDir: "assets",
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: [
+            "react",
+            "react-dom",
+            "react-router-dom",
+            "axios",
+            // Add more large dependencies if needed
+          ],
+        },
+      },
+    },
   },
 });

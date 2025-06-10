@@ -93,8 +93,8 @@ function EventsParticipantsManagement() {
                         <p className="text-muted mt-2">
                           Number of Participants:
                           <span className="fw-bold text-primary ms-2">
-                            {event?.participants?.length +
-                              event?.teams?.length ?? 0}
+                            {(event?.participants?.length ?? 0) +
+                              (event?.teams?.length ?? 0)}
                           </span>
                         </p>
                       </div>

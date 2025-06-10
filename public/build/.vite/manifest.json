@@ -1,4 +1,8 @@
 {
+  "_vendor-DZvktgxH.js": {
+    "file": "assets/vendor-DZvktgxH.js",
+    "name": "vendor"
+  },
   "node_modules/bootstrap-icons/font/fonts/bootstrap-icons.woff": {
     "file": "assets/bootstrap-icons-BOrJxbIo.woff",
     "src": "node_modules/bootstrap-icons/font/fonts/bootstrap-icons.woff"
@@ -8,11 +12,12 @@
     "src": "node_modules/bootstrap-icons/font/fonts/bootstrap-icons.woff2"
   },
   "node_modules/canvg/lib/index.es.js": {
-    "file": "assets/index.es-Brjum7Mz.js",
+    "file": "assets/index.es-BQZcH4FK.js",
     "name": "index.es",
     "src": "node_modules/canvg/lib/index.es.js",
     "isDynamicEntry": true,
     "imports": [
+      "_vendor-DZvktgxH.js",
       "resources/js/main.jsx"
     ]
   },
@@ -34,17 +39,20 @@
     "isEntry": true
   },
   "resources/js/main.jsx": {
-    "file": "assets/main-D8l-2of9.js",
+    "file": "assets/main-CYGNIEQD.js",
     "name": "main",
     "src": "resources/js/main.jsx",
     "isEntry": true,
+    "imports": [
+      "_vendor-DZvktgxH.js"
+    ],
     "dynamicImports": [
       "node_modules/html2canvas/dist/html2canvas.esm.js",
       "node_modules/dompurify/dist/purify.es.mjs",
       "node_modules/canvg/lib/index.es.js"
     ],
     "css": [
-      "assets/main-DQWXzdHr.css"
+      "assets/main-BSPg2JK8.css"
     ],
     "assets": [
       "assets/bootstrap-icons-BtvjY1KL.woff2",
