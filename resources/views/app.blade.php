@@ -12,6 +12,7 @@
     @viteReactRefresh
     @vite('resources/js/main.jsx')
 
+
 <body>
     <div id="root"></div>
 </body>
