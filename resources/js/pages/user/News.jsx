@@ -110,10 +110,10 @@ function News({ isFullPage = true }) {
                 <div className="card rounded-3 shadow-lg border-0 h-100 d-flex flex-column">
                   <img
                     src={
-                      news.images[0].startsWith("http") ||
-                      news.images[0].startsWith("blob:")
-                        ? news.images[0]
-                        : 
+                      // news.images[0].startsWith("http") ||
+                      // news.images[0].startsWith("blob:")
+                      //   ? news.images[0]
+                      //   : 
                         `/storages/${news.images[0]}`
                     }
                     className="card-img-top rounded-top-3 object-fit-cover"
