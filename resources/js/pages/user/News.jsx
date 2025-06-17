@@ -113,7 +113,8 @@ function News({ isFullPage = true }) {
                       news.images[0].startsWith("http") ||
                       news.images[0].startsWith("blob:")
                         ? news.images[0]
-                        : `/storage/${news.images[0]}`
+                        : 
+                        `/storages/${news.images[0]}`
                     }
                     className="card-img-top rounded-top-3 object-fit-cover"
                     alt="News"
